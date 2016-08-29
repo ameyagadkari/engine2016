@@ -46,4 +46,6 @@ void main(
 	//		o_color.r = ? sin( g_elapsedSecondCount_total ) ?
 	// You can change .r, .g, and .b (but leave .a as 1.0).
 	// Remember that your final values should be [0,1], so you will have to do some math.
+	float t = sin( g_elapsedSecondCount_total );
+	o_color.b = (t<0)?(t*-1):t;
 }

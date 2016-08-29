@@ -53,5 +53,8 @@ void main(
 		// You can change .x and .y (but leave .z as 0.0 and .w as 1.0).
 		// The screen dimensions are already [1,1], so you may want to do some math
 		// on the result of the sinusoid function to keep the triangle mostly on screen.
+		float t = sin( g_elapsedSecondCount_total );
+		t = ((t>0)?(t*-1):t);
+		o_position = float4( i_position.x + t ,i_position.y + t,0.0,1.0 );
 	}
 }
