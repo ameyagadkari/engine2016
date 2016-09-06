@@ -408,7 +408,7 @@ bool eae6320::Windows::GetEnvironmentVariable( const char* const i_key, std::str
 	// Windows requires a character buffer
 	// to copy the environment variable into.
 	// An arbitrary value is chosen that "should" be "big enough":
-	const DWORD maxCharacterCount = 128;
+	const DWORD maxCharacterCount = 256;
 	static char buffer[maxCharacterCount];
 	// Ask Windows for the environment variable
 	const DWORD characterCount = ::GetEnvironmentVariable( i_key, buffer, maxCharacterCount );
