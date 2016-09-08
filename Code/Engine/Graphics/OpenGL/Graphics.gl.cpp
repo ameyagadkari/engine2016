@@ -170,7 +170,7 @@ void eae6320::Graphics::RenderFrame()
 			const GLint indexOfFirstVertexToRender = 0;
 			// As of this comment we are only drawing a single triangle
 			// (you will have to update this code in future assignments!)
-			const unsigned int triangleCount = 1;
+			const unsigned int triangleCount = 2;
 			const unsigned int vertexCountPerTriangle = 3;
 			const unsigned int vertexCountToRender = triangleCount * vertexCountPerTriangle;
 			glDrawArrays( mode, indexOfFirstVertexToRender, vertexCountToRender );
@@ -696,7 +696,7 @@ namespace
 			// You will have to update this in a future assignment
 			// (one of the most common mistakes in the class is to leave hard-coded values here).
 
-			const unsigned int triangleCount = 1;
+			const unsigned int triangleCount = 2;
 			const unsigned int vertexCountPerTriangle = 3;
 			const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
 			const unsigned int bufferSize = vertexCount * sizeof( sVertex );
@@ -711,6 +711,15 @@ namespace
 
 				vertexData[2].x = 1.0f;
 				vertexData[2].y = 1.0f;
+
+				vertexData[3].x = 0.0f;
+				vertexData[3].y = 0.0f;
+
+				vertexData[4].x = 1.0f;
+				vertexData[4].y = 1.0f;
+
+				vertexData[5].x = 0.0f;
+				vertexData[5].y = 1.0f;
 			}
 			glBufferData( GL_ARRAY_BUFFER, bufferSize, reinterpret_cast<GLvoid*>( vertexData ),
 				// In our class we won't ever read from the buffer

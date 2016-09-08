@@ -55,6 +55,6 @@ void main(
 		// on the result of the sinusoid function to keep the triangle mostly on screen.
 		float t = sin( g_elapsedSecondCount_total );
 		t = ((t>0)?(t*-1):t);
-		o_position = float4( i_position.x + t ,i_position.y + t,0.0,1.0 );
+		o_position = float4( i_position.x + t ,i_position.y + sqrt(1-(i_position.x + t) * (i_position.x + t)) - 1,0.0,1.0 );
 	}
 }
