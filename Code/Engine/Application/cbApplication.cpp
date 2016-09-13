@@ -9,6 +9,7 @@
 #include "../Logging/Logging.h"
 #include "../Time/Time.h"
 #include "../UserOutput/UserOutput.h"
+#include "../Graphics/CommonData.h"
 
 // Interface
 //==========
@@ -177,6 +178,14 @@ bool eae6320::Application::cbApplication::CleanUp_engine()
 		wereThereErrors = true;
 		EAE6320_ASSERT( false );
 	}
+
+	/*// CommonData
+	if (!CommonData::CleanUp())
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+	}*/
+
 	// Time
 	if ( !Time::CleanUp() )
 	{

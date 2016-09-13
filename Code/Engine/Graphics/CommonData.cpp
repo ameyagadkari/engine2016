@@ -1,29 +1,33 @@
 #include "../Graphics/CommonData.h"
 
-namespace
+namespace eae6320
 {
-	CommonData* CommonData::commonData = nullptr;
-
-	inline CommonData::CommonData() {}
-
-	inline CommonData::~CommonData() {}
-
-	CommonData * CommonData::GetCommonData()
+	namespace Graphics
 	{
-		if (!commonData)
+		CommonData* CommonData::commonData = nullptr;
+
+		inline CommonData::CommonData() {}
+
+		inline CommonData::~CommonData() {}
+
+		CommonData * CommonData::GetCommonData()
 		{
-			commonData = new CommonData();
+			if (!commonData)
+			{
+				commonData = new CommonData();
+			}
+			return commonData;
 		}
-		return commonData;
-	}
-	void CommonData::CleanUp()
-	{
-		if (commonData)
+		bool CommonData::CleanUp()
 		{
-			delete commonData;
-		}		
+			if (commonData)
+			{
+				delete commonData;
+				return true;
+			}
+			return false;
+		}
 	}
-
 }
 
 

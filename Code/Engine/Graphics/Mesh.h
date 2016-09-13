@@ -25,6 +25,9 @@ namespace eae6320
 			bool Initialize();
 			bool CleanUp();
 			void RenderMesh();
+//#if defined( EAE6320_PLATFORM_D3D )
+//			bool isMeshInitialized = false;
+//#endif
 		private:
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex

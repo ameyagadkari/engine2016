@@ -8,7 +8,7 @@
 
 bool eae6320::Graphics::Mesh::Initialize()
 {
-	CommonData::CommonData *commonData = CommonData::CommonData::GetCommonData();
+	CommonData *commonData = CommonData::GetCommonData();
 	// Create the vertex layout
 	{
 		// These elements must match the VertexFormat::sVertex layout struct exactly.
@@ -37,7 +37,6 @@ bool eae6320::Graphics::Mesh::Initialize()
 				positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 			}
 		}
-
 		const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
 			commonData->compiledVertexShader->GetBufferPointer(), commonData->compiledVertexShader->GetBufferSize(), &commonData->s_vertexLayout);
 		if (FAILED(result))
@@ -46,6 +45,12 @@ bool eae6320::Graphics::Mesh::Initialize()
 			eae6320::Logging::OutputError("Direct3D failed to create a vertex input layout with HRESULT %#010x", result);
 			return false;
 		}
+		if (commonData->compiledVertexShader)
+		{
+			commonData->compiledVertexShader->Release();
+			commonData->compiledVertexShader = NULL;
+		}
+
 	}
 
 	// Eventually the vertex data should come from a file but for now it is hard-coded here.
@@ -117,7 +122,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 
 void eae6320::Graphics::Mesh::RenderMesh()
 {
-	CommonData::CommonData *commonData = CommonData::CommonData::GetCommonData();
+	CommonData *commonData = CommonData::CommonData::GetCommonData();
 	// Bind a specific vertex buffer to the device as a data source
 	{
 		const unsigned int startingSlot = 0;
@@ -148,5 +153,4 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		const unsigned int indexOfFirstVertexToRender = 0;
 		commonData->s_direct3dImmediateContext->Draw(vertexCountToRender, indexOfFirstVertexToRender);
 	}
-}
 }

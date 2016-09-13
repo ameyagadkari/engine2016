@@ -23,12 +23,14 @@ eae6320::cMyGame::~cMyGame()
 bool eae6320::cMyGame::Initialize()
 {
 	mesh = new Graphics:: Mesh();
-	if (!mesh->Initialize())
+	bool wereThereErrors = false;
+	if (mesh && !mesh->Initialize())
 	{
+		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-		return false;
+		//return false;
 	}
-	return true;
+	return !wereThereErrors;
 }
 
 void eae6320::cMyGame::DrawMesh()
@@ -39,10 +41,10 @@ void eae6320::cMyGame::DrawMesh()
 bool eae6320::cMyGame::CleanUp()
 {
 	bool wereThereErrors = false;
-	if (!mesh->CleanUp())
+	if (mesh && !mesh->CleanUp())
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
 	}
-	return true;
+	return !wereThereErrors;
 }

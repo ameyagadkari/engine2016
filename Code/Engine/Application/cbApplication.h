@@ -113,7 +113,6 @@ namespace eae6320
 			// Your application can override the following configuration functions if desired
 
 			virtual const char* GetPathToLogTo() const { return NULL; }	// This will be called _before_ Initialize()
-			//virtual void DrawMesh(){}
 			// Initialization / Clean Up / Draw
 			//---------------------------------
 
