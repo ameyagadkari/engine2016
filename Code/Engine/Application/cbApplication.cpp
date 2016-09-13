@@ -132,7 +132,6 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -208,5 +207,6 @@ eae6320::Application::cbApplication::~cbApplication()
 void eae6320::Application::cbApplication::OnNewFrame()
 {
 	Time::OnNewFrame();
-	Graphics::RenderFrame();
+	DrawMesh();
+	Graphics::RenderFrame();	
 }

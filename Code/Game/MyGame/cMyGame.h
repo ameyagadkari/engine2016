@@ -9,6 +9,7 @@
 //=============
 
 #include "../../Engine/Application/cbApplication.h"
+#include "../../Engine/Graphics/Graphics.h"
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "Resource Files/Resource.h"
@@ -36,6 +37,7 @@ namespace eae6320
 
 	private:
 
+		Graphics::Mesh *mesh;
 		// Configuration
 		//--------------
 
@@ -80,12 +82,12 @@ namespace eae6320
 		virtual const WORD* GetSmallIconId() const { static const WORD iconId_small = IDI_EAEGAMEPAD; return &iconId_small; }
 #endif
 
-		// Initialization / Clean Up
-		//--------------------------
+		// Initialization / Clean Up /Draw
+		//--------------------------------
 
 		virtual bool Initialize();
-		virtual bool CleanUp();
-
+		virtual void DrawMesh();
+		virtual bool CleanUp();	
 	};
 }
 
