@@ -17,6 +17,7 @@ namespace eae6320
 		{
 		public:
 			static CommonData* GetCommonData();
+			static bool Initialize();
 			static bool CleanUp();
 			inline virtual ~CommonData();
 #if defined( EAE6320_PLATFORM_D3D )

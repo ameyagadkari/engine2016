@@ -116,6 +116,12 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 		EAE6320_ASSERT( false );
 		return false;
 	}
+	//CommonData
+	if (!Graphics::CommonData::Initialize())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
 	// Graphics
 	{
 		Graphics::sInitializationParameters initializationParameters;
@@ -179,12 +185,12 @@ bool eae6320::Application::cbApplication::CleanUp_engine()
 		EAE6320_ASSERT( false );
 	}
 
-	/*// CommonData
-	if (!CommonData::CleanUp())
+	// CommonData
+	if (!Graphics::CommonData::CleanUp())
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-	}*/
+	}
 
 	// Time
 	if ( !Time::CleanUp() )

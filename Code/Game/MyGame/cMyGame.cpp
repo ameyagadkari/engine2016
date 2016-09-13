@@ -46,5 +46,9 @@ bool eae6320::cMyGame::CleanUp()
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
 	}
+	if (mesh)
+	{
+		delete mesh;
+	}
 	return !wereThereErrors;
 }

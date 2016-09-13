@@ -18,6 +18,18 @@ namespace eae6320
 			}
 			return commonData;
 		}
+		bool eae6320::Graphics::CommonData::Initialize()
+		{
+			if (!commonData)
+			{
+				commonData = new CommonData();
+			}
+			if (commonData)
+			{
+				return true;
+			}
+			return false;
+		}
 		bool CommonData::CleanUp()
 		{
 			if (commonData)
