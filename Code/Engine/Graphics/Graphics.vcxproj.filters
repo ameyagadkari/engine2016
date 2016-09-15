@@ -16,6 +16,13 @@
     <ClCompile Include="OpenGL\Graphics.gl.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGL\Mesh.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D\Mesh.d3d.cpp">
+      <Filter>Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -23,5 +30,7 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="Configuration.h" />
+    <ClInclude Include="CommonData.h" />
+    <ClInclude Include="Mesh.h" />
   </ItemGroup>
 </Project>

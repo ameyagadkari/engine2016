@@ -8,11 +8,14 @@
 // Header Files
 //=============
 
+
 #include "Configuration.h"
+#include "Mesh.h"
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "../Windows/Includes.h"
 #endif
+
 
 // Interface
 //==========
@@ -24,6 +27,7 @@ namespace eae6320
 		// Render
 		//-------
 
+		void SetMesh(Mesh *Mesh);
 		void RenderFrame();
 
 		// Initialization / Clean Up

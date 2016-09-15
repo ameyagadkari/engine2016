@@ -9,6 +9,7 @@
 #include "../Logging/Logging.h"
 #include "../Time/Time.h"
 #include "../UserOutput/UserOutput.h"
+#include "../Graphics/CommonData.h"
 
 // Interface
 //==========
@@ -115,6 +116,12 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 		EAE6320_ASSERT( false );
 		return false;
 	}
+	//CommonData
+	if (!Graphics::CommonData::Initialize())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
 	// Graphics
 	{
 		Graphics::sInitializationParameters initializationParameters;
@@ -132,7 +139,6 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -178,6 +184,14 @@ bool eae6320::Application::cbApplication::CleanUp_engine()
 		wereThereErrors = true;
 		EAE6320_ASSERT( false );
 	}
+
+	// CommonData
+	if (!Graphics::CommonData::CleanUp())
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+	}
+
 	// Time
 	if ( !Time::CleanUp() )
 	{
@@ -208,5 +222,6 @@ eae6320::Application::cbApplication::~cbApplication()
 void eae6320::Application::cbApplication::OnNewFrame()
 {
 	Time::OnNewFrame();
-	Graphics::RenderFrame();
+	DrawMesh();
+	Graphics::RenderFrame();	
 }
