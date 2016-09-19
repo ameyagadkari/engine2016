@@ -274,11 +274,11 @@ bool eae6320::Graphics::CleanUp()
 			commonData->s_vertexLayout->Release();
 			commonData->s_vertexLayout = NULL;
 		}
-		if ( s_vertexBuffer )
+		/*if ( s_vertexBuffer )
 		{
 			s_vertexBuffer->Release();
 			s_vertexBuffer = NULL;
-		}
+		}*/
 
 		if ( s_vertexShader )
 		{
