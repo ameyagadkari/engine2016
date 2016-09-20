@@ -30,7 +30,7 @@ bool eae6320::cMyGame::Initialize()
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-		Logging::OutputError("Mesh was not created");
+		Logging::OutputError("Mesh was not created %s",path);
 	}
 	return !wereThereErrors;
 }
