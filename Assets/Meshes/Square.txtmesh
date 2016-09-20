@@ -12,11 +12,11 @@ return
 			{1,1},
 			{0,1},
 		},
-		-- This table contains colors(r,g,b,a)
+		-- This table contains colors(r,g,b,a)(a has a default value of 1.0 if you don't specify)
 		colors =
 		{
-			{0.0,1.0,0.0,1.0},
-			{1.0,0.0,0.0,1.0},
+			{1.0,0.0,0.0},
+			{0.0,1.0,0.0},
 			{0.0,0.0,1.0,1.0},
 			{1.0,1.0,0.0,1.0},
 		},

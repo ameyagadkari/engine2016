@@ -22,6 +22,8 @@ namespace
 	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, int index);
 	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
+
+	bool CheckIfColorIsInCorrectFormat(float *rgba);
 }
 
 eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath)
@@ -461,10 +463,20 @@ namespace
 					}
 				}
 
-				meshData.vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
-				meshData.vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
-				meshData.vertexData[index].b = static_cast<uint8_t>(roundf(rgba[2] * 255.0f));
-				meshData.vertexData[index].a = static_cast<uint8_t>(roundf(rgba[3] * 255.0f));
+				if (CheckIfColorIsInCorrectFormat(rgba))
+				{
+					meshData.vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
+					meshData.vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
+					meshData.vertexData[index].b = static_cast<uint8_t>(roundf(rgba[2] * 255.0f));
+					meshData.vertexData[index].a = static_cast<uint8_t>(roundf(rgba[3] * 255.0f));
+				}
+				else
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("The color values were not normalized in range [0,1]", arrayLength);
+					goto OnExit;
+				}
 
 			}
 			else
@@ -565,5 +577,17 @@ namespace
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;
+	}
+
+	bool CheckIfColorIsInCorrectFormat(float *rgba)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (rgba[i]<0.0f || rgba[i]>1.0f)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }
