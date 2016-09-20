@@ -29,7 +29,7 @@ namespace
 	eae6320::Graphics::Mesh *mesh;
 
 	//// This struct determines the layout of the geometric data that the CPU will send to the GPU
-	//struct sVertex
+	//struct Vertex
 	//{
 	//	// POSITION
 	//	// 2 floats == 8 bytes
@@ -161,7 +161,7 @@ void eae6320::Graphics::RenderFrame()
 		//	const unsigned int startingSlot = 0;
 		//	const unsigned int vertexBufferCount = 1;
 		//	// The "stride" defines how large a single vertex is in the stream of data
-		//	const unsigned int bufferStride = sizeof( CommonData::sVertex );
+		//	const unsigned int bufferStride = sizeof( CommonData::Vertex );
 		//	// It's possible to start streaming data in the middle of a vertex buffer
 		//	const unsigned int bufferOffset = 0;
 		//	commonData->s_direct3dImmediateContext->IASetVertexBuffers( startingSlot, vertexBufferCount, &s_vertexBuffer, &bufferStride, &bufferOffset );
@@ -429,7 +429,7 @@ namespace
 	{
 		// Create the vertex layout
 		{
-			// These elements must match the VertexFormat::sVertex layout struct exactly.
+			// These elements must match the VertexFormat::Vertex layout struct exactly.
 			// They instruct Direct3D how to match the binary data in the vertex buffer
 			// to the input elements in a vertex shader
 			// (by using so-called "semantic" names so that, for example,
@@ -450,7 +450,7 @@ namespace
 					positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
 					positionElement.Format = DXGI_FORMAT_R32G32_FLOAT;
 					positionElement.InputSlot = 0;
-					positionElement.AlignedByteOffset = offsetof( CommonData::sVertex, x );
+					positionElement.AlignedByteOffset = offsetof( CommonData::Vertex, x );
 					positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 					positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 				}
@@ -473,8 +473,8 @@ namespace
 		const unsigned int triangleCount = 2;
 		const unsigned int vertexCountPerTriangle = 3;
 		const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
-		const unsigned int bufferSize = vertexCount * sizeof(CommonData::sVertex );
-		CommonData::sVertex vertexData[vertexCount];
+		const unsigned int bufferSize = vertexCount * sizeof(CommonData::Vertex );
+		CommonData::Vertex vertexData[vertexCount];
 		{
 			vertexData[0].x = 0.0f;
 			vertexData[0].y = 0.0f;
@@ -588,7 +588,7 @@ namespace
 		// Load the source code and compile it
 		ID3D10Blob* compiledShader = NULL;
 		{
-			const char* const sourceCodeFileName = "data/fragmentShader.hlsl";
+			const char* const sourceCodeFileName = "data/Shaders/fragmentShader.hlsl";
 			D3D10_SHADER_MACRO* const noMacros = NULL;
 			ID3DInclude* const noIncludes = NULL;
 			const char* const entryPoint = "main";
@@ -645,7 +645,7 @@ namespace
 	{
 		// Load the source code and compile it
 		{
-			const char* const sourceCodeFileName = "data/vertexShader.hlsl";
+			const char* const sourceCodeFileName = "data/Shaders/vertexShader.hlsl";
 			D3D10_SHADER_MACRO* const noMacros = NULL;
 			ID3DInclude* const noIncludes = NULL;
 			const char* const entryPoint = "main";

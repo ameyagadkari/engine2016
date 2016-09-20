@@ -31,7 +31,7 @@ namespace
 	eae6320::Graphics::Mesh *mesh;
 
 	// This struct determines the layout of the geometric data that the CPU will send to the GPU
-	//struct sVertex
+	//struct Vertex
 	//{
 	//	// POSITION
 	//	// 2 floats == 8 bytes
@@ -712,8 +712,8 @@ namespace
 			const unsigned int triangleCount = 2;
 			const unsigned int vertexCountPerTriangle = 3;
 			const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
-			const unsigned int bufferSize = vertexCount * sizeof( sVertex );
-			sVertex vertexData[vertexCount];
+			const unsigned int bufferSize = vertexCount * sizeof( Vertex );
+			Vertex vertexData[vertexCount];
 			// Fill in the data for the triangle
 			{
 				vertexData[0].x = 0.0f;
@@ -751,7 +751,7 @@ namespace
 		{
 			// The "stride" defines how large a single vertex is in the stream of data
 			// (or, said another way, how far apart each position element is)
-			const GLsizei stride = sizeof( sVertex );
+			const GLsizei stride = sizeof( Vertex );
 
 			// Position (0)
 			// 2 floats == 8 bytes
@@ -761,7 +761,7 @@ namespace
 				const GLint elementCount = 2;
 				const GLboolean notNormalized = GL_FALSE;	// The given floats should be used as-is
 				glVertexAttribPointer( vertexElementLocation, elementCount, GL_FLOAT, notNormalized, stride,
-					reinterpret_cast<GLvoid*>( offsetof( sVertex, x ) ) );
+					reinterpret_cast<GLvoid*>( offsetof( Vertex, x ) ) );
 				const GLenum errorCode = glGetError();
 				if ( errorCode == GL_NO_ERROR )
 				{
@@ -857,7 +857,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/fragmentShader.glsl";
+				const char* path_sourceCode = "data/Shaders/fragmentShader.glsl";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{
@@ -1040,7 +1040,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/vertexShader.glsl";
+				const char* path_sourceCode = "data/Shaders/vertexShader.glsl";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{

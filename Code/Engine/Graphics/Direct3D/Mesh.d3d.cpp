@@ -1,24 +1,28 @@
 // Header Files
 //=============
 
+#include<iostream>
+
 #include "../Mesh.h"
 #include "../CommonData.h"
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
 
-bool eae6320::Graphics::Mesh::Initialize()
+
+bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 {
 	CommonData *commonData = CommonData::GetCommonData();
+	numberOfIndices = meshData.numberOfIndices;
 	// Create the vertex layout
 	{
-		// These elements must match the VertexFormat::sVertex layout struct exactly.
+		// These elements must match the VertexFormat::Vertex layout struct exactly.
 		// They instruct Direct3D how to match the binary data in the vertex buffer
 		// to the input elements in a vertex shader
 		// (by using so-called "semantic" names so that, for example,
 		// "POSITION" here matches with "POSITION" in shader code).
 		// Note that OpenGL uses arbitrarily assignable number IDs to do the same thing.
-		const unsigned int vertexElementCount = 1;
-		D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 };
+		const unsigned int vertexElementCount = 2;
+		D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 , 0 };
 		{
 			// Slot 0
 
@@ -32,9 +36,21 @@ bool eae6320::Graphics::Mesh::Initialize()
 				positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
 				positionElement.Format = DXGI_FORMAT_R32G32_FLOAT;
 				positionElement.InputSlot = 0;
-				positionElement.AlignedByteOffset = offsetof(CommonData::CommonData::sVertex, x);
+				positionElement.AlignedByteOffset = offsetof(MeshData::Vertex, x);
 				positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 				positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+			}
+
+			{
+				D3D11_INPUT_ELEMENT_DESC& colorElement = layoutDescription[1];
+
+				colorElement.SemanticName = "COLOR";
+				colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
+				colorElement.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				colorElement.InputSlot = 0;
+				colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, r);
+				colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+				colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 			}
 		}
 		const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
@@ -62,25 +78,7 @@ bool eae6320::Graphics::Mesh::Initialize()
 	//const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
 
 	//Vertex Buffer Init
-	const unsigned int vertexBufferSize = numberOfVertices * sizeof(CommonData::sVertex);
-	if (numberOfVertices >= MINIMUM_NUMBER_OF_VERTICES)
-	{
-		vertexData = new CommonData::sVertex[numberOfVertices];
-	}
-	{
-		vertexData[0].x = 0.0f;
-		vertexData[0].y = 1.0f;
-
-		vertexData[1].x = 0.0f;
-		vertexData[1].y = 0.0f;
-
-		vertexData[2].x = 1.0f;
-		vertexData[2].y = 0.0f;
-
-		vertexData[3].x = 1.0f;
-		vertexData[3].y = 1.0f;
-	}
-
+	const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
 	D3D11_BUFFER_DESC bufferDescriptionVertexBuffer = { 0 };
 	{
 		bufferDescriptionVertexBuffer.ByteWidth = vertexBufferSize;
@@ -92,10 +90,9 @@ bool eae6320::Graphics::Mesh::Initialize()
 	}
 	D3D11_SUBRESOURCE_DATA initialDataVertexBuffer = { 0 };
 	{
-		if (vertexData)
+		if (meshData.vertexData)
 		{
-			initialDataVertexBuffer.pSysMem = vertexData;
-			//delete vertexData;
+			initialDataVertexBuffer.pSysMem = meshData.vertexData;
 		}
 		else
 		{
@@ -115,26 +112,7 @@ bool eae6320::Graphics::Mesh::Initialize()
 	}
 
 	//Index Buffer Init
-	const unsigned int indexBufferSize = numberOfIndices * sizeof(uint16_t);
-	if (numberOfIndices >= MINIMUM_NUMBER_OF_INDICES)
-	{
-		indexData = new uint16_t[numberOfIndices];
-	}
-
-	{
-		indexData[0] = 0;
-
-		indexData[1] = 3;
-
-		indexData[2] = 1;
-
-		indexData[3] = 3;
-
-		indexData[4] = 2;
-
-		indexData[5] = 1;
-	}
-
+	const unsigned int indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
 	D3D11_BUFFER_DESC bufferDescriptionIndexBuffer = { 0 };
 	{
 		bufferDescriptionIndexBuffer.ByteWidth = indexBufferSize;
@@ -146,10 +124,9 @@ bool eae6320::Graphics::Mesh::Initialize()
 	}
 	D3D11_SUBRESOURCE_DATA initialDataIndexBuffer = { 0 };
 	{
-		if (indexData)
+		if (meshData.indexData)
 		{
-			initialDataIndexBuffer.pSysMem = indexData;
-			//delete indexData;
+			initialDataIndexBuffer.pSysMem = meshData.indexData;
 		}
 		else
 		{
@@ -185,14 +162,6 @@ bool eae6320::Graphics::Mesh::CleanUp()
 		s_indexBuffer->Release();
 		s_indexBuffer = NULL;
 	}
-	if (vertexData)
-	{
-		delete vertexData;
-	}
-	if (indexData)
-	{
-		delete indexData;
-	}
 	return !wereThereErrors;
 }
 
@@ -204,7 +173,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		const unsigned int startingSlot = 0;
 		const unsigned int vertexBufferCount = 1;
 		// The "stride" defines how large a single vertex is in the stream of data
-		const unsigned int bufferStride = sizeof(CommonData::sVertex);
+		const unsigned int bufferStride = sizeof(MeshData::Vertex);
 		// It's possible to start streaming data in the middle of a vertex buffer
 		const unsigned int bufferOffset = 0;
 		commonData->s_direct3dImmediateContext->IASetVertexBuffers(startingSlot, vertexBufferCount, &s_vertexBuffer, &bufferStride, &bufferOffset);	

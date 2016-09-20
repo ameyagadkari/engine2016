@@ -9,14 +9,18 @@ This file manages mesh-related functionality
 #include<D3D11.h>
 #define MINIMUM_NUMBER_OF_VERTICES 3
 #define MINIMUM_NUMBER_OF_INDICES 3
+#define MAXIMUM_NUMBER_OF_VERTICES USHRT_MAX
+#define MAXIMUM_NUMBER_OF_INDICES USHRT_MAX
 #elif defined( EAE6320_PLATFORM_GL )
 #include "OpenGL\Includes.h"
 #include "Configuration.h"
 #define MINIMUM_NUMBER_OF_VERTICES 3
 #define MINIMUM_NUMBER_OF_INDICES 3
+#define MAXIMUM_NUMBER_OF_VERTICES USHRT_MAX
+#define MAXIMUM_NUMBER_OF_INDICES USHRT_MAX
 #endif	
 
-#include<cstdint>
+#include "MeshData.h"
 #include "CommonData.h"
 // Interface
 //==========
@@ -24,22 +28,16 @@ This file manages mesh-related functionality
 namespace eae6320
 {
 	namespace Graphics
-	{	
+	{
 		class Mesh
 		{
 		public:
-			bool Initialize();
+			static Mesh* LoadMesh(const char* const relativePath);
 			bool CleanUp();
-			void RenderMesh();
-//#if defined( EAE6320_PLATFORM_D3D )
-//			bool isMeshInitialized = false;
-//#endif
-		private:
-			uint16_t numberOfVertices = 4;
-			uint16_t numberOfIndices = 6;
-
-			CommonData::sVertex *vertexData = NULL;
-			uint16_t *indexData = NULL;
+			void RenderMesh();		
+		private:		
+			uint16_t numberOfIndices = 0;
+			bool Initialize(MeshData&meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
 			ID3D11Buffer* s_vertexBuffer = NULL;

@@ -86,7 +86,7 @@ namespace eae6320
 		//--------------------------------
 
 		virtual bool Initialize();
-		virtual void DrawMesh();
+		virtual void SubmitMesh();
 		virtual bool CleanUp();	
 	};
 }
