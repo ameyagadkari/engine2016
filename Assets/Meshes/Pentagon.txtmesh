@@ -1,0 +1,37 @@
+--Pentagon Mesh Data
+return
+{
+	-- This table contains vertices
+	vertices =
+	{
+		-- This table contains positions(x,y)
+		positions =
+		{
+			{ -0.5 ,-0.5 },
+			{ -0.3 ,-0.5 },
+			{ -0.44 ,-0.31 },
+			{ -0.66 ,-0.38 },
+			{ -0.66 ,-0.62 },
+			{ -0.44 ,-0.69 },
+		},
+		-- This table contains colors(r,g,b,a)(alpha has a default value of 1.0 if you don't specify)
+		colors =
+		{
+			{0.5,0.5,0.0},
+			{1.0,0.0,0.5},
+			{0.5,0.5,0.0},
+			{0.5,1.0,0.0},
+			{0.5,0.0,0.5},
+			{0.5,1.0,0.0},
+		},
+	},
+	-- This table contains indices(triangles)
+	indices =
+	{
+		0,1,2,
+		0,2,3,
+		0,3,4,
+		0,4,5,
+		0,5,1,
+	},
+}

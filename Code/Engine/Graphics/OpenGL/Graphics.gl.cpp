@@ -16,6 +16,7 @@
 #include "../../Windows/Functions.h"
 #include "../../Windows/OpenGl.h"
 #include "../../../External/OpenGlExtensions/OpenGlExtensions.h"
+#include "../ConstantBuffer.h"
 
 
 // Static Data Initialization
@@ -23,6 +24,7 @@
 
 namespace
 {
+	using namespace eae6320::Graphics;
 	eae6320::Graphics::Mesh *mesh;
 	// The is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
@@ -52,15 +54,17 @@ namespace
 	GLuint s_programId = 0;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
-	struct
-	{
-		union
-		{
-			float g_elapsedSecondCount_total;
-			float register0[4];	// You won't have to worry about why I do this until a later assignment
-		};
-	} s_constantBufferData;
-	GLuint s_constantBufferId = 0;
+	//struct
+	//{
+	//	union
+	//	{
+	//		float g_elapsedSecondCount_total;
+	//		float register0[4];	// You won't have to worry about why I do this until a later assignment
+	//	};
+	//} s_constantBufferData;
+	//GLuint s_constantBufferId = 0;
+	ConstantBufferData::sFrame frameBufferData;
+	ConstantBuffer frameBuffer;
 }
 
 // Helper Function Declarations
@@ -68,7 +72,7 @@ namespace
 
 namespace
 {
-	bool CreateConstantBuffer();
+	//bool CreateConstantBuffer();
 	bool CreateProgram();
 	bool CreateRenderingContext();
 	bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_shader, size_t& o_size, std::string* o_errorMessage);
@@ -108,28 +112,29 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	// Update the constant buffer
-	{
-		// Update the struct (i.e. the memory that we own)
-		s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
-		// Make the uniform buffer active
-		{
-			glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-		// Copy the updated memory to the GPU
-		{
-			GLintptr updateAtTheBeginning = 0;
-			GLsizeiptr updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeof(s_constantBufferData));
-			glBufferSubData(GL_UNIFORM_BUFFER, updateAtTheBeginning, updateTheEntireBuffer, &s_constantBufferData);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-		// Bind the constant buffer to the shader
-		{
-			const GLuint bindingPointAssignedInShader = 0;
-			glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-	}
+	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
+	//{
+	//	 Update the struct (i.e. the memory that we own)
+	//	s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
+	//	// Make the uniform buffer active
+	//	{
+	//		glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	//	}
+	//	// Copy the updated memory to the GPU
+	//	{
+	//		GLintptr updateAtTheBeginning = 0;
+	//		GLsizeiptr updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeof(s_constantBufferData));
+	//		glBufferSubData(GL_UNIFORM_BUFFER, updateAtTheBeginning, updateTheEntireBuffer, &s_constantBufferData);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	//	}
+	//	 Bind the constant buffer to the shader
+	//	{
+	//		/*const GLuint bindingPointAssignedInShader = 0;
+	//		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);*/
+	//	}
+	//}
 
 	// Draw the geometry
 	{
@@ -182,10 +187,14 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!CreateConstantBuffer())
+	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
+	}
+	else
+	{
+		frameBuffer.BindingConstantBuffer();
 	}
 
 	return true;
@@ -211,38 +220,42 @@ bool eae6320::Graphics::CleanUp()
 			s_programId = 0;
 		}
 
-		if (s_constantBufferId != 0)
+		if (!frameBuffer.CleanUpConstantBuffer())
 		{
-			const GLsizei bufferCount = 1;
-			glDeleteBuffers(bufferCount, &s_constantBufferId);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			}
-			s_constantBufferId = 0;
+			wereThereErrors = true;
 		}
+			/*if (s_constantBufferId != 0)
+			{
+				const GLsizei bufferCount = 1;
+				glDeleteBuffers(bufferCount, &s_constantBufferId);
+				const GLenum errorCode = glGetError();
+				if (errorCode != GL_NO_ERROR)
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+					Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
+						reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				}
+				s_constantBufferId = 0;
+			}*/
 
-		if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
-		{
-			if (wglDeleteContext(s_openGlRenderingContext) == FALSE)
+			if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
+			{
+				if (wglDeleteContext(s_openGlRenderingContext) == FALSE)
+				{
+					wereThereErrors = true;
+					const std::string windowsErrorMessage = Windows::GetLastSystemError();
+					EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
+					Logging::OutputError("Windows failed to delete the OpenGL rendering context: %s", windowsErrorMessage.c_str());
+				}
+			}
+			else
 			{
 				wereThereErrors = true;
 				const std::string windowsErrorMessage = Windows::GetLastSystemError();
 				EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
-				Logging::OutputError("Windows failed to delete the OpenGL rendering context: %s", windowsErrorMessage.c_str());
+				Logging::OutputError("Windows failed to unset the current OpenGL rendering context: %s", windowsErrorMessage.c_str());
 			}
-		}
-		else
-		{
-			wereThereErrors = true;
-			const std::string windowsErrorMessage = Windows::GetLastSystemError();
-			EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
-			Logging::OutputError("Windows failed to unset the current OpenGL rendering context: %s", windowsErrorMessage.c_str());
-		}
 		s_openGlRenderingContext = NULL;
 	}
 
@@ -268,7 +281,7 @@ void eae6320::Graphics::SetMesh(Mesh * Mesh)
 
 namespace
 {
-	bool CreateConstantBuffer()
+	/*bool CreateConstantBuffer()
 	{
 		bool wereThereErrors = false;
 
@@ -319,7 +332,7 @@ namespace
 	OnExit:
 
 		return !wereThereErrors;
-	}
+	}*/
 
 	bool CreateProgram()
 	{

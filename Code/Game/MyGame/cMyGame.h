@@ -37,7 +37,8 @@ namespace eae6320
 
 	private:
 
-		Graphics::Mesh *mesh;
+		Graphics::Mesh *mesh1;
+		Graphics::Mesh *mesh2;
 		// Configuration
 		//--------------
 
