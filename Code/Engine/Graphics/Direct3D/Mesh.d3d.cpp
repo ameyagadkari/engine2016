@@ -69,14 +69,6 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 
 	}
 
-	// Eventually the vertex data should come from a file but for now it is hard-coded here.
-	// You will have to update this in a future assignment
-	// (one of the most common mistakes in the class is to leave hard-coded values here).
-
-	//const unsigned int triangleCount = 2;
-	//const unsigned int vertexCountPerTriangle = 3;
-	//const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
-
 	//Vertex Buffer Init
 	const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
 	D3D11_BUFFER_DESC bufferDescriptionVertexBuffer = { 0 };
@@ -197,14 +189,6 @@ void eae6320::Graphics::Mesh::RenderMesh()
 	}
 	// Render triangles from the currently-bound vertex buffer
 	{
-		// As of this comment we are only drawing a single triangle
-		// (you will have to update this code in future assignments!)
-		//const unsigned int triangleCount = 2;
-		//const unsigned int vertexCountPerTriangle = 3;
-		//const unsigned int vertexCountToRender = triangleCount * vertexCountPerTriangle;
-		//// It's possible to start rendering primitives in the middle of the stream
-		//const unsigned int indexOfFirstVertexToRender = 0;
-		//commonData->s_direct3dImmediateContext->Draw(vertexCountToRender, indexOfFirstVertexToRender);
 		
 		// It's possible to start rendering primitives in the middle of the stream
 		const unsigned int indexOfFirstIndexToUse = 0;
