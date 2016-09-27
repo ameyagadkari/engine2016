@@ -23,21 +23,26 @@ namespace eae6320
 				bufferDescription.MiscFlags = 0;
 				bufferDescription.StructureByteStride = 0;	// Not used
 			}
-			D3D11_SUBRESOURCE_DATA initialData = { 0 };
+			D3D11_SUBRESOURCE_DATA *initialData = NULL;
+			if (constantBufferType == ConstantBufferType::FRAME)
 			{
-				// Fill in the constant buffer
-				if (constantBufferType == ConstantBufferType::FRAME)
+				initialData = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(malloc(sizeof(D3D11_SUBRESOURCE_DATA)));
 				{
-					reinterpret_cast<ConstantBufferData::sFrame*>(initialBufferData)->g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-				}
-				
-				initialData.pSysMem = initialBufferData;
-				// (The other data members are ignored for non-texture buffers)
-			}
+					// Fill in the constant buffer
 
-			const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateBuffer(&bufferDescription, &initialData, &this->s_constantBuffer);
+					reinterpret_cast<ConstantBufferData::sFrame*>(initialBufferData)->g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
+					initialData->pSysMem = initialBufferData;
+
+					// (The other data members are ignored for non-texture buffers)
+				}
+			}
+			const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateBuffer(&bufferDescription, initialData, &this->s_constantBuffer);
 			if (SUCCEEDED(result))
 			{
+				if (initialData)
+				{
+					free(initialData);
+				}
 				return true;
 			}
 			else
@@ -45,10 +50,10 @@ namespace eae6320
 				EAE6320_ASSERT(false);
 				eae6320::Logging::OutputError("Direct3D failed to create a constant buffer with HRESULT %#010x", result);
 				return false;
-			}		
+			}
 			return false;
 		}
-		
+
 		void ConstantBuffer::BindingConstantBuffer(BindMode bindMode)
 		{
 			CommonData* commonData = CommonData::GetCommonData();
@@ -62,9 +67,9 @@ namespace eae6320
 			{
 				commonData->s_direct3dImmediateContext->PSSetConstantBuffers(registerAssignedInShader, bufferCount, &s_constantBuffer);
 			}
-			
+
 		}
-		
+
 		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer)
 		{
 			CommonData* commonData = CommonData::GetCommonData();

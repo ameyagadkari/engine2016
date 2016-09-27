@@ -117,6 +117,7 @@ namespace eae6320
 			//---------------------------------
 
 			virtual bool Initialize() = 0;			
+			virtual void UpdatePlayerPosition() = 0;
 			virtual void SubmitMesh() = 0;
 			virtual bool CleanUp() = 0;
 

@@ -36,6 +36,7 @@ namespace eae6320
 			static Mesh* LoadMesh(const char* const relativePath);
 			bool CleanUp();
 			void RenderMesh();		
+			static size_t numberOfMeshes;
 		private:		
 			uint16_t numberOfIndices = 0;
 			ConstantBufferData::sDrawCall drawCallData;

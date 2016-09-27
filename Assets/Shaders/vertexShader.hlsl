@@ -5,9 +5,13 @@
 // Constants
 //==========
 
-cbuffer constantBuffer : register( b0 )
+cbuffer constantBuffer_frame : register( b0 )
 {
 	float g_elapsedSecondCount_total;
+}
+cbuffer constantBuffer_drawCall : register( b1 )
+{
+	float2 g_objectPosition_screen;
 }
 
 // Entry Point
@@ -22,7 +26,7 @@ void main(
 	// but must match the C call to CreateInputLayout()
 
 	// These values come from one of the sVertex that we filled the vertex buffer with in C code
-	in const float2 i_position : POSITION,
+	in const float2 i_vertexPosition_local : POSITION,
 	in const float4 i_color : COLOR,
 
 	// Output
@@ -30,7 +34,7 @@ void main(
 
 	// An SV_POSITION value must always be output from every vertex shader
 	// so that the GPU can figure out which fragments need to be shaded
-	out float4 o_position : SV_POSITION,
+	out float4 o_vertexPosition_screen : SV_POSITION,
 
 	// Any other data is optional; the GPU doesn't know or care what it is,
 	// and will merely interpolate it across the triangle
@@ -45,13 +49,10 @@ void main(
 {
 	// Calculate the position of this vertex on screen
 	{
-		// When we move to 3D graphics the screen position that the vertex shader outputs
-		// will be different than the position that is input to it from C code,
-		// but for now the "out" position is set directly from the "in" position
-		o_position = float4( i_position.xy, 0.0, 1.0 );
-		//float t = sin( g_elapsedSecondCount_total );
-		//t = ((t>0)?(t*-1):t);
-		//o_position = float4( i_position.x + t ,i_position.y + sqrt(1-(i_position.x + t) * (i_position.x + t)) - 1,0.0,1.0 );
+		// The vertex's output position is calculated by adding
+		// the vertex's position offset from the local origin
+		// to the object's screen position
+		o_vertexPosition_screen = float4( g_objectPosition_screen + i_vertexPosition_local, 0.0, 1.0 );
 	}
 	// Pass the input color to the fragment shader unchanged
 	{

@@ -21,7 +21,7 @@ namespace
 {
 	using namespace eae6320::Graphics;
 	CommonData *commonData = CommonData::GetCommonData();
-	Mesh *mesh;
+	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	// This is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are D3D interfaces
@@ -63,7 +63,9 @@ namespace
 	//ID3D11Buffer* s_constantBuffer = NULL;
 
 	ConstantBufferData::sFrame frameBufferData;
+	ConstantBufferData::sDrawCall drawCallBufferData;
 	ConstantBuffer frameBuffer;
+	ConstantBuffer drawCallBuffer;
 }
 // Helper Function Declarations
 //=============================
@@ -147,10 +149,15 @@ void eae6320::Graphics::RenderFrame()
 			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
 			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);
 		}
-		if (mesh)
+
+		size_t numberOfMeshes = gameObjects.size();
+		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
-			mesh->RenderMesh();
+			drawCallBuffer.UpdateConstantBuffer(&gameObjects[i]->drawCallBufferData, sizeof(gameObjects[i]->drawCallBufferData));
+			gameObjects[i]->mesh->RenderMesh();
 		}
+		gameObjects._Pop_back_n(numberOfMeshes);
+		gameObjects.clear();
 	}
 
 	// Everything has been drawn to the "back buffer", which is just an image in memory.
@@ -197,8 +204,8 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		wereThereErrors = true;
 		goto OnExit;
 	}
-	
-	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
+
+	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(ConstantBufferData::sFrame), &frameBufferData))
 	{
 		wereThereErrors = true;
 		goto OnExit;
@@ -206,6 +213,16 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	else
 	{
 		frameBuffer.BindingConstantBuffer(BindMode::VS_PS_BOTH);
+	}
+
+	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	{
+		wereThereErrors = true;
+		goto OnExit;
+	}
+	else
+	{
+		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
 	}
 
 OnExit:
@@ -251,6 +268,10 @@ bool eae6320::Graphics::CleanUp()
 		{
 			wereThereErrors = true;
 		}
+		if (!drawCallBuffer.CleanUpConstantBuffer())
+		{
+			wereThereErrors = true;
+		}
 		if (s_renderTargetView)
 		{
 			s_renderTargetView->Release();
@@ -272,13 +293,13 @@ bool eae6320::Graphics::CleanUp()
 	}
 
 	s_renderingWindow = NULL;
-
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetMesh(Mesh * Mesh)
-{
-	mesh = Mesh;
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
+{	
+	gameObjects.push_back(GameObject);
+	GameObject->SetNewInitialOffset(x, y);
 }
 
 // Helper Function Definitions

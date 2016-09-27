@@ -25,7 +25,7 @@
 namespace
 {
 	using namespace eae6320::Graphics;
-	eae6320::Graphics::Mesh *mesh;
+	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	// The is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are Windows-specific interfaces
@@ -64,7 +64,9 @@ namespace
 	//} s_constantBufferData;
 	//GLuint s_constantBufferId = 0;
 	ConstantBufferData::sFrame frameBufferData;
+	ConstantBufferData::sDrawCall drawCallBufferData;
 	ConstantBuffer frameBuffer;
+	ConstantBuffer drawCallBuffer;
 }
 
 // Helper Function Declarations
@@ -145,10 +147,14 @@ void eae6320::Graphics::RenderFrame()
 		}
 	}
 
-	if (mesh)
+	size_t numberOfMeshes = gameObjects.size();
+	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		mesh->RenderMesh();
+		drawCallBuffer.UpdateConstantBuffer((&gameObjects[i]->drawCallBufferData), sizeof(gameObjects[i]->drawCallBufferData));
+		gameObjects[i]->mesh->RenderMesh();
 	}
+	gameObjects._Pop_back_n(numberOfMeshes);
+	gameObjects.clear();
 
 	// Everything has been drawn to the "back buffer", which is just an image in memory.
 	// In order to display it, the contents of the back buffer must be swapped with the "front buffer"
@@ -197,6 +203,15 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		frameBuffer.BindingConstantBuffer();
 	}
 
+	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall), &drawCallBufferData))
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+	else
+	{
+		drawCallBuffer.BindingConstantBuffer();
+	}
 	return true;
 }
 
@@ -224,38 +239,42 @@ bool eae6320::Graphics::CleanUp()
 		{
 			wereThereErrors = true;
 		}
-			/*if (s_constantBufferId != 0)
+		if (!drawCallBuffer.CleanUpConstantBuffer())
+		{
+			wereThereErrors = true;
+		}
+		/*if (s_constantBufferId != 0)
+		{
+			const GLsizei bufferCount = 1;
+			glDeleteBuffers(bufferCount, &s_constantBufferId);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
 			{
-				const GLsizei bufferCount = 1;
-				glDeleteBuffers(bufferCount, &s_constantBufferId);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
-						reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				}
-				s_constantBufferId = 0;
-			}*/
-
-			if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
-			{
-				if (wglDeleteContext(s_openGlRenderingContext) == FALSE)
-				{
-					wereThereErrors = true;
-					const std::string windowsErrorMessage = Windows::GetLastSystemError();
-					EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
-					Logging::OutputError("Windows failed to delete the OpenGL rendering context: %s", windowsErrorMessage.c_str());
-				}
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			}
-			else
+			s_constantBufferId = 0;
+		}*/
+
+		if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
+		{
+			if (wglDeleteContext(s_openGlRenderingContext) == FALSE)
 			{
 				wereThereErrors = true;
 				const std::string windowsErrorMessage = Windows::GetLastSystemError();
 				EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
-				Logging::OutputError("Windows failed to unset the current OpenGL rendering context: %s", windowsErrorMessage.c_str());
+				Logging::OutputError("Windows failed to delete the OpenGL rendering context: %s", windowsErrorMessage.c_str());
 			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			const std::string windowsErrorMessage = Windows::GetLastSystemError();
+			EAE6320_ASSERTF(false, windowsErrorMessage.c_str());
+			Logging::OutputError("Windows failed to unset the current OpenGL rendering context: %s", windowsErrorMessage.c_str());
+		}
 		s_openGlRenderingContext = NULL;
 	}
 
@@ -271,9 +290,10 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetMesh(Mesh * Mesh)
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
 {
-	mesh = Mesh;
+	gameObjects.push_back(GameObject);
+	GameObject->SetNewInitialOffset(x, y);
 }
 
 // Helper Function Declarations

@@ -26,6 +26,8 @@ namespace
 	bool CheckIfColorIsInCorrectFormat(float *rgba);
 }
 
+size_t eae6320::Graphics::Mesh::numberOfMeshes = 0;
+
 eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath)
 {
 	{

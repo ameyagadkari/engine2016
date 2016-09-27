@@ -7,9 +7,7 @@
 
 // Header Files
 //=============
-
 #include "../../Engine/Application/cbApplication.h"
-#include "../../Engine/Graphics/Graphics.h"
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "Resource Files/Resource.h"
@@ -36,9 +34,6 @@ namespace eae6320
 		//=========================
 
 	private:
-
-		Graphics::Mesh *mesh1;
-		Graphics::Mesh *mesh2;
 		// Configuration
 		//--------------
 
@@ -87,6 +82,7 @@ namespace eae6320
 		//--------------------------------
 
 		virtual bool Initialize();
+		virtual void UpdatePlayerPosition();
 		virtual void SubmitMesh();
 		virtual bool CleanUp();	
 	};

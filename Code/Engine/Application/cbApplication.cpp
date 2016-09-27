@@ -222,6 +222,7 @@ eae6320::Application::cbApplication::~cbApplication()
 void eae6320::Application::cbApplication::OnNewFrame()
 {
 	Time::OnNewFrame();
+	UpdatePlayerPosition();
 	SubmitMesh();
 	Graphics::RenderFrame();	
 }

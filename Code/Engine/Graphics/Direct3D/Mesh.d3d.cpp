@@ -61,12 +61,11 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 			eae6320::Logging::OutputError("Direct3D failed to create a vertex input layout with HRESULT %#010x", result);
 			return false;
 		}
-		/*if (commonData->compiledVertexShader)
+		if (commonData->compiledVertexShader && !--numberOfMeshes)
 		{
 			commonData->compiledVertexShader->Release();
 			commonData->compiledVertexShader = NULL;
-		}*/
-
+		}
 	}
 
 	//Vertex Buffer Init

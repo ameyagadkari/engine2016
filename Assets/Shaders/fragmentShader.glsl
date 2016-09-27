@@ -8,7 +8,7 @@
 // Constants
 //==========
 
-layout( std140, binding = 0 ) uniform constantBuffer
+layout( std140, binding = 0 ) uniform constantBuffer_frame
 {
 	float g_elapsedSecondCount_total;
 };
