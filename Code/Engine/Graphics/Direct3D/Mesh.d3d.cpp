@@ -13,58 +13,61 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 {
 	CommonData *commonData = CommonData::GetCommonData();
 	numberOfIndices = meshData.numberOfIndices;
-	// Create the vertex layout
+	if (!commonData->s_vertexLayout)
 	{
-		// These elements must match the VertexFormat::Vertex layout struct exactly.
-		// They instruct Direct3D how to match the binary data in the vertex buffer
-		// to the input elements in a vertex shader
-		// (by using so-called "semantic" names so that, for example,
-		// "POSITION" here matches with "POSITION" in shader code).
-		// Note that OpenGL uses arbitrarily assignable number IDs to do the same thing.
-		const unsigned int vertexElementCount = 2;
-		D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 , 0 };
+		// Create the vertex layout
 		{
-			// Slot 0
-
-			// POSITION
-			// 2 floats == 8 bytes
-			// Offset = 0
+			// These elements must match the VertexFormat::Vertex layout struct exactly.
+			// They instruct Direct3D how to match the binary data in the vertex buffer
+			// to the input elements in a vertex shader
+			// (by using so-called "semantic" names so that, for example,
+			// "POSITION" here matches with "POSITION" in shader code).
+			// Note that OpenGL uses arbitrarily assignable number IDs to do the same thing.
+			const unsigned int vertexElementCount = 2;
+			D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 , 0 };
 			{
-				D3D11_INPUT_ELEMENT_DESC& positionElement = layoutDescription[0];
+				// Slot 0
 
-				positionElement.SemanticName = "POSITION";
-				positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
-				positionElement.Format = DXGI_FORMAT_R32G32_FLOAT;
-				positionElement.InputSlot = 0;
-				positionElement.AlignedByteOffset = offsetof(MeshData::Vertex, x);
-				positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-				positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+				// POSITION
+				// 2 floats == 8 bytes
+				// Offset = 0
+				{
+					D3D11_INPUT_ELEMENT_DESC& positionElement = layoutDescription[0];
+
+					positionElement.SemanticName = "POSITION";
+					positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
+					positionElement.Format = DXGI_FORMAT_R32G32_FLOAT;
+					positionElement.InputSlot = 0;
+					positionElement.AlignedByteOffset = offsetof(MeshData::Vertex, x);
+					positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+					positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+				}
+
+				{
+					D3D11_INPUT_ELEMENT_DESC& colorElement = layoutDescription[1];
+
+					colorElement.SemanticName = "COLOR";
+					colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
+					colorElement.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					colorElement.InputSlot = 0;
+					colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, r);
+					colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+					colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+				}
 			}
-
+			const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
+				commonData->compiledVertexShader->GetBufferPointer(), commonData->compiledVertexShader->GetBufferSize(), &commonData->s_vertexLayout);
+			if (FAILED(result))
 			{
-				D3D11_INPUT_ELEMENT_DESC& colorElement = layoutDescription[1];
-
-				colorElement.SemanticName = "COLOR";
-				colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
-				colorElement.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				colorElement.InputSlot = 0;
-				colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, r);
-				colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-				colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create a vertex input layout with HRESULT %#010x", result);
+				return false;
 			}
-		}
-		const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
-			commonData->compiledVertexShader->GetBufferPointer(), commonData->compiledVertexShader->GetBufferSize(), &commonData->s_vertexLayout);
-		if (FAILED(result))
-		{
-			EAE6320_ASSERT(false);
-			eae6320::Logging::OutputError("Direct3D failed to create a vertex input layout with HRESULT %#010x", result);
-			return false;
-		}
-		if (commonData->compiledVertexShader && !--numberOfMeshes)
-		{
-			commonData->compiledVertexShader->Release();
-			commonData->compiledVertexShader = NULL;
+			if (commonData->compiledVertexShader)
+			{
+				commonData->compiledVertexShader->Release();
+				commonData->compiledVertexShader = NULL;
+			}
 		}
 	}
 

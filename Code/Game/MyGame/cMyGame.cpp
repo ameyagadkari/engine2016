@@ -32,6 +32,7 @@ namespace
 	std::vector<std::string> relativePaths;
 	size_t numberOfMeshes;
 	float offset[2] = { 0.0f,0.0f };
+	float offset1[2] = { 0.0f,0.0f };
 }
 // Inherited Implementation
 //=========================
@@ -78,13 +79,14 @@ void eae6320::cMyGame::UpdatePlayerPosition()
 	offset[0] *= offsetModifier;
 	offset[1] *= offsetModifier;
 
-	gameObjects[1]->SetNewOffset(offset[0], offset[1]);
+	gameObjects[0]->SetNewOffset(offset1[0], offset1[1]);
+	gameObjects[1]->SetNewOffset(offset[0], offset[1]);	
 }
 
 void eae6320::cMyGame::SubmitMesh()
 {
-	Graphics::SetGameObject(gameObjects[0], 0.1f, 0.1f);
-	Graphics::SetGameObject(gameObjects[1], 0.3f, 0.3f);
+	Graphics::SetGameObject(gameObjects[0], 0.5f, 0.5f);
+	Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f);
 }
 
 bool eae6320::cMyGame::CleanUp()
@@ -140,6 +142,6 @@ namespace
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);
-		numberOfMeshes = eae6320::Graphics::Mesh::numberOfMeshes = relativePaths.size();
+		numberOfMeshes = relativePaths.size();
 	}
 }

@@ -76,10 +76,10 @@ namespace eae6320
 
 		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer)
 		{
-			if (constantBufferType == ConstantBufferType::FRAME)
+			/*if (constantBufferType == ConstantBufferType::FRAME)
 			{
 				reinterpret_cast<ConstantBufferData::sFrame*>(bufferData)->g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-			}
+			}*/
 			// Make the uniform buffer active
 			{
 				glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);

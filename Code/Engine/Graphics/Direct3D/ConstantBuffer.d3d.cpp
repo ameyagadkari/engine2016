@@ -74,10 +74,10 @@ namespace eae6320
 		{
 			CommonData* commonData = CommonData::GetCommonData();
 			// Update the struct (i.e. the memory that we own)
-			if (constantBufferType == ConstantBufferType::FRAME)
+			/*if (constantBufferType == ConstantBufferType::FRAME)
 			{
 				reinterpret_cast<ConstantBufferData::sFrame*>(bufferData)->g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-			}
+			}*/
 			// Get a pointer from Direct3D that can be written to
 			void* memoryToWriteTo = NULL;
 			{

@@ -63,7 +63,6 @@ namespace
 	//ID3D11Buffer* s_constantBuffer = NULL;
 
 	ConstantBufferData::sFrame frameBufferData;
-	ConstantBufferData::sDrawCall drawCallBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
 }
@@ -97,6 +96,7 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	// Update the constant buffer
+	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
 	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
 	//{
 	//	// Update the struct (i.e. the memory that we own)
@@ -266,11 +266,11 @@ bool eae6320::Graphics::CleanUp()
 
 		if (!frameBuffer.CleanUpConstantBuffer())
 		{
-			wereThereErrors = true;
+			
 		}
 		if (!drawCallBuffer.CleanUpConstantBuffer())
 		{
-			wereThereErrors = true;
+			
 		}
 		if (s_renderTargetView)
 		{
