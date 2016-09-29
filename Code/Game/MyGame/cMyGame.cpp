@@ -3,6 +3,7 @@
 
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
+#include "../../Engine/Logging/Logging.h"
 // Interface
 //==========
 
@@ -22,18 +23,19 @@ eae6320::cMyGame::~cMyGame()
 
 bool eae6320::cMyGame::Initialize()
 {
-	mesh = new Graphics:: Mesh();
+	const char*const path = "data/Meshes/Square.txtmesh";
+	mesh = Graphics::Mesh::LoadMesh(path);
 	bool wereThereErrors = false;
-	if (mesh && !mesh->Initialize())
+	if (!mesh)
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-		//return false;
+		Logging::OutputError("Mesh was not created %s",path);
 	}
 	return !wereThereErrors;
 }
 
-void eae6320::cMyGame::DrawMesh()
+void eae6320::cMyGame::SubmitMesh()
 {
 	eae6320::Graphics::SetMesh(mesh);
 }
@@ -45,6 +47,7 @@ bool eae6320::cMyGame::CleanUp()
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
+		Logging::OutputError("Mesh cleanup failed");
 	}
 	if (mesh)
 	{
