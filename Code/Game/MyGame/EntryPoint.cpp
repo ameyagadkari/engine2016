@@ -29,6 +29,6 @@ int WINAPI WinMain( HINSTANCE i_thisInstanceOfTheApplication, HINSTANCE, char* i
 	_CrtSetDbgFlag(flag);
 
 #endif // _DEBUG
-	//_crtBreakAlloc = 656;
+	//_crtBreakAlloc = 687;
 	return eae6320::Application::Run<eae6320::cMyGame>( i_thisInstanceOfTheApplication, i_commandLineArguments, i_initialWindowDisplayState );
 }

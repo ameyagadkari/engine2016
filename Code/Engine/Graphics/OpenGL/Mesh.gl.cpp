@@ -71,14 +71,6 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 
 	// Assign the data to the buffer
 	{
-		// Eventually the vertex data should come from a file but for now it is hard-coded here.
-		// You will have to update this in a future assignment
-		// (one of the most common mistakes in the class is to leave hard-coded values here).
-
-		/*const unsigned int triangleCount = 2;
-		const unsigned int vertexCountPerTriangle = 3;
-		const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;*/
-
 		//Vextex Buffer init
 		const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
 		if (meshData.vertexData)
@@ -87,7 +79,6 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 				// In our class we won't ever read from the buffer
 				GL_STATIC_DRAW);
 			const GLenum errorCode = glGetError();
-			//delete vertexData;
 			if (errorCode != GL_NO_ERROR)
 			{
 				wereThereErrors = true;
@@ -212,7 +203,6 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 				// In our class we won't ever read from the buffer
 				GL_STATIC_DRAW);
 			const GLenum errorCode = glGetError();
-			//delete indexData;
 			if (errorCode != GL_NO_ERROR)
 			{
 				wereThereErrors = true;
@@ -365,16 +355,6 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		// we define a triangle list
 		// (meaning that every primitive is a triangle and will be defined by three vertices)
 		const GLenum mode = GL_TRIANGLES;
-		//// It's possible to start rendering primitives in the middle of the stream
-		//const GLint indexOfFirstVertexToRender = 0;
-		//// As of this comment we are only drawing a single triangle
-		//// (you will have to update this code in future assignments!)
-		//const unsigned int triangleCount = 2;
-		//const unsigned int vertexCountPerTriangle = 3;
-		//const unsigned int vertexCountToRender = triangleCount * vertexCountPerTriangle;
-		//glDrawArrays(mode, indexOfFirstVertexToRender, vertexCountToRender);
-		//EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-
 		// Every index is a 16 bit unsigned integer
 		const GLenum indexType = GL_UNSIGNED_SHORT;
 		// It's possible to start rendering primitives in the middle of the stream

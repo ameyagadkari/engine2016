@@ -1,4 +1,4 @@
-#include "../Graphics/CommonData.h"
+#include "CommonData.h"
 
 namespace eae6320
 {

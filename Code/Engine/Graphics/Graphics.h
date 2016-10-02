@@ -10,7 +10,8 @@
 
 
 #include "Configuration.h"
-#include "Mesh.h"
+#include "../Gameplay/GameObject.h"
+#include <vector>
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "../Windows/Includes.h"
@@ -27,7 +28,7 @@ namespace eae6320
 		// Render
 		//-------
 
-		void SetMesh(Mesh *Mesh);
+		void SetGameObject(Gameplay::GameObject*GameObject,const float x,const float y);
 		void RenderFrame();
 
 		// Initialization / Clean Up

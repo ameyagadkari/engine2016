@@ -16,6 +16,7 @@
 #include "../../Windows/Functions.h"
 #include "../../Windows/OpenGl.h"
 #include "../../../External/OpenGlExtensions/OpenGlExtensions.h"
+#include "../ConstantBuffer.h"
 
 
 // Static Data Initialization
@@ -23,30 +24,13 @@
 
 namespace
 {
+	using namespace eae6320::Graphics;
+	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	// The is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are Windows-specific interfaces
 	HDC s_deviceContext = NULL;
 	HGLRC s_openGlRenderingContext = NULL;
-	eae6320::Graphics::Mesh *mesh;
-
-	// This struct determines the layout of the geometric data that the CPU will send to the GPU
-	//struct Vertex
-	//{
-	//	// POSITION
-	//	// 2 floats == 8 bytes
-	//	// Offset = 0
-	//	float x, y;
-	//};
-
-//	// The vertex buffer holds the data for each vertex
-//	GLuint s_vertexArrayId = 0;
-//#ifdef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
-//	// OpenGL debuggers don't seem to support freeing the vertex buffer
-//	// and letting the vertex array object hold a reference to it,
-//	// and so if debug info is enabled an explicit reference is held
-//	GLuint s_vertexBufferId = 0;
-//#endif
 
 	// OpenGL encapsulates a matching vertex shader and fragment shader into what it calls a "program".
 
@@ -70,15 +54,19 @@ namespace
 	GLuint s_programId = 0;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
-	struct
-	{
-		union
-		{
-			float g_elapsedSecondCount_total;
-			float register0[4];	// You won't have to worry about why I do this until a later assignment
-		};
-	} s_constantBufferData;
-	GLuint s_constantBufferId = 0;
+	//struct
+	//{
+	//	union
+	//	{
+	//		float g_elapsedSecondCount_total;
+	//		float register0[4];	// You won't have to worry about why I do this until a later assignment
+	//	};
+	//} s_constantBufferData;
+	//GLuint s_constantBufferId = 0;
+	ConstantBufferData::sFrame frameBufferData;
+	ConstantBufferData::sDrawCall drawCallBufferData;
+	ConstantBuffer frameBuffer;
+	ConstantBuffer drawCallBuffer;
 }
 
 // Helper Function Declarations
@@ -86,10 +74,9 @@ namespace
 
 namespace
 {
-	bool CreateConstantBuffer();
+	//bool CreateConstantBuffer();
 	bool CreateProgram();
 	bool CreateRenderingContext();
-	//bool CreateVertexBuffer();
 	bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_shader, size_t& o_size, std::string* o_errorMessage);
 	bool LoadFragmentShader(const GLuint i_programId);
 	bool LoadVertexShader(const GLuint i_programId);
@@ -127,28 +114,30 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	// Update the constant buffer
-	{
-		// Update the struct (i.e. the memory that we own)
-		s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
-		// Make the uniform buffer active
-		{
-			glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-		// Copy the updated memory to the GPU
-		{
-			GLintptr updateAtTheBeginning = 0;
-			GLsizeiptr updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeof(s_constantBufferData));
-			glBufferSubData(GL_UNIFORM_BUFFER, updateAtTheBeginning, updateTheEntireBuffer, &s_constantBufferData);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-		// Bind the constant buffer to the shader
-		{
-			const GLuint bindingPointAssignedInShader = 0;
-			glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
-	}
+	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
+	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
+	//{
+	//	 Update the struct (i.e. the memory that we own)
+	//	s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
+	//	// Make the uniform buffer active
+	//	{
+	//		glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	//	}
+	//	// Copy the updated memory to the GPU
+	//	{
+	//		GLintptr updateAtTheBeginning = 0;
+	//		GLsizeiptr updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeof(s_constantBufferData));
+	//		glBufferSubData(GL_UNIFORM_BUFFER, updateAtTheBeginning, updateTheEntireBuffer, &s_constantBufferData);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	//	}
+	//	 Bind the constant buffer to the shader
+	//	{
+	//		/*const GLuint bindingPointAssignedInShader = 0;
+	//		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
+	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);*/
+	//	}
+	//}
 
 	// Draw the geometry
 	{
@@ -157,33 +146,16 @@ void eae6320::Graphics::RenderFrame()
 			glUseProgram(s_programId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		}
-		//	// Bind a specific vertex buffer to the device as a data source
-		//	{
-		//		glBindVertexArray( s_vertexArrayId );
-		//		EAE6320_ASSERT( glGetError() == GL_NO_ERROR );
-		//	}
-		//	// Render triangles from the currently-bound vertex buffer
-		//	{
-		//		// The mode defines how to interpret multiple vertices as a single "primitive";
-		//		// we define a triangle list
-		//		// (meaning that every primitive is a triangle and will be defined by three vertices)
-		//		const GLenum mode = GL_TRIANGLES;
-		//		// It's possible to start rendering primitives in the middle of the stream
-		//		const GLint indexOfFirstVertexToRender = 0;
-		//		// As of this comment we are only drawing a single triangle
-		//		// (you will have to update this code in future assignments!)
-		//		const unsigned int triangleCount = 2;
-		//		const unsigned int vertexCountPerTriangle = 3;
-		//		const unsigned int vertexCountToRender = triangleCount * vertexCountPerTriangle;
-		//		glDrawArrays( mode, indexOfFirstVertexToRender, vertexCountToRender );
-		//		EAE6320_ASSERT( glGetError() == GL_NO_ERROR );
-		//	}
 	}
 
-	if (mesh)
+	size_t numberOfMeshes = gameObjects.size();
+	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		mesh->RenderMesh();
+		drawCallBuffer.UpdateConstantBuffer((&gameObjects[i]->drawCallBufferData), sizeof(gameObjects[i]->drawCallBufferData));
+		gameObjects[i]->mesh->RenderMesh();
 	}
+	gameObjects._Pop_back_n(numberOfMeshes);
+	gameObjects.clear();
 
 	// Everything has been drawn to the "back buffer", which is just an image in memory.
 	// In order to display it, the contents of the back buffer must be swapped with the "front buffer"
@@ -217,24 +189,30 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-
-	// Initialize the graphics objects
-	/*if ( !CreateVertexBuffer() )
-	{
-		EAE6320_ASSERT( false );
-		return false;
-	}*/
 	if (!CreateProgram())
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!CreateConstantBuffer())
+	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
+	else
+	{
+		frameBuffer.BindingConstantBuffer();
+	}
 
+	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall), &drawCallBufferData))
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+	else
+	{
+		drawCallBuffer.BindingConstantBuffer();
+	}
 	return true;
 }
 
@@ -257,38 +235,16 @@ bool eae6320::Graphics::CleanUp()
 			}
 			s_programId = 0;
 		}
-		/*#ifdef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
-				if ( s_vertexBufferId != 0 )
-				{
-					const GLsizei bufferCount = 1;
-					glDeleteBuffers( bufferCount, &s_vertexBufferId );
-					const GLenum errorCode = glGetError();
-					if ( errorCode != GL_NO_ERROR )
-					{
-						wereThereErrors = true;
-						EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						Logging::OutputError( "OpenGL failed to delete the vertex buffer: %s",
-							reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					}
-					s_vertexBufferId = 0;
-				}
-		#endif
-				if ( s_vertexArrayId != 0 )
-				{
-					const GLsizei arrayCount = 1;
-					glDeleteVertexArrays( arrayCount, &s_vertexArrayId );
-					const GLenum errorCode = glGetError();
-					if ( errorCode != GL_NO_ERROR )
-					{
-						wereThereErrors = true;
-						EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						Logging::OutputError( "OpenGL failed to delete the vertex array: %s",
-							reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					}
-					s_vertexArrayId = 0;
-				}*/
 
-		if (s_constantBufferId != 0)
+		if (!frameBuffer.CleanUpConstantBuffer())
+		{
+
+		}
+		if (!drawCallBuffer.CleanUpConstantBuffer())
+		{
+
+		}
+		/*if (s_constantBufferId != 0)
 		{
 			const GLsizei bufferCount = 1;
 			glDeleteBuffers(bufferCount, &s_constantBufferId);
@@ -301,7 +257,7 @@ bool eae6320::Graphics::CleanUp()
 					reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			}
 			s_constantBufferId = 0;
-		}
+		}*/
 
 		if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
 		{
@@ -335,9 +291,10 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetMesh(Mesh * Mesh)
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
 {
-	mesh = Mesh;
+	gameObjects.push_back(GameObject);
+	GameObject->SetNewInitialOffset(x, y);
 }
 
 // Helper Function Declarations
@@ -345,7 +302,7 @@ void eae6320::Graphics::SetMesh(Mesh * Mesh)
 
 namespace
 {
-	bool CreateConstantBuffer()
+	/*bool CreateConstantBuffer()
 	{
 		bool wereThereErrors = false;
 
@@ -396,7 +353,7 @@ namespace
 	OnExit:
 
 		return !wereThereErrors;
-	}
+	}*/
 
 	bool CreateProgram()
 	{
@@ -642,199 +599,6 @@ namespace
 
 		return true;
 	}
-
-	/*bool CreateVertexBuffer()
-	{
-		bool wereThereErrors = false;
-		GLuint vertexBufferId = 0;
-
-		// Create a vertex array object and make it active
-		{
-			const GLsizei arrayCount = 1;
-			glGenVertexArrays( arrayCount, &s_vertexArrayId );
-			const GLenum errorCode = glGetError();
-			if ( errorCode == GL_NO_ERROR )
-			{
-				glBindVertexArray( s_vertexArrayId );
-				const GLenum errorCode = glGetError();
-				if ( errorCode != GL_NO_ERROR )
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					eae6320::Logging::OutputError( "OpenGL failed to bind the vertex array: %s",
-						reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				eae6320::Logging::OutputError( "OpenGL failed to get an unused vertex array ID: %s",
-					reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				goto OnExit;
-			}
-		}
-
-		// Create a vertex buffer object and make it active
-		{
-			const GLsizei bufferCount = 1;
-			glGenBuffers( bufferCount, &vertexBufferId );
-			const GLenum errorCode = glGetError();
-			if ( errorCode == GL_NO_ERROR )
-			{
-				glBindBuffer( GL_ARRAY_BUFFER, vertexBufferId );
-				const GLenum errorCode = glGetError();
-				if ( errorCode != GL_NO_ERROR )
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					eae6320::Logging::OutputError( "OpenGL failed to bind the vertex buffer: %s",
-						reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				eae6320::Logging::OutputError( "OpenGL failed to get an unused vertex buffer ID: %s",
-					reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				goto OnExit;
-			}
-		}
-		// Assign the data to the buffer
-		{
-			// Eventually the vertex data should come from a file but for now it is hard-coded here.
-			// You will have to update this in a future assignment
-			// (one of the most common mistakes in the class is to leave hard-coded values here).
-
-			const unsigned int triangleCount = 2;
-			const unsigned int vertexCountPerTriangle = 3;
-			const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
-			const unsigned int bufferSize = vertexCount * sizeof( Vertex );
-			Vertex vertexData[vertexCount];
-			// Fill in the data for the triangle
-			{
-				vertexData[0].x = 0.0f;
-				vertexData[0].y = 0.0f;
-
-				vertexData[1].x = 1.0f;
-				vertexData[1].y = 0.0f;
-
-				vertexData[2].x = 1.0f;
-				vertexData[2].y = 1.0f;
-
-				vertexData[3].x = 0.0f;
-				vertexData[3].y = 0.0f;
-
-				vertexData[4].x = 1.0f;
-				vertexData[4].y = 1.0f;
-
-				vertexData[5].x = 0.0f;
-				vertexData[5].y = 1.0f;
-			}
-			glBufferData( GL_ARRAY_BUFFER, bufferSize, reinterpret_cast<GLvoid*>( vertexData ),
-				// In our class we won't ever read from the buffer
-				GL_STATIC_DRAW );
-			const GLenum errorCode = glGetError();
-			if ( errorCode != GL_NO_ERROR )
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				eae6320::Logging::OutputError( "OpenGL failed to allocate the vertex buffer: %s",
-					reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				goto OnExit;
-			}
-		}
-		// Initialize the vertex format
-		{
-			// The "stride" defines how large a single vertex is in the stream of data
-			// (or, said another way, how far apart each position element is)
-			const GLsizei stride = sizeof( Vertex );
-
-			// Position (0)
-			// 2 floats == 8 bytes
-			// Offset = 0
-			{
-				const GLuint vertexElementLocation = 0;
-				const GLint elementCount = 2;
-				const GLboolean notNormalized = GL_FALSE;	// The given floats should be used as-is
-				glVertexAttribPointer( vertexElementLocation, elementCount, GL_FLOAT, notNormalized, stride,
-					reinterpret_cast<GLvoid*>( offsetof( Vertex, x ) ) );
-				const GLenum errorCode = glGetError();
-				if ( errorCode == GL_NO_ERROR )
-				{
-					glEnableVertexAttribArray( vertexElementLocation );
-					const GLenum errorCode = glGetError();
-					if ( errorCode != GL_NO_ERROR )
-					{
-						wereThereErrors = true;
-						EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						eae6320::Logging::OutputError( "OpenGL failed to enable the POSITION vertex attribute at location %u: %s",
-							vertexElementLocation, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						goto OnExit;
-					}
-				}
-				else
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					eae6320::Logging::OutputError( "OpenGL failed to set the POSITION vertex attribute at location %u: %s",
-						vertexElementLocation, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-					goto OnExit;
-				}
-			}
-		}
-
-	OnExit:
-
-		if ( s_vertexArrayId != 0 )
-		{
-			// Unbind the vertex array
-			// (this must be done before deleting the vertex buffer)
-			glBindVertexArray( 0 );
-			const GLenum errorCode = glGetError();
-			if ( errorCode == GL_NO_ERROR )
-			{
-				// The vertex and index buffer objects can be freed
-				// (the vertex array object will still hold references to them,
-				// and so they won't actually goes away until it gets freed).
-				// Unfortunately debuggers don't work well when these are freed
-				// (gDEBugger just doesn't show anything and RenderDoc crashes),
-				// and so don't free them if debug info is enabled.
-				if ( vertexBufferId != 0 )
-				{
-#ifndef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
-					const GLsizei bufferCount = 1;
-					glDeleteBuffers( bufferCount, &vertexBufferId );
-					const GLenum errorCode = glGetError();
-					if ( errorCode != GL_NO_ERROR )
-					{
-						wereThereErrors = true;
-						EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						eae6320::Logging::OutputError( "OpenGL failed to vertex buffer: %s",
-							reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-						goto OnExit;
-					}
-					vertexBufferId = 0;
-#else
-					s_vertexBufferId = vertexBufferId;
-#endif
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF( false, reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				eae6320::Logging::OutputError( "OpenGL failed to unbind the vertex array: %s",
-					reinterpret_cast<const char*>( gluErrorString( errorCode ) ) );
-				goto OnExit;
-			}
-		}
-
-		return !wereThereErrors;
-	}*/
 
 	bool LoadFragmentShader(const GLuint i_programId)
 	{

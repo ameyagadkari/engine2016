@@ -8,9 +8,13 @@
 // Constants
 //==========
 
-layout( std140, binding = 0 ) uniform constantBuffer
+layout( std140, binding = 0 ) uniform constantBuffer_frame
 {
 	float g_elapsedSecondCount_total;
+};
+layout( std140, binding = 1 ) uniform constantBuffer_drawCall
+{
+	vec2 g_objectPosition_screen;
 };
 
 // Input
@@ -20,7 +24,7 @@ layout( std140, binding = 0 ) uniform constantBuffer
 // but must match the C calls to glVertexAttribPointer()
 
 // These values come from one of the sVertex that we filled the vertex buffer with in C code
-layout( location = 0 ) in vec2 i_position;
+layout( location = 0 ) in vec2 i_vertexPosition_local;
 layout( location = 1 ) in vec4 i_color;
 
 // Output
@@ -46,13 +50,10 @@ void main()
 {
 	// Calculate position
 	{
-		// When we move to 3D graphics the screen position that the vertex shader outputs
-		// will be different than the position that is input to it from C code,
-		// but for now the "out" position is set directly from the "in" position
-		//gl_Position = vec4( i_position.xy, 0.0, 1.0 );
-		float t = sin( g_elapsedSecondCount_total );
-		t = ((t>0)?(t*-1):t);
-		gl_Position = vec4( i_position.x + t ,i_position.y + sqrt(1-(i_position.x + t) * (i_position.x + t)) - 1,0.0,1.0 );
+		// The vertex's output position is calculated by adding
+		// the vertex's position offset from the local origin
+		// to the object's screen position
+		gl_Position = vec4( g_objectPosition_screen + i_vertexPosition_local, 0.0, 1.0 );
 	}
 	// Pass the input color to the fragment shader unchanged
 	{

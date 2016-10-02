@@ -25,6 +25,14 @@
     <ClCompile Include="CommonData.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshData.cpp" />
+    <ClCompile Include="ConstantBufferData.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="Direct3D\ConstantBuffer.d3d.cpp">
+      <Filter>Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\ConstantBuffer.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -35,5 +43,7 @@
     <ClInclude Include="CommonData.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
+    <ClInclude Include="ConstantBufferData.h" />
+    <ClInclude Include="ConstantBuffer.h" />
   </ItemGroup>
 </Project>

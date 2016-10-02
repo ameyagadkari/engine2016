@@ -13,12 +13,15 @@
 #include "../../Logging/Logging.h"
 #include "../../Time/Time.h"
 #include "../CommonData.h"
+#include "../ConstantBuffer.h"
 // Static Data Initialization
 //===========================
 
 namespace
 {
-	eae6320::Graphics::CommonData *commonData = eae6320::Graphics::CommonData::GetCommonData();
+	using namespace eae6320::Graphics;
+	CommonData *commonData = CommonData::GetCommonData();
+	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	// This is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are D3D interfaces
@@ -26,20 +29,6 @@ namespace
 	IDXGISwapChain* s_swapChain = NULL;
 	//ID3D11DeviceContext* s_direct3dImmediateContext = NULL;
 	ID3D11RenderTargetView* s_renderTargetView = NULL;
-	eae6320::Graphics::Mesh *mesh;
-
-	//// This struct determines the layout of the geometric data that the CPU will send to the GPU
-	//struct Vertex
-	//{
-	//	// POSITION
-	//	// 2 floats == 8 bytes
-	//	// Offset = 0
-	//	float x, y;
-	//};
-	// D3D has an "input layout" object that associates the layout of the struct above
-	// with the input from a vertex shader
-	//ID3D11InputLayout* s_vertexLayout = NULL;
-
 	// The vertex buffer holds the data for each vertex
 	ID3D11Buffer* s_vertexBuffer = NULL;
 
@@ -63,28 +52,30 @@ namespace
 	ID3D11PixelShader* s_fragmentShader = NULL;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
-	struct
-	{
-		union
-		{
-			float g_elapsedSecondCount_total;
-			float register0[4];	// You won't have to worry about why I do this until a later assignment
-		};
-	} s_constantBufferData;
-	ID3D11Buffer* s_constantBuffer = NULL;
-}
+	//struct
+	//{
+	//	union
+	//	{
+	//		float g_elapsedSecondCount_total;
+	//		float register0[4];	// You won't have to worry about why I do this until a later assignment
+	//	};
+	//} s_constantBufferData;
+	//ID3D11Buffer* s_constantBuffer = NULL;
 
+	ConstantBufferData::sFrame frameBufferData;
+	ConstantBuffer frameBuffer;
+	ConstantBuffer drawCallBuffer;
+}
 // Helper Function Declarations
 //=============================
 
 namespace
 {
-	bool CreateConstantBuffer();
-	bool CreateDevice( const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight );
-	//bool CreateVertexBuffer( ID3D10Blob& i_compiledShader );
-	bool CreateView( const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight );
+	//bool CreateConstantBuffer();
+	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
+	bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool LoadFragmentShader();
-	bool LoadVertexShader( ID3D10Blob*& o_compiledShader );
+	bool LoadVertexShader(ID3D10Blob*& o_compiledShader);
 }
 
 // Interface
@@ -101,51 +92,53 @@ void eae6320::Graphics::RenderFrame()
 	{
 		// Black is usually used
 		float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		commonData->s_direct3dImmediateContext->ClearRenderTargetView( s_renderTargetView, clearColor );
+		commonData->s_direct3dImmediateContext->ClearRenderTargetView(s_renderTargetView, clearColor);
 	}
 
 	// Update the constant buffer
-	{
-		// Update the struct (i.e. the memory that we own)
-		s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
-		// Get a pointer from Direct3D that can be written to
-		void* memoryToWriteTo = NULL;
-		{
-			D3D11_MAPPED_SUBRESOURCE mappedSubResource;
-			{
-				// Discard previous contents when writing
-				const unsigned int noSubResources = 0;
-				const D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
-				const unsigned int noFlags = 0;
-				const HRESULT result = commonData->s_direct3dImmediateContext->Map( s_constantBuffer, noSubResources, mapType, noFlags, &mappedSubResource );
-				if ( SUCCEEDED( result ) )
-				{
-					memoryToWriteTo = mappedSubResource.pData;
-				}
-				else
-				{
-					EAE6320_ASSERT( false );
-				}
-			}
-		}
-		if ( memoryToWriteTo )
-		{
-			// Copy the new data to the memory that Direct3D has provided
-			memcpy( memoryToWriteTo, &s_constantBufferData, sizeof( s_constantBufferData ) );
-			// Let Direct3D know that the memory contains the data
-			// (the pointer will be invalid after this call)
-			const unsigned int noSubResources = 0;
-			commonData->s_direct3dImmediateContext->Unmap( s_constantBuffer, noSubResources );
-			memoryToWriteTo = NULL;
-		}
-		// Bind the constant buffer to the shader
-		{
-			const unsigned int registerAssignedInShader = 0;
-			const unsigned int bufferCount = 1;
-			commonData->s_direct3dImmediateContext->VSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );
-			commonData->s_direct3dImmediateContext->PSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );
-		}
-	}
+	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
+	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
+	//{
+	//	// Update the struct (i.e. the memory that we own)
+	//	frameBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
+	//	// Get a pointer from Direct3D that can be written to
+	//	void* memoryToWriteTo = NULL;
+	//	{
+	//		D3D11_MAPPED_SUBRESOURCE mappedSubResource;
+	//		{
+	//			// Discard previous contents when writing
+	//			const unsigned int noSubResources = 0;
+	//			const D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
+	//			const unsigned int noFlags = 0;
+	//			const HRESULT result = commonData->s_direct3dImmediateContext->Map(s_constantBuffer, noSubResources, mapType, noFlags, &mappedSubResource);
+	//			if (SUCCEEDED(result))
+	//			{
+	//				memoryToWriteTo = mappedSubResource.pData;
+	//			}
+	//			else
+	//			{
+	//				EAE6320_ASSERT(false);
+	//			}
+	//		}
+	//	}
+	//	if (memoryToWriteTo)
+	//	{
+	//		// Copy the new data to the memory that Direct3D has provided
+	//		memcpy(memoryToWriteTo, &s_constantBufferData, sizeof(s_constantBufferData));
+	//		// Let Direct3D know that the memory contains the data
+	//		// (the pointer will be invalid after this call)
+	//		const unsigned int noSubResources = 0;
+	//		commonData->s_direct3dImmediateContext->Unmap(s_constantBuffer, noSubResources);
+	//		memoryToWriteTo = NULL;
+	//	}
+	//	 Bind the constant buffer to the shader
+	//	{
+	//		/*const unsigned int registerAssignedInShader = 0;
+	//		const unsigned int bufferCount = 1;
+	//		commonData->s_direct3dImmediateContext->VSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );
+	//		commonData->s_direct3dImmediateContext->PSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );*/
+	//	}
+	//}
 
 	// Draw the geometry
 	{
@@ -153,43 +146,18 @@ void eae6320::Graphics::RenderFrame()
 		{
 			ID3D11ClassInstance** const noInterfaces = NULL;
 			const unsigned int interfaceCount = 0;
-			commonData->s_direct3dImmediateContext->VSSetShader( s_vertexShader, noInterfaces, interfaceCount );
-			commonData->s_direct3dImmediateContext->PSSetShader( s_fragmentShader, noInterfaces, interfaceCount );
+			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
+			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);
 		}
-		//// Bind a specific vertex buffer to the device as a data source
-		//{
-		//	const unsigned int startingSlot = 0;
-		//	const unsigned int vertexBufferCount = 1;
-		//	// The "stride" defines how large a single vertex is in the stream of data
-		//	const unsigned int bufferStride = sizeof( CommonData::Vertex );
-		//	// It's possible to start streaming data in the middle of a vertex buffer
-		//	const unsigned int bufferOffset = 0;
-		//	commonData->s_direct3dImmediateContext->IASetVertexBuffers( startingSlot, vertexBufferCount, &s_vertexBuffer, &bufferStride, &bufferOffset );
-		//}
-		//// Specify what kind of data the vertex buffer holds
-		//{
-		//	// Set the layout (which defines how to interpret a single vertex)
-		//	commonData->s_direct3dImmediateContext->IASetInputLayout(commonData->s_vertexLayout );
-		//	// Set the topology (which defines how to interpret multiple vertices as a single "primitive";
-		//	// we have defined the vertex buffer as a triangle list
-		//	// (meaning that every primitive is a triangle and will be defined by three vertices)
-		//	commonData->s_direct3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		//}
-		//// Render triangles from the currently-bound vertex buffer
-		//{
-		//	// As of this comment we are only drawing a single triangle
-		//	// (you will have to update this code in future assignments!)
-		//	const unsigned int triangleCount = 2;
-		//	const unsigned int vertexCountPerTriangle = 3;
-		//	const unsigned int vertexCountToRender = triangleCount * vertexCountPerTriangle;
-		//	// It's possible to start rendering primitives in the middle of the stream
-		//	const unsigned int indexOfFirstVertexToRender = 0;
-		//	commonData->s_direct3dImmediateContext->Draw( vertexCountToRender, indexOfFirstVertexToRender );
-		//}
-		if (mesh)
+
+		size_t numberOfMeshes = gameObjects.size();
+		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
-			mesh->RenderMesh();
+			drawCallBuffer.UpdateConstantBuffer(&gameObjects[i]->drawCallBufferData, sizeof(gameObjects[i]->drawCallBufferData));
+			gameObjects[i]->mesh->RenderMesh();
 		}
+		gameObjects._Pop_back_n(numberOfMeshes);
+		gameObjects.clear();
 	}
 
 	// Everything has been drawn to the "back buffer", which is just an image in memory.
@@ -198,54 +166,63 @@ void eae6320::Graphics::RenderFrame()
 	{
 		const unsigned int swapImmediately = 0;
 		const unsigned int presentNextFrame = 0;
-		const HRESULT result = s_swapChain->Present( swapImmediately, presentNextFrame );
-		EAE6320_ASSERT( SUCCEEDED( result ) );
+		const HRESULT result = s_swapChain->Present(swapImmediately, presentNextFrame);
+		EAE6320_ASSERT(SUCCEEDED(result));
 	}
 }
 
 // Initialization / Clean Up
 //--------------------------
 
-bool eae6320::Graphics::Initialize( const sInitializationParameters& i_initializationParameters )
+bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializationParameters)
 {
 	bool wereThereErrors = false;
 
 	s_renderingWindow = i_initializationParameters.mainWindow;
-	//ID3D10Blob* compiledVertexShader = NULL;
 
 	// Create an interface to a Direct3D device
-	if ( !CreateDevice( i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight ) )
+	if (!CreateDevice(i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight))
 	{
 		wereThereErrors = true;
 		goto OnExit;
 	}
 	// Initialize the viewport of the device
-	if ( !CreateView( i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight ) )
+	if (!CreateView(i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight))
 	{
 		wereThereErrors = true;
 		goto OnExit;
 	}
 
 	// Initialize the graphics objects
-	if ( !LoadVertexShader(commonData->compiledVertexShader ) )
+	if (!LoadVertexShader(commonData->compiledVertexShader))
 	{
 		wereThereErrors = true;
 		goto OnExit;
 	}
-	/*if ( !CreateVertexBuffer( *commonData->compiledVertexShader ) )
-	{
-		wereThereErrors = true;
-		goto OnExit;
-	}*/
-	if ( !LoadFragmentShader() )
+	if (!LoadFragmentShader())
 	{
 		wereThereErrors = true;
 		goto OnExit;
 	}
-	if ( !CreateConstantBuffer() )
+
+	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(ConstantBufferData::sFrame), &frameBufferData))
 	{
 		wereThereErrors = true;
 		goto OnExit;
+	}
+	else
+	{
+		frameBuffer.BindingConstantBuffer(BindMode::VS_PS_BOTH);
+	}
+
+	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	{
+		wereThereErrors = true;
+		goto OnExit;
+	}
+	else
+	{
+		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
 	}
 
 OnExit:
@@ -267,37 +244,35 @@ bool eae6320::Graphics::CleanUp()
 {
 	bool wereThereErrors = false;
 
-	if (commonData->s_direct3dDevice )
+	if (commonData->s_direct3dDevice)
 	{
-		if (commonData->s_vertexLayout )
+		if (commonData->s_vertexLayout)
 		{
 			commonData->s_vertexLayout->Release();
 			commonData->s_vertexLayout = NULL;
 		}
-		/*if ( s_vertexBuffer )
-		{
-			s_vertexBuffer->Release();
-			s_vertexBuffer = NULL;
-		}*/
 
-		if ( s_vertexShader )
+		if (s_vertexShader)
 		{
 			s_vertexShader->Release();
 			s_vertexShader = NULL;
 		}
-		if ( s_fragmentShader )
+
+		if (s_fragmentShader)
 		{
 			s_fragmentShader->Release();
 			s_fragmentShader = NULL;
 		}
 
-		if ( s_constantBuffer )
+		if (!frameBuffer.CleanUpConstantBuffer())
 		{
-			s_constantBuffer->Release();
-			s_constantBuffer = NULL;
+			
 		}
-
-		if ( s_renderTargetView )
+		if (!drawCallBuffer.CleanUpConstantBuffer())
+		{
+			
+		}
+		if (s_renderTargetView)
 		{
 			s_renderTargetView->Release();
 			s_renderTargetView = NULL;
@@ -306,25 +281,25 @@ bool eae6320::Graphics::CleanUp()
 		commonData->s_direct3dDevice->Release();
 		commonData->s_direct3dDevice = NULL;
 	}
-	if (commonData->s_direct3dImmediateContext )
+	if (commonData->s_direct3dImmediateContext)
 	{
 		commonData->s_direct3dImmediateContext->Release();
 		commonData->s_direct3dImmediateContext = NULL;
 	}
-	if ( s_swapChain )
+	if (s_swapChain)
 	{
 		s_swapChain->Release();
 		s_swapChain = NULL;
 	}
 
 	s_renderingWindow = NULL;
-
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetMesh(Mesh * Mesh)
-{
-	mesh = Mesh;
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
+{	
+	gameObjects.push_back(GameObject);
+	GameObject->SetNewInitialOffset(x, y);
 }
 
 // Helper Function Definitions
@@ -332,40 +307,40 @@ void eae6320::Graphics::SetMesh(Mesh * Mesh)
 
 namespace
 {
-	bool CreateConstantBuffer()
-	{
-		D3D11_BUFFER_DESC bufferDescription = { 0 };
-		{
-			// The byte width must be rounded up to a multiple of 16
-			bufferDescription.ByteWidth = sizeof( s_constantBufferData );
-			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;	// The CPU must be able to update the buffer
-			bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// The CPU must write, but doesn't read
-			bufferDescription.MiscFlags = 0;
-			bufferDescription.StructureByteStride = 0;	// Not used
-		}
-		D3D11_SUBRESOURCE_DATA initialData = { 0 };
-		{
-			// Fill in the constant buffer
-			s_constantBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-			initialData.pSysMem = &s_constantBufferData;
-			// (The other data members are ignored for non-texture buffers)
-		}
+	//bool CreateConstantBuffer()
+	//{
+	//	D3D11_BUFFER_DESC bufferDescription = { 0 };
+	//	{
+	//		// The byte width must be rounded up to a multiple of 16
+	//		bufferDescription.ByteWidth = sizeof(s_constantBufferData);
+	//		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;	// The CPU must be able to update the buffer
+	//		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	//		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// The CPU must write, but doesn't read
+	//		bufferDescription.MiscFlags = 0;
+	//		bufferDescription.StructureByteStride = 0;	// Not used
+	//	}
+	//	D3D11_SUBRESOURCE_DATA initialData = { 0 };
+	//	{
+	//		// Fill in the constant buffer
+	//		s_constantBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
+	//		initialData.pSysMem = &s_constantBufferData;
+	//		// (The other data members are ignored for non-texture buffers)
+	//	}
 
-		const HRESULT result = commonData->s_direct3dDevice->CreateBuffer( &bufferDescription, &initialData, &s_constantBuffer );
-		if ( SUCCEEDED( result ) )
-		{
-			return true;
-		}
-		else
-		{
-			EAE6320_ASSERT( false );
-			eae6320::Logging::OutputError( "Direct3D failed to create a constant buffer with HRESULT %#010x", result );
-			return false;
-		}
-	}
+	//	const HRESULT result = commonData->s_direct3dDevice->CreateBuffer(&bufferDescription, &initialData, &s_constantBuffer);
+	//	if (SUCCEEDED(result))
+	//	{
+	//		return true;
+	//	}
+	//	else
+	//	{
+	//		EAE6320_ASSERT(false);
+	//		eae6320::Logging::OutputError("Direct3D failed to create a constant buffer with HRESULT %#010x", result);
+	//		return false;
+	//	}
+	//}
 
-	bool CreateDevice( const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight )
+	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{
 		IDXGIAdapter* const useDefaultAdapter = NULL;
 		const D3D_DRIVER_TYPE useHardwareRendering = D3D_DRIVER_TYPE_HARDWARE;
@@ -410,118 +385,22 @@ namespace
 			swapChainDescription.Flags = 0;
 		}
 		D3D_FEATURE_LEVEL highestSupportedFeatureLevel;
-		const HRESULT result = D3D11CreateDeviceAndSwapChain( useDefaultAdapter, useHardwareRendering, dontUseSoftwareRendering,
+		const HRESULT result = D3D11CreateDeviceAndSwapChain(useDefaultAdapter, useHardwareRendering, dontUseSoftwareRendering,
 			flags, useDefaultFeatureLevels, requestedFeatureLevelCount, sdkVersion, &swapChainDescription,
-			&s_swapChain, &commonData->s_direct3dDevice, &highestSupportedFeatureLevel, &commonData->s_direct3dImmediateContext );
-		if ( SUCCEEDED( result ) )
+			&s_swapChain, &commonData->s_direct3dDevice, &highestSupportedFeatureLevel, &commonData->s_direct3dImmediateContext);
+		if (SUCCEEDED(result))
 		{
 			return true;
 		}
 		else
 		{
-			EAE6320_ASSERT( false );
-			eae6320::Logging::OutputError( "Direct3D failed to create a Direct3D11 device with HRESULT %#010x", result );
+			EAE6320_ASSERT(false);
+			eae6320::Logging::OutputError("Direct3D failed to create a Direct3D11 device with HRESULT %#010x", result);
 			return false;
 		}
 	}
 
-	/*bool CreateVertexBuffer( ID3D10Blob& i_compiledShader )
-	{
-		// Create the vertex layout
-		{
-			// These elements must match the VertexFormat::Vertex layout struct exactly.
-			// They instruct Direct3D how to match the binary data in the vertex buffer
-			// to the input elements in a vertex shader
-			// (by using so-called "semantic" names so that, for example,
-			// "POSITION" here matches with "POSITION" in shader code).
-			// Note that OpenGL uses arbitrarily assignable number IDs to do the same thing.
-			const unsigned int vertexElementCount = 1;
-			D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 };
-			{
-				// Slot 0
-
-				// POSITION
-				// 2 floats == 8 bytes
-				// Offset = 0
-				{
-					D3D11_INPUT_ELEMENT_DESC& positionElement = layoutDescription[0];
-
-					positionElement.SemanticName = "POSITION";
-					positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
-					positionElement.Format = DXGI_FORMAT_R32G32_FLOAT;
-					positionElement.InputSlot = 0;
-					positionElement.AlignedByteOffset = offsetof( CommonData::Vertex, x );
-					positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-					positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
-				}
-			}
-
-			const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout( layoutDescription, vertexElementCount,
-				i_compiledShader.GetBufferPointer(), i_compiledShader.GetBufferSize(), &commonData->s_vertexLayout );
-			if ( FAILED( result ) )
-			{
-				EAE6320_ASSERT( false );
-				eae6320::Logging::OutputError( "Direct3D failed to create a vertex input layout with HRESULT %#010x", result );
-				return false;
-			}
-		}
-
-		// Eventually the vertex data should come from a file but for now it is hard-coded here.
-		// You will have to update this in a future assignment
-		// (one of the most common mistakes in the class is to leave hard-coded values here).
-
-		const unsigned int triangleCount = 2;
-		const unsigned int vertexCountPerTriangle = 3;
-		const unsigned int vertexCount = triangleCount * vertexCountPerTriangle;
-		const unsigned int bufferSize = vertexCount * sizeof(CommonData::Vertex );
-		CommonData::Vertex vertexData[vertexCount];
-		{
-			vertexData[0].x = 0.0f;
-			vertexData[0].y = 0.0f;
-
-			vertexData[1].x = 1.0f;
-			vertexData[1].y = 1.0f;
-
-			vertexData[2].x = 1.0f;
-			vertexData[2].y = 0.0f;
-
-			vertexData[3].x = 0.0f;
-			vertexData[3].y = 0.0f;
-
-			vertexData[4].x = 0.0f;
-			vertexData[4].y = 1.0f;
-
-			vertexData[5].x = 1.0f;
-			vertexData[5].y = 1.0f;
-		}
-
-		D3D11_BUFFER_DESC bufferDescription = { 0 };
-		{
-			bufferDescription.ByteWidth = bufferSize;
-			bufferDescription.Usage = D3D11_USAGE_IMMUTABLE;	// In our class the buffer will never change after it's been created
-			bufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			bufferDescription.CPUAccessFlags = 0;	// No CPU access is necessary
-			bufferDescription.MiscFlags = 0;
-			bufferDescription.StructureByteStride = 0;	// Not used
-		}
-		D3D11_SUBRESOURCE_DATA initialData = { 0 };
-		{
-			initialData.pSysMem = vertexData;
-			// (The other data members are ignored for non-texture buffers)
-		}
-
-		const HRESULT result = commonData->s_direct3dDevice->CreateBuffer( &bufferDescription, &initialData, &s_vertexBuffer );
-		if ( FAILED( result ) )
-		{
-			EAE6320_ASSERT( false );
-			eae6320::Logging::OutputError( "Direct3D failed to create the vertex buffer with HRESULT %#010x", result );
-			return false;
-		}
-
-		return true;
-	}*/
-
-	bool CreateView( const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight )
+	bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{
 		bool wereThereErrors = false;
 
@@ -532,30 +411,30 @@ namespace
 			HRESULT result;
 			{
 				const unsigned int bufferIndex = 0;	// This must be 0 since the swap chain is discarded
-				result = s_swapChain->GetBuffer( bufferIndex, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &backBuffer ) );
-				if ( FAILED( result ) )
+				result = s_swapChain->GetBuffer(bufferIndex, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
+				if (FAILED(result))
 				{
-					EAE6320_ASSERT( false );
-					eae6320::Logging::OutputError( "Direct3D failed to get the back buffer from the swap chain with HRESULT %#010x", result );
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to get the back buffer from the swap chain with HRESULT %#010x", result);
 					goto OnExit;
 				}
 			}
 			// Create the view
 			{
 				const D3D11_RENDER_TARGET_VIEW_DESC* const accessAllSubResources = NULL;
-				result = commonData->s_direct3dDevice->CreateRenderTargetView( backBuffer, accessAllSubResources, &s_renderTargetView );
+				result = commonData->s_direct3dDevice->CreateRenderTargetView(backBuffer, accessAllSubResources, &s_renderTargetView);
 			}
-			if ( SUCCEEDED( result ) )
+			if (SUCCEEDED(result))
 			{
 				// Bind it
 				const unsigned int renderTargetCount = 1;
 				ID3D11DepthStencilView* const noDepthStencilState = NULL;
-				commonData->s_direct3dImmediateContext->OMSetRenderTargets( renderTargetCount, &s_renderTargetView, noDepthStencilState );
+				commonData->s_direct3dImmediateContext->OMSetRenderTargets(renderTargetCount, &s_renderTargetView, noDepthStencilState);
 			}
 			else
 			{
-				EAE6320_ASSERT( false );
-				eae6320::Logging::OutputError( "Direct3D failed to create the render target view with HRESULT %#010x", result );
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the render target view with HRESULT %#010x", result);
 				goto OnExit;
 			}
 		}
@@ -564,17 +443,17 @@ namespace
 		{
 			D3D11_VIEWPORT viewPort = { 0 };
 			viewPort.TopLeftX = viewPort.TopLeftY = 0.0f;
-			viewPort.Width = static_cast<float>( i_resolutionWidth );
-			viewPort.Height = static_cast<float>( i_resolutionHeight );
+			viewPort.Width = static_cast<float>(i_resolutionWidth);
+			viewPort.Height = static_cast<float>(i_resolutionHeight);
 			viewPort.MinDepth = 0.0f;
 			viewPort.MaxDepth = 1.0f;
 			const unsigned int viewPortCount = 1;
-			commonData->s_direct3dImmediateContext->RSSetViewports( viewPortCount, &viewPort );
+			commonData->s_direct3dImmediateContext->RSSetViewports(viewPortCount, &viewPort);
 		}
 
 	OnExit:
 
-		if ( backBuffer )
+		if (backBuffer)
 		{
 			backBuffer->Release();
 			backBuffer = NULL;
@@ -597,29 +476,29 @@ namespace
 			ID3DX11ThreadPump* const blockUntilLoaded = NULL;
 			ID3D10Blob* errorMessages = NULL;
 			HRESULT result;
-			result = D3DX11CompileFromFile( sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-				noFlags, noFlags, blockUntilLoaded, &compiledShader, &errorMessages, &result );
-			if ( SUCCEEDED( result ) )
+			result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
+				noFlags, noFlags, blockUntilLoaded, &compiledShader, &errorMessages, &result);
+			if (SUCCEEDED(result))
 			{
-				if ( errorMessages )
+				if (errorMessages)
 				{
 					errorMessages->Release();
 				}
 			}
 			else
 			{
-				if ( errorMessages )
+				if (errorMessages)
 				{
-					EAE6320_ASSERTF( false, reinterpret_cast<char*>( errorMessages->GetBufferPointer() ) );
-					eae6320::Logging::OutputError( "Direct3D failed to compile the fragment shader from the file %s: %s",
-						sourceCodeFileName, reinterpret_cast<char*>( errorMessages->GetBufferPointer() ) );
+					EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+					eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s: %s",
+						sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
 					errorMessages->Release();
 				}
 				else
 				{
-					EAE6320_ASSERT( false );
-					eae6320::Logging::OutputError( "Direct3D failed to compile the fragment shader from the file %s",
-						sourceCodeFileName );
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s",
+						sourceCodeFileName);
 				}
 				return false;
 			}
@@ -628,12 +507,12 @@ namespace
 		bool wereThereErrors = false;
 		{
 			ID3D11ClassLinkage* const noInterfaces = NULL;
-			const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader( compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(),
-				noInterfaces, &s_fragmentShader );
-			if ( FAILED( result ) )
+			const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(),
+				noInterfaces, &s_fragmentShader);
+			if (FAILED(result))
 			{
-				EAE6320_ASSERT( false );
-				eae6320::Logging::OutputError( "Direct3D failed to create the fragment shader with HRESULT %#010x", result );
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the fragment shader with HRESULT %#010x", result);
 				wereThereErrors = true;
 			}
 			compiledShader->Release();
@@ -641,7 +520,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadVertexShader( ID3D10Blob*& o_compiledShader )
+	bool LoadVertexShader(ID3D10Blob*& o_compiledShader)
 	{
 		// Load the source code and compile it
 		{
@@ -654,29 +533,29 @@ namespace
 			ID3DX11ThreadPump* const blockUntilLoaded = NULL;
 			ID3D10Blob* errorMessages = NULL;
 			HRESULT result;
-			result = D3DX11CompileFromFile( sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-				noFlags, noFlags, blockUntilLoaded, &o_compiledShader, &errorMessages, &result );
-			if ( SUCCEEDED( result ) )
+			result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
+				noFlags, noFlags, blockUntilLoaded, &o_compiledShader, &errorMessages, &result);
+			if (SUCCEEDED(result))
 			{
-				if ( errorMessages )
+				if (errorMessages)
 				{
 					errorMessages->Release();
 				}
 			}
 			else
 			{
-				if ( errorMessages )
+				if (errorMessages)
 				{
-					EAE6320_ASSERTF( false, reinterpret_cast<char*>( errorMessages->GetBufferPointer() ) );
-					eae6320::Logging::OutputError( "Direct3D failed to compile the vertex shader from the file %s: %s",
-						sourceCodeFileName, reinterpret_cast<char*>( errorMessages->GetBufferPointer() ) );
+					EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+					eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s: %s",
+						sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
 					errorMessages->Release();
 				}
 				else
 				{
-					EAE6320_ASSERT( false );
-					eae6320::Logging::OutputError( "Direct3D failed to compile the vertex shader from the file %s",
-						sourceCodeFileName );
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s",
+						sourceCodeFileName);
 				}
 				return false;
 			}
@@ -685,12 +564,12 @@ namespace
 		bool wereThereErrors = false;
 		{
 			ID3D11ClassLinkage* const noInterfaces = NULL;
-			const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader( o_compiledShader->GetBufferPointer(), o_compiledShader->GetBufferSize(),
-				noInterfaces, &s_vertexShader );
-			if ( FAILED( result ) )
+			const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(o_compiledShader->GetBufferPointer(), o_compiledShader->GetBufferSize(),
+				noInterfaces, &s_vertexShader);
+			if (FAILED(result))
 			{
-				EAE6320_ASSERT( false );
-				eae6320::Logging::OutputError( "Direct3D failed to create the vertex shader with HRESULT %#010x", result );
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the vertex shader with HRESULT %#010x", result);
 				wereThereErrors = true;
 			}
 		}

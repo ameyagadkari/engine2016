@@ -2,8 +2,8 @@
 This file manages common functionality
 */
 
-#ifndef EAE6320_COMMONDATA_H
-#define EAE6320_COMMONDATA_H
+#ifndef EAE6320_COMMON_DATA_H
+#define EAE6320_COMMON_DATA_H
 
 
 #if defined( EAE6320_PLATFORM_D3D )
@@ -33,4 +33,4 @@ namespace eae6320
 		};
 	}
 }
-#endif // EAE6320_COMMONDATA_H
+#endif // EAE6320_COMMON_DATA_H
