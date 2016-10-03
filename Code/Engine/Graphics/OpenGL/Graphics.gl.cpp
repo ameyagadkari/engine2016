@@ -151,8 +151,8 @@ void eae6320::Graphics::RenderFrame()
 	size_t numberOfMeshes = gameObjects.size();
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		drawCallBuffer.UpdateConstantBuffer((&gameObjects[i]->drawCallBufferData), sizeof(gameObjects[i]->drawCallBufferData));
-		gameObjects[i]->mesh->RenderMesh();
+		drawCallBuffer.UpdateConstantBuffer((&gameObjects[i]->GetDrawCallBufferData()), sizeof(gameObjects[i]->GetDrawCallBufferData()));
+		gameObjects[i]->GetMesh()->RenderMesh();
 	}
 	gameObjects._Pop_back_n(numberOfMeshes);
 	gameObjects.clear();

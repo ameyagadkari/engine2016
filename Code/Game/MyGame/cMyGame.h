@@ -82,7 +82,7 @@ namespace eae6320
 		//--------------------------------
 
 		virtual bool Initialize();
-		virtual void UpdatePlayerPosition();
+		virtual void UpdateGameObjectPosition();
 		virtual void SubmitMesh();
 		virtual bool CleanUp();	
 	};

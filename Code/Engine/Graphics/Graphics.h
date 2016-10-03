@@ -10,7 +10,7 @@
 
 
 #include "Configuration.h"
-#include "../Gameplay/GameObject.h"
+#include "../../Game/Gameplay/GameObject.h"
 #include <vector>
 
 #if defined( EAE6320_PLATFORM_WINDOWS )

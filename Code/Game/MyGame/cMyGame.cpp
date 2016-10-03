@@ -3,15 +3,12 @@
 
 
 #include <vector>
-#include "../../Engine/Gameplay/GameObject.h"
+#include "../Gameplay/GameObject.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
-#include "../../Engine/Time/Time.h"
-#include "../../Engine/UserInput/UserInput.h"
 
-#define NUMBER_OF_COORDINATES 2
 // Interface
 //==========
 
@@ -31,8 +28,6 @@ namespace
 	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<std::string> relativePaths;
 	size_t numberOfMeshes;
-	float offset[2] = { 0.0f,0.0f };
-	float offset1[2] = { 0.0f,0.0f };
 }
 // Inherited Implementation
 //=========================
@@ -47,6 +42,7 @@ bool eae6320::cMyGame::Initialize()
 	{
 		gameObjects.push_back(Gameplay::GameObject::Initilaize(relativePaths[i].c_str()));
 	}
+	gameObjects[1]->SetIsStatic(false);
 	bool wereThereErrors = false;
 	//if (!mesh1)
 	//{
@@ -63,24 +59,12 @@ bool eae6320::cMyGame::Initialize()
 	return !wereThereErrors;
 }
 
-void eae6320::cMyGame::UpdatePlayerPosition()
+void eae6320::cMyGame::UpdateGameObjectPosition()
 {
-	if (UserInput::IsKeyPressed(VK_UP) || UserInput::IsKeyPressed(0x57))//W
-		offset[1] += 1.0f;
-	if (UserInput::IsKeyPressed(VK_DOWN) || UserInput::IsKeyPressed(0x53))//S
-		offset[1] -= 1.0f;
-	if (UserInput::IsKeyPressed(VK_LEFT) || UserInput::IsKeyPressed(0x41))//A
-		offset[0] -= 1.0f;
-	if (UserInput::IsKeyPressed(VK_RIGHT) || UserInput::IsKeyPressed(0x44))//D
-		offset[0] += 1.0f;
-
-	const float speed_unitsPerSecond = 0.5f;
-	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-	offset[0] *= offsetModifier;
-	offset[1] *= offsetModifier;
-
-	gameObjects[0]->SetNewOffset(offset1[0], offset1[1]);
-	gameObjects[1]->SetNewOffset(offset[0], offset[1]);	
+	for (size_t i = 0; i < numberOfMeshes; i++)
+	{
+		gameObjects[i]->UpdateGameObjectPosition();
+	}
 }
 
 void eae6320::cMyGame::SubmitMesh()

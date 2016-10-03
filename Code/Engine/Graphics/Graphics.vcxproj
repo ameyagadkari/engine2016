@@ -156,7 +156,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib;Math.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -200,7 +200,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib;Math.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>

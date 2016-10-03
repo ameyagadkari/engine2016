@@ -121,7 +121,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Application.lib;Gameplay.lib;UserInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Application.lib;Gameplay.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>
@@ -148,7 +148,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Application.lib;Gameplay.lib;UserInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Application.lib;Gameplay.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>
@@ -177,7 +177,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Application.lib;Gameplay.lib;UserInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Application.lib;Gameplay.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>
@@ -208,7 +208,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Application.lib;Gameplay.lib;UserInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Application.lib;Gameplay.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>
