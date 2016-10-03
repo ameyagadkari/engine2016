@@ -12,9 +12,10 @@ namespace eae6320
 		{
 			initialOffset[0] = 0.0f;
 			initialOffset[1] = 0.0f;
+			initialOffset[2] = 0.0f;
 			offset[0] = 0.0f;
 			offset[1] = 0.0f;
-
+			offset[2] = 0.0f;
 		}
 		inline GameObject::~GameObject() 
 		{
@@ -40,6 +41,14 @@ namespace eae6320
 		{
 			return drawCallBufferData;
 		}
+		Math::cVector GameObject::GetPosition() const
+		{
+			return position;
+		}
+		Math::cQuaternion GameObject::GetOrientation() const
+		{
+			return orientation;
+		}
 #pragma endregion
 			
 #pragma region Sets
@@ -55,12 +64,20 @@ namespace eae6320
 		{
 			this->drawCallBufferData = drawCallBufferData;
 		}
+		void GameObject::SetPosition(const Math::cVector position)
+		{
+			this->position = position;
+		}
+		void GameObject::SetOrientation(const Math::cQuaternion orientation)
+		{
+			this->orientation = orientation;
+		}
 #pragma endregion
 
 
 		void GameObject::UpdateGameObjectPosition()
 		{
-			float localOffset[2] = { 0.0f,0.0f };
+			float localOffset[3] = { 0.0f,0.0f,0.0f };
 			if (!isStatic)
 			{
 				if (UserInput::IsKeyPressed(VK_UP) || UserInput::IsKeyPressed(0x57))//W
@@ -77,18 +94,25 @@ namespace eae6320
 				localOffset[0] *= offsetModifier;
 				localOffset[1] *= offsetModifier;
 			}	
+
 			offset[0] += localOffset[0];
 			offset[1] += localOffset[1];
-			drawCallBufferData.g_objectPosition_screen[0] = initialOffset[0] + offset[0];
-			drawCallBufferData.g_objectPosition_screen[1] = initialOffset[1] + offset[1];
+			offset[2] += localOffset[2];
+
+			position.x = initialOffset[0] + offset[0];
+			position.y = initialOffset[1] + offset[1];
+			position.z = initialOffset[2] + offset[2];
+			//drawCallBufferData.g_objectPosition_screen[0] = initialOffset[0] + offset[0];
+			//drawCallBufferData.g_objectPosition_screen[1] = initialOffset[1] + offset[1];
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(orientation, position);
 		}
 		GameObject* GameObject::Initilaize(const char* relativePath)
 		{
 			GameObject *gameObject = new GameObject();
 			gameObject->mesh = Graphics::Mesh::LoadMesh(relativePath);
 			gameObject->isStatic = true;
-			gameObject->drawCallBufferData.g_objectPosition_screen[0] = gameObject->initialOffset[0];
-			gameObject->drawCallBufferData.g_objectPosition_screen[1] = gameObject->initialOffset[1];
+			//gameObject->drawCallBufferData.g_objectPosition_screen[0] = gameObject->initialOffset[0];
+			//gameObject->drawCallBufferData.g_objectPosition_screen[1] = gameObject->initialOffset[1];
 			if (gameObject->mesh)
 			{
 				return gameObject;

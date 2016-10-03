@@ -8,6 +8,7 @@
 // Header Files
 //=============
 #include "../../Engine/Application/cbApplication.h"
+#include "../../Engine/Camera/cCamera.h"
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "Resource Files/Resource.h"
@@ -34,6 +35,7 @@ namespace eae6320
 		//=========================
 
 	private:
+		Camera::cCamera *camera;
 		// Configuration
 		//--------------
 

@@ -2,6 +2,8 @@
 #define EAE6320_GAMEOBJECT_H
 
 #include "../../Engine/Graphics/Mesh.h"
+#include "../../Engine/Math/cVector.h"
+#include "../../Engine/Math/cQuaternion.h"
 
 namespace eae6320
 {
@@ -22,13 +24,16 @@ namespace eae6320
 			bool GetIsStatic()const;
 			Graphics::Mesh* GetMesh()const;
 			Graphics::ConstantBufferData::sDrawCall GetDrawCallBufferData()const;
-
+			Math::cVector GetPosition()const;
+			Math::cQuaternion GetOrientation()const;
 #pragma endregion
 
 #pragma region Sets
 			void SetIsStatic(const bool isStatic);
 			void SetMesh(Graphics::Mesh* const mesh);
 			void SetDrawCallBufferData(const Graphics::ConstantBufferData::sDrawCall drawCallBufferData);
+			void SetPosition(const Math::cVector position);
+			void SetOrientation(const Math::cQuaternion orientation);
 #pragma endregion
 			
 		private:
@@ -36,8 +41,12 @@ namespace eae6320
 
 			Graphics::Mesh*mesh;
 			Graphics::ConstantBufferData::sDrawCall drawCallBufferData;
-			float initialOffset[2];
-			float offset[2];
+
+			Math::cVector position;
+			Math::cQuaternion orientation;
+
+			float initialOffset[3];
+			float offset[3];
 			bool isStatic;
 		};
 	}

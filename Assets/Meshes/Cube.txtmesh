@@ -1,0 +1,30 @@
+--Square Mesh Data
+return
+{
+	-- This table contains vertices
+	vertices =
+	{
+		-- This table contains positions(x,y,z)
+		positions =
+		{
+			{-1.0,-1.0,1.0},
+			{1.0,-1.0,1.0},
+			{1.0,1.0,1.0},
+			{-1.0,1.0,1.0},
+		},
+		-- This table contains colors(r,g,b,a)(a has a default value of 1.0 if you don't specify)
+		colors =
+		{
+			{1.0,0.0,0.0},
+			{0.0,1.0,0.0},
+			{0.0,0.0,1.0,1.0},
+			{1.0,1.0,0.0,1.0},
+		},
+	},
+	-- This table contains indices(triangles)
+	indices =
+	{
+		0,1,2,
+		0,2,3,
+	},
+}

@@ -14,6 +14,7 @@
 #include "../../Time/Time.h"
 #include "../CommonData.h"
 #include "../ConstantBuffer.h"
+#include "../../Math/cMatrix_transformation.h"
 // Static Data Initialization
 //===========================
 
@@ -65,6 +66,8 @@ namespace
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
+
+	eae6320::Camera::cCamera* camera;
 }
 // Helper Function Declarations
 //=============================
@@ -96,6 +99,8 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	// Update the constant buffer
+	frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
+	frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
 	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
 	//{
@@ -171,11 +176,17 @@ void eae6320::Graphics::RenderFrame()
 	}
 }
 
+void eae6320::Graphics::SetCamera(Camera::cCamera * Camera)
+{
+	camera = Camera;
+}
+
 // Initialization / Clean Up
 //--------------------------
 
 bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializationParameters)
 {
+	//camera.Initialize();
 	bool wereThereErrors = false;
 
 	s_renderingWindow = i_initializationParameters.mainWindow;

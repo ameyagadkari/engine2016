@@ -28,6 +28,7 @@ namespace
 	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<std::string> relativePaths;
 	size_t numberOfMeshes;
+	
 }
 // Inherited Implementation
 //=========================
@@ -42,7 +43,17 @@ bool eae6320::cMyGame::Initialize()
 	{
 		gameObjects.push_back(Gameplay::GameObject::Initilaize(relativePaths[i].c_str()));
 	}
-	gameObjects[1]->SetIsStatic(false);
+	gameObjects[0]->SetIsStatic(false);
+	camera = Camera::cCamera::Initialize();
+	if (camera)
+	{
+		Graphics::SetCamera(camera);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Camera Initilization Failed");
+	}
 	bool wereThereErrors = false;
 	//if (!mesh1)
 	//{
@@ -69,8 +80,8 @@ void eae6320::cMyGame::UpdateGameObjectPosition()
 
 void eae6320::cMyGame::SubmitMesh()
 {
-	Graphics::SetGameObject(gameObjects[0], 0.5f, 0.5f);
-	Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f);
+	Graphics::SetGameObject(gameObjects[0], 0.0f, 0.0f);
+	//Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f);
 }
 
 bool eae6320::cMyGame::CleanUp()
@@ -80,6 +91,10 @@ bool eae6320::cMyGame::CleanUp()
 		delete gameObjects[i];
 	}
 	gameObjects._Pop_back_n(numberOfMeshes);
+	if (camera)
+	{
+		delete camera;
+	}
 	bool wereThereErrors = false;
 	/*if (mesh1 && !mesh1->CleanUp())
 	{

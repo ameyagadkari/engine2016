@@ -1,6 +1,8 @@
 #ifndef EAE6320_CONSTANT_BUFFER_DATA_H
 #define EAE6320_CONSTANT_BUFFER_DATA_H
 
+#include "../Math/cMatrix_transformation.h"
+
 namespace eae6320
 {
 	namespace Graphics
@@ -9,19 +11,17 @@ namespace eae6320
 		{
 			struct sFrame
 			{
+				Math::cMatrix_transformation g_transform_worldToCamera;
+				Math::cMatrix_transformation g_transform_cameraToScreen;
 				union
 				{
 					float g_elapsedSecondCount_total;
-					float register0[4];
+					float register8[4];
 				};
 			};
 			struct sDrawCall
 			{
-				union
-				{
-					float g_objectPosition_screen[2];
-					float register0[4];
-				};
+				Math::cMatrix_transformation g_transform_localToWorld;
 			};
 		};		
 	}

@@ -103,11 +103,11 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 		const GLsizei stride = sizeof(MeshData::Vertex);
 
 		// Position (0)
-		// 2 floats == 8 bytes
+		// 3 floats == 12 bytes
 		// Offset = 0
 		{
 			const GLuint vertexElementLocation = 0;
-			const GLint elementCount = 2;
+			const GLint elementCount = 3;
 			const GLboolean isNormalized = GL_FALSE;	// The given floats should be used as-is
 			glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
 				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, x)));

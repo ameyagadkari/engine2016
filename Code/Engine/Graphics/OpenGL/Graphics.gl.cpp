@@ -17,7 +17,7 @@
 #include "../../Windows/OpenGl.h"
 #include "../../../External/OpenGlExtensions/OpenGlExtensions.h"
 #include "../ConstantBuffer.h"
-
+#include "../../Math/cMatrix_transformation.h"
 
 // Static Data Initialization
 //===========================
@@ -54,19 +54,11 @@ namespace
 	GLuint s_programId = 0;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
-	//struct
-	//{
-	//	union
-	//	{
-	//		float g_elapsedSecondCount_total;
-	//		float register0[4];	// You won't have to worry about why I do this until a later assignment
-	//	};
-	//} s_constantBufferData;
-	//GLuint s_constantBufferId = 0;
 	ConstantBufferData::sFrame frameBufferData;
-	ConstantBufferData::sDrawCall drawCallBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
+
+	eae6320::Camera::cCamera *camera;
 }
 
 // Helper Function Declarations
@@ -74,9 +66,9 @@ namespace
 
 namespace
 {
-	//bool CreateConstantBuffer();
 	bool CreateProgram();
 	bool CreateRenderingContext();
+	bool EnableBackFaceCulling();
 	bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_shader, size_t& o_size, std::string* o_errorMessage);
 	bool LoadFragmentShader(const GLuint i_programId);
 	bool LoadVertexShader(const GLuint i_programId);
@@ -114,31 +106,10 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	// Update the constant buffer
+	frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
+	frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
 	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
-	//{
-	//	 Update the struct (i.e. the memory that we own)
-	//	s_constantBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
-	//	// Make the uniform buffer active
-	//	{
-	//		glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
-	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-	//	}
-	//	// Copy the updated memory to the GPU
-	//	{
-	//		GLintptr updateAtTheBeginning = 0;
-	//		GLsizeiptr updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeof(s_constantBufferData));
-	//		glBufferSubData(GL_UNIFORM_BUFFER, updateAtTheBeginning, updateTheEntireBuffer, &s_constantBufferData);
-	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-	//	}
-	//	 Bind the constant buffer to the shader
-	//	{
-	//		/*const GLuint bindingPointAssignedInShader = 0;
-	//		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
-	//		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);*/
-	//	}
-	//}
-
 	// Draw the geometry
 	{
 		// Set the vertex and fragment shaders
@@ -166,6 +137,10 @@ void eae6320::Graphics::RenderFrame()
 	}
 }
 
+void eae6320::Graphics::SetCamera(Camera::cCamera * Camera)
+{
+	camera = Camera;
+}
 
 // Initialization / Clean Up
 //==========================
@@ -189,6 +164,13 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
+	
+	if (!EnableBackFaceCulling())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+
 	if (!CreateProgram())
 	{
 		EAE6320_ASSERT(false);
@@ -204,7 +186,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		frameBuffer.BindingConstantBuffer();
 	}
 
-	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall), &drawCallBufferData))
+	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
 	{
 		EAE6320_ASSERT(false);
 		return false;
@@ -244,21 +226,6 @@ bool eae6320::Graphics::CleanUp()
 		{
 
 		}
-		/*if (s_constantBufferId != 0)
-		{
-			const GLsizei bufferCount = 1;
-			glDeleteBuffers(bufferCount, &s_constantBufferId);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			}
-			s_constantBufferId = 0;
-		}*/
-
 		if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
 		{
 			if (wglDeleteContext(s_openGlRenderingContext) == FALSE)
@@ -302,58 +269,6 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const flo
 
 namespace
 {
-	/*bool CreateConstantBuffer()
-	{
-		bool wereThereErrors = false;
-
-		// Create a uniform buffer object and make it active
-		{
-			const GLsizei bufferCount = 1;
-			glGenBuffers(bufferCount, &s_constantBufferId);
-			const GLenum errorCode = glGetError();
-			if (errorCode == GL_NO_ERROR)
-			{
-				glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					eae6320::Logging::OutputError("OpenGL failed to bind the new uniform buffer %u: %s",
-						s_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				eae6320::Logging::OutputError("OpenGL failed to get an unused uniform buffer ID: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				goto OnExit;
-			}
-		}
-		// Fill in the constant buffer
-		s_constantBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-		// Allocate space and copy the constant data into the uniform buffer
-		{
-			const GLenum usage = GL_DYNAMIC_DRAW;	// The buffer will be modified frequently and used to draw
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(s_constantBufferData), reinterpret_cast<const GLvoid*>(&s_constantBufferData), usage);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				eae6320::Logging::OutputError("OpenGL failed to allocate the new uniform buffer %u: %s",
-					s_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				goto OnExit;
-			}
-		}
-
-	OnExit:
-
-		return !wereThereErrors;
-	}*/
 
 	bool CreateProgram()
 	{
@@ -597,6 +512,20 @@ namespace
 			}
 		}
 
+		return true;
+	}
+
+	bool EnableBackFaceCulling()
+	{
+		glEnable(GL_CULL_FACE);
+		const GLenum errorCode = glGetError();
+		if (errorCode != GL_NO_ERROR)
+		{
+			EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+			eae6320::Logging::OutputError("OpenGL failed to enable backface culling: %s",
+				reinterpret_cast<const char*>(gluErrorString(errorCode)));
+			return false;
+		}
 		return true;
 	}
 

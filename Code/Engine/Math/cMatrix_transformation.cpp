@@ -26,7 +26,7 @@ eae6320::Math::cMatrix_transformation eae6320::Math::cMatrix_transformation::Cre
 		0.0f, 0.0f, 0.0f, 1.0f );
 }
 
-eae6320::Math::cMatrix_transformation eae6320::Math::cMatrix_transformation::CreateCameraToProjectedTransform(
+eae6320::Math::cMatrix_transformation eae6320::Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(
 	const float i_fieldOfView_y, const float i_aspectRatio,
 	const float i_z_nearPlane, const float i_z_farPlane )
 {

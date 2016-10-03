@@ -5,8 +5,10 @@
 // Constants
 //==========
 
-cbuffer constantBuffer : register( b0 )
+cbuffer constantBuffer_frame : register( b0 )
 {
+	float4x4 g_transform_worldToCamera;
+	float4x4 g_transform_cameraToScreen;
 	float g_elapsedSecondCount_total;
 }
 

@@ -48,7 +48,7 @@ namespace eae6320
 
 			static cMatrix_transformation CreateWorldToCameraTransform(
 				const cQuaternion& i_cameraOrientation, const cVector& i_cameraPosition );
-			static cMatrix_transformation CreateCameraToProjectedTransform(
+			static cMatrix_transformation CreateCameraToScreenTransform_perspectiveProjection(
 				const float i_fieldOfView_y, const float i_aspectRatio,
 				const float i_z_nearPlane, const float i_z_farPlane );
 
