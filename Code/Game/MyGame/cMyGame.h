@@ -88,7 +88,7 @@ namespace eae6320
 		virtual void SubmitCamera();
 		virtual void UpdateGameObjectPosition();
 		virtual void UpdateGameObjectOrientation();
-		virtual void SubmitMesh();
+		virtual void SubmitGameObject();
 		virtual bool CleanUp();	
 	};
 }

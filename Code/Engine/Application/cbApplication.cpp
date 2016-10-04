@@ -228,6 +228,6 @@ void eae6320::Application::cbApplication::OnNewFrame()
 	SubmitCamera();
 	UpdateGameObjectPosition();
 	UpdateGameObjectOrientation();
-	SubmitMesh();
+	SubmitGameObject();
 	Graphics::RenderFrame();	
 }

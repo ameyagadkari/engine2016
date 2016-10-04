@@ -48,15 +48,15 @@ bool eae6320::cMyGame::Initialize()
 	gameObjects[0]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
 
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 2.5f, 10.0f));
+	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 10.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
-	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(true, Math::cVector(-5.0f, 5.0f, 10.0f));
+	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 10.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);
-	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(true, Math::cVector(5.0f, 5.0f, 10.0f));
+	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(5.0f, 5.0f, 10.0f));
 	Camera::cCamera::PushBackToVector(frontRightCamera);
-	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(true, Math::cVector(-5.0f, 5.0f, -10.0f), Math::cQuaternion(Math::ConvertDegreesToRadians(135.0f), Math::cVector::up));
+	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 135.0f, 0.0f), Math::cVector(-5.0f, 5.0f, -10.0f));
 	Camera::cCamera::PushBackToVector(backLeftCamera);
-	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(true, Math::cVector(5.0f, 5.0f, -10.0f), Math::cQuaternion(Math::ConvertDegreesToRadians(-135.0f), Math::cVector::up));
+	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -135.0f, 0.0f), Math::cVector(5.0f, 5.0f, -10.0f));
 	Camera::cCamera::PushBackToVector(backRightCamera);
 
 	//After adding all cameras, doing this is must
@@ -124,7 +124,7 @@ void eae6320::cMyGame::UpdateGameObjectOrientation()
 	}
 }
 
-void eae6320::cMyGame::SubmitMesh()
+void eae6320::cMyGame::SubmitGameObject()
 {
 	Graphics::SetGameObject(gameObjects[0], 0.0f, 1.0f, 0.0f);
 	Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f, 0.0f);

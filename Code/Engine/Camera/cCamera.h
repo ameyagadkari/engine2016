@@ -18,7 +18,7 @@ namespace eae6320
 			void UpdateCurrentCameraPosition();
 			void UpdateCurrentCameraOrientation();
 
-			static cCamera* Initialize(bool isStatic, Math::cVector position = Math::cVector(0.0f, 0.0f, 10.0f), Math::cQuaternion orientation = Math::cQuaternion(), float fieldOfView = Math::ConvertDegreesToRadians(60.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 100.0f);
+			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector(0.0f, 0.0f, 10.0f), float fieldOfView = Math::ConvertDegreesToRadians(60.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 100.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
@@ -45,7 +45,7 @@ namespace eae6320
 
 
 		private:
-			inline cCamera(bool isStatic, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance);
+			inline cCamera(bool isStatic, Math::cVector eularAngles, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance);
 
 			Math::cVector position;
 			Math::cQuaternion orientation;
@@ -55,7 +55,7 @@ namespace eae6320
 			float aspectRatio;
 			bool isStatic;
 
-			float eularOrientationOffsetsDegrees[3];
+			Math::cVector eularAngles;
 						
 			static std::vector<eae6320::Camera::cCamera*> sCameras;
 			static cCamera* sCurrentCamera;

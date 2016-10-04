@@ -61,8 +61,9 @@ namespace eae6320
 			this->farPlaneDistance = farPlaneDistance;
 		}
 #pragma endregion
-		cCamera::cCamera(bool isStatic, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance) :
+		cCamera::cCamera(bool isStatic, Math::cVector eularAngles, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance) :
 			isStatic(isStatic),
+			eularAngles(eularAngles),
 			position(position),
 			orientation(orientation),
 			fieldOfView(fieldOfView),
@@ -70,20 +71,17 @@ namespace eae6320
 			farPlaneDistance(farPlaneDistance),
 			aspectRatio(static_cast<float>(UserSettings::GetResolutionWidth() / UserSettings::GetResolutionHeight()))
 		{
-			eularOrientationOffsetsDegrees[0] = 0.0f;
-			eularOrientationOffsetsDegrees[1] = 0.0f;
-			eularOrientationOffsetsDegrees[2] = 0.0f;
 		}
 
 		inline cCamera::~cCamera() {}
 
-		cCamera * cCamera::Initialize(bool isStatic, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance)
+		cCamera * cCamera::Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position, float fieldOfView, float nearPlaneDistance, float farPlaneDistance)
 		{
-			if (!isStatic)
-			{
-				orientation = Math::cQuaternion();
-			}
-			cCamera *camera = new cCamera(isStatic, position, orientation, fieldOfView, nearPlaneDistance, farPlaneDistance);
+			Math::cQuaternion orientationX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
+			Math::cQuaternion orientationY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
+			Math::cQuaternion orientationZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
+			Math::cQuaternion orientation = orientationX*orientationY*orientationZ;
+			cCamera *camera = new cCamera(isStatic, eularAngles, position, orientation, fieldOfView, nearPlaneDistance, farPlaneDistance);
 			return camera;
 		}
 
@@ -159,18 +157,17 @@ namespace eae6320
 				localOffset[1] *= offsetModifier;
 				localOffset[2] *= offsetModifier;
 			}
-			eularOrientationOffsetsDegrees[0] += localOffset[0];
-			eularOrientationOffsetsDegrees[1] += localOffset[1];
-			eularOrientationOffsetsDegrees[2] += localOffset[2];
+			eularAngles.x += localOffset[0];
+			eularAngles.y += localOffset[1];
+			eularAngles.z += localOffset[2];
 
-			Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[0]), Math::cVector::right);
-			Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[1]), Math::cVector::up);
-			Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[2]), Math::cVector::forward);
-
+			Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
+			Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
+			Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
 			if (!isStatic)
 			{
 				orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
-			}			
+			}
 		}
 
 		void cCamera::UpdateMaxCameras()
