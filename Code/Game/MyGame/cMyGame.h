@@ -82,8 +82,13 @@ namespace eae6320
 		//--------------------------------
 
 		virtual bool Initialize();
-		virtual void UpdatePlayerPosition();
-		virtual void SubmitMesh();
+		virtual void ChangeCamera();
+		virtual void UpdateCameraPostion();
+		virtual void UpdateCameraOrientation();
+		virtual void SubmitCamera();
+		virtual void UpdateGameObjectPosition();
+		virtual void UpdateGameObjectOrientation();
+		virtual void SubmitGameObject();
 		virtual bool CleanUp();	
 	};
 }

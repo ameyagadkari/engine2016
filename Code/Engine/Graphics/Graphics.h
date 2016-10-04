@@ -10,7 +10,8 @@
 
 
 #include "Configuration.h"
-#include "../Gameplay/GameObject.h"
+#include "../../Game/Gameplay/GameObject.h"
+#include "../Camera/cCamera.h"
 #include <vector>
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
@@ -25,10 +26,12 @@ namespace eae6320
 {
 	namespace Graphics
 	{
+		
 		// Render
 		//-------
 
-		void SetGameObject(Gameplay::GameObject*GameObject,const float x,const float y);
+		void SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z);
+		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();
 
 		// Initialization / Clean Up

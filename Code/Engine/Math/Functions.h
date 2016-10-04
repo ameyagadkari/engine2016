@@ -15,6 +15,7 @@ namespace eae6320
 		extern const float Pi;
 
 		float ConvertDegreesToRadians( const float i_degrees );
+		float ConvertRadiansToDegrees(const float i_radians);
 		template<typename tUnsignedInteger>
 			tUnsignedInteger RoundUpToMultiple( const tUnsignedInteger i_value, const tUnsignedInteger i_multiple );
 		template<typename tUnsignedInteger>

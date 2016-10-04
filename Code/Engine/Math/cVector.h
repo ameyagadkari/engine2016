@@ -60,6 +60,9 @@ namespace eae6320
 
 		// A vector class is one of the very few examples where I make data public
 		public:
+			static const cVector right;
+			static const cVector up;
+			static const cVector forward;
 
 			float x, y, z;
 

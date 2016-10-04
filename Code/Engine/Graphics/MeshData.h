@@ -11,7 +11,7 @@ namespace eae6320
 		{
 			struct Vertex
 			{
-				float x, y;
+				float x, y, z;
 				uint8_t r, g, b, a;
 			};
 

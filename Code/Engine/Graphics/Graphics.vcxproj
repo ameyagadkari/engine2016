@@ -139,7 +139,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>Glu32.lib;Opengl32.lib;OpenGlExtensions.lib;Platform.lib;Windows.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>Glu32.lib;Opengl32.lib;OpenGlExtensions.lib;Platform.lib;Windows.lib;AssetBuildLibrary.lib;Camera.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +156,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib;Camera.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -179,7 +179,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>Glu32.lib;Opengl32.lib;OpenGlExtensions.lib;Platform.lib;Windows.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>Glu32.lib;Opengl32.lib;OpenGlExtensions.lib;Platform.lib;Windows.lib;AssetBuildLibrary.lib;Camera.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -200,7 +200,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx11d.lib;AssetBuildLibrary.lib;Camera.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>

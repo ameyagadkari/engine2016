@@ -18,7 +18,7 @@ namespace
 	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadXYTable(lua_State& io_luaState, MeshData&meshData, int index);
+	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, int index);
 	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, int index);
 	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
@@ -274,7 +274,7 @@ namespace
 			eae6320::Logging::OutputMessage("Iterating through every x,y coordinate tables in position table");
 			for (int i = 1; i <= meshData.numberOfVertices; ++i)
 			{
-				if (!LoadXYTable(io_luaState, meshData, (i - 1)))
+				if (!LoadXYZTable(io_luaState, meshData, (i - 1)))
 				{
 					wereThereErrors = true;
 					goto OnExit;
@@ -296,7 +296,7 @@ namespace
 
 		return !wereThereErrors;
 	}
-	bool LoadXYTable(lua_State& io_luaState, MeshData&meshData, int index)
+	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, int index)
 	{
 		bool wereThereErrors = false;
 		lua_pushinteger(&io_luaState, index + 1);
@@ -311,8 +311,8 @@ namespace
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
 			const int arrayLength = luaL_len(&io_luaState, -1);
-			float xy[2] = { 0.0f,0.0f };
-			if (arrayLength == 2)
+			float xyz[3] = { 0.0f,0.0f,0.0f };
+			if (arrayLength == 3)
 			{
 				eae6320::Logging::OutputMessage("Iterating through XY for index:\"%d\"", (index + 1));
 				// Remember that Lua arrays are 1-based and not 0-based!
@@ -330,7 +330,7 @@ namespace
 					}
 					if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
 					{
-						xy[i - 1] = static_cast<float>(lua_tonumber(&io_luaState, -1));
+						xyz[i - 1] = static_cast<float>(lua_tonumber(&io_luaState, -1));
 						lua_pop(&io_luaState, 1);
 					}
 					else
@@ -342,8 +342,9 @@ namespace
 						goto OnExit;
 					}
 				}
-				meshData.vertexData[index].x = xy[0];
-				meshData.vertexData[index].y = xy[1];
+				meshData.vertexData[index].x = xyz[0];
+				meshData.vertexData[index].y = xyz[1];
+				meshData.vertexData[index].z = xyz[2];
 			}
 			else
 			{

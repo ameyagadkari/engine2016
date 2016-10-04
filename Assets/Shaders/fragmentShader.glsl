@@ -10,6 +10,8 @@
 
 layout( std140, binding = 0 ) uniform constantBuffer_frame
 {
+	mat4 g_transform_worldToCamera;
+	mat4 g_transform_cameraToScreen;
 	float g_elapsedSecondCount_total;
 };
 
