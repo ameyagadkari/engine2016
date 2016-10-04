@@ -9,7 +9,7 @@
 // By default the log uses a relative path which will be generated
 // in the same directory as the game's executable
 // (which is nice because it is easy for a user to find)
-#define EAE6320_LOGGING_DEFAULTPATH "eae6320_u1000981.log"
+#define EAE6320_LOGGING_DEFAULTPATH "eae6320.log"
 
 // Flushing the logging buffer to disk is expensive,
 // but it can be done after every message is output during development

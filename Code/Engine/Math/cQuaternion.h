@@ -48,7 +48,7 @@ namespace eae6320
 			//---------------------------
 
 			cQuaternion();	// Identity
-			cQuaternion( const float i_angleInRadians, const cVector& i_axisOfRotation_normalized );
+			cQuaternion( const float i_angleInRadians, const cVector& i_axisOfRotation_normalized );			
 
 			// Data
 			//=====

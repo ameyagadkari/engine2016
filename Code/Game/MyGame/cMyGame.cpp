@@ -50,14 +50,14 @@ bool eae6320::cMyGame::Initialize()
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 2.5f, 10.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
-	Camera::cCamera *leftCamera = Camera::cCamera::Initialize(true, Math::cVector(-2.5f, 0.0f, 10.0f));
-	Camera::cCamera::PushBackToVector(leftCamera);
-	Camera::cCamera *rightCamera = Camera::cCamera::Initialize(true, Math::cVector(2.5f, 0.0f, 10.0f));
-	Camera::cCamera::PushBackToVector(rightCamera);
-	Camera::cCamera *topCamera = Camera::cCamera::Initialize(true, Math::cVector(0.0f, 2.5f, 10.0f));
-	Camera::cCamera::PushBackToVector(topCamera);
-	Camera::cCamera *bottomCamera = Camera::cCamera::Initialize(true, Math::cVector(0.0f, -2.5f, 10.0f));
-	Camera::cCamera::PushBackToVector(bottomCamera);
+	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(true, Math::cVector(-5.0f, 5.0f, 10.0f));
+	Camera::cCamera::PushBackToVector(frontLeftCamera);
+	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(true, Math::cVector(5.0f, 5.0f, 10.0f));
+	Camera::cCamera::PushBackToVector(frontRightCamera);
+	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(true, Math::cVector(-5.0f, 5.0f, -10.0f), Math::cQuaternion(Math::ConvertDegreesToRadians(135.0f), Math::cVector::up));
+	Camera::cCamera::PushBackToVector(backLeftCamera);
+	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(true, Math::cVector(5.0f, 5.0f, -10.0f), Math::cQuaternion(Math::ConvertDegreesToRadians(-135.0f), Math::cVector::up));
+	Camera::cCamera::PushBackToVector(backRightCamera);
 
 	//After adding all cameras, doing this is must
 	Camera::cCamera::UpdateMaxCameras();
