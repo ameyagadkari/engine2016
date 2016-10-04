@@ -26,12 +26,9 @@ namespace
 	// This is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are D3D interfaces
-	//ID3D11Device* s_direct3dDevice = NULL;
 	IDXGISwapChain* s_swapChain = NULL;
-	//ID3D11DeviceContext* s_direct3dImmediateContext = NULL;
 	ID3D11RenderTargetView* s_renderTargetView = NULL;
-	// The vertex buffer holds the data for each vertex
-	ID3D11Buffer* s_vertexBuffer = NULL;
+	ID3D11DepthStencilView* s_depthStencilView = NULL;
 
 	// The vertex shader is a program that operates on vertices.
 	// Its input comes from a C/C++ "draw call" and is:
@@ -53,15 +50,6 @@ namespace
 	ID3D11PixelShader* s_fragmentShader = NULL;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
-	//struct
-	//{
-	//	union
-	//	{
-	//		float g_elapsedSecondCount_total;
-	//		float register0[4];	// You won't have to worry about why I do this until a later assignment
-	//	};
-	//} s_constantBufferData;
-	//ID3D11Buffer* s_constantBuffer = NULL;
 
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
@@ -74,9 +62,8 @@ namespace
 
 namespace
 {
-	//bool CreateConstantBuffer();
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
-	bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
+	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool LoadFragmentShader();
 	bool LoadVertexShader(ID3D10Blob*& o_compiledShader);
 }
@@ -98,52 +85,17 @@ void eae6320::Graphics::RenderFrame()
 		commonData->s_direct3dImmediateContext->ClearRenderTargetView(s_renderTargetView, clearColor);
 	}
 
+	{
+		const float depthToClear = 1.0f;
+		const uint8_t stencilToClear = 0; // Arbitrary until stencil is used
+		commonData->s_direct3dImmediateContext->ClearDepthStencilView(s_depthStencilView, D3D11_CLEAR_DEPTH,
+			depthToClear, stencilToClear);
+	}
 	// Update the constant buffer
 	frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
 	frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 	frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
 	frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
-	//{
-	//	// Update the struct (i.e. the memory that we own)
-	//	frameBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
-	//	// Get a pointer from Direct3D that can be written to
-	//	void* memoryToWriteTo = NULL;
-	//	{
-	//		D3D11_MAPPED_SUBRESOURCE mappedSubResource;
-	//		{
-	//			// Discard previous contents when writing
-	//			const unsigned int noSubResources = 0;
-	//			const D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
-	//			const unsigned int noFlags = 0;
-	//			const HRESULT result = commonData->s_direct3dImmediateContext->Map(s_constantBuffer, noSubResources, mapType, noFlags, &mappedSubResource);
-	//			if (SUCCEEDED(result))
-	//			{
-	//				memoryToWriteTo = mappedSubResource.pData;
-	//			}
-	//			else
-	//			{
-	//				EAE6320_ASSERT(false);
-	//			}
-	//		}
-	//	}
-	//	if (memoryToWriteTo)
-	//	{
-	//		// Copy the new data to the memory that Direct3D has provided
-	//		memcpy(memoryToWriteTo, &s_constantBufferData, sizeof(s_constantBufferData));
-	//		// Let Direct3D know that the memory contains the data
-	//		// (the pointer will be invalid after this call)
-	//		const unsigned int noSubResources = 0;
-	//		commonData->s_direct3dImmediateContext->Unmap(s_constantBuffer, noSubResources);
-	//		memoryToWriteTo = NULL;
-	//	}
-	//	 Bind the constant buffer to the shader
-	//	{
-	//		/*const unsigned int registerAssignedInShader = 0;
-	//		const unsigned int bufferCount = 1;
-	//		commonData->s_direct3dImmediateContext->VSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );
-	//		commonData->s_direct3dImmediateContext->PSSetConstantBuffers( registerAssignedInShader, bufferCount, &s_constantBuffer );*/
-	//	}
-	//}
 
 	// Draw the geometry
 	{
@@ -186,7 +138,6 @@ void eae6320::Graphics::SetCamera(Camera::cCamera * Camera)
 
 bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializationParameters)
 {
-	//camera.Initialize();
 	bool wereThereErrors = false;
 
 	s_renderingWindow = i_initializationParameters.mainWindow;
@@ -198,7 +149,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		goto OnExit;
 	}
 	// Initialize the viewport of the device
-	if (!CreateView(i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight))
+	if (!CreateViews(i_initializationParameters.resolutionWidth, i_initializationParameters.resolutionHeight))
 	{
 		wereThereErrors = true;
 		goto OnExit;
@@ -288,6 +239,11 @@ bool eae6320::Graphics::CleanUp()
 			s_renderTargetView->Release();
 			s_renderTargetView = NULL;
 		}
+		if (s_depthStencilView)
+		{
+			s_depthStencilView->Release();
+			s_depthStencilView = NULL;
+		}
 
 		commonData->s_direct3dDevice->Release();
 		commonData->s_direct3dDevice = NULL;
@@ -307,10 +263,10 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z)
 {	
 	gameObjects.push_back(GameObject);
-	GameObject->SetNewInitialOffset(x, y);
+	GameObject->SetNewInitialOffset(x, y, z);
 }
 
 // Helper Function Definitions
@@ -318,39 +274,6 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const flo
 
 namespace
 {
-	//bool CreateConstantBuffer()
-	//{
-	//	D3D11_BUFFER_DESC bufferDescription = { 0 };
-	//	{
-	//		// The byte width must be rounded up to a multiple of 16
-	//		bufferDescription.ByteWidth = sizeof(s_constantBufferData);
-	//		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;	// The CPU must be able to update the buffer
-	//		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// The CPU must write, but doesn't read
-	//		bufferDescription.MiscFlags = 0;
-	//		bufferDescription.StructureByteStride = 0;	// Not used
-	//	}
-	//	D3D11_SUBRESOURCE_DATA initialData = { 0 };
-	//	{
-	//		// Fill in the constant buffer
-	//		s_constantBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-	//		initialData.pSysMem = &s_constantBufferData;
-	//		// (The other data members are ignored for non-texture buffers)
-	//	}
-
-	//	const HRESULT result = commonData->s_direct3dDevice->CreateBuffer(&bufferDescription, &initialData, &s_constantBuffer);
-	//	if (SUCCEEDED(result))
-	//	{
-	//		return true;
-	//	}
-	//	else
-	//	{
-	//		EAE6320_ASSERT(false);
-	//		eae6320::Logging::OutputError("Direct3D failed to create a constant buffer with HRESULT %#010x", result);
-	//		return false;
-	//	}
-	//}
-
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{
 		IDXGIAdapter* const useDefaultAdapter = NULL;
@@ -411,7 +334,7 @@ namespace
 		}
 	}
 
-	bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
+	/*bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{
 		bool wereThereErrors = false;
 
@@ -468,6 +391,119 @@ namespace
 		{
 			backBuffer->Release();
 			backBuffer = NULL;
+		}
+
+		return !wereThereErrors;
+	}*/
+
+	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
+	{
+		bool wereThereErrors = false;
+
+		ID3D11Texture2D* backBuffer = NULL;
+		ID3D11Texture2D* depthBuffer = NULL;
+
+		// Create a "render target view" of the back buffer
+		// (the back buffer was already created by the call to D3D11CreateDeviceAndSwapChain(),
+		// but we need a "view" of it to use as a "render target",
+		// meaning a texture that the GPU can render to)
+		{
+			// Get the back buffer from the swap chain
+			{
+				const unsigned int bufferIndex = 0; // This must be 0 since the swap chain is discarded
+				const HRESULT result = s_swapChain->GetBuffer(bufferIndex, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to get the back buffer from the swap chain with HRESULT %#010x", result);
+					goto OnExit;
+				}
+			}
+			// Create the view
+			{
+				const D3D11_RENDER_TARGET_VIEW_DESC* const accessAllSubResources = NULL;
+				const HRESULT result = commonData->s_direct3dDevice->CreateRenderTargetView(backBuffer, accessAllSubResources, &s_renderTargetView);
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to create the render target view with HRESULT %#010x", result);
+					goto OnExit;
+				}
+			}
+		}
+		// Create a depth/stencil buffer and a view of it
+		{
+			// Unlike the back buffer no depth/stencil buffer exists until and unless we create it
+			{
+				D3D11_TEXTURE2D_DESC textureDescription = { 0 };
+				{
+					textureDescription.Width = i_resolutionWidth;
+					textureDescription.Height = i_resolutionHeight;
+					textureDescription.MipLevels = 1; // A depth buffer has no MIP maps
+					textureDescription.ArraySize = 1;
+					textureDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bits for depth and 8 bits for stencil
+					{
+						DXGI_SAMPLE_DESC& sampleDescription = textureDescription.SampleDesc;
+						sampleDescription.Count = 1; // No multisampling
+						sampleDescription.Quality = 0; // Doesn't matter when Count is 1
+					}
+					textureDescription.Usage = D3D11_USAGE_DEFAULT; // Allows the GPU to write to it
+					textureDescription.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+					textureDescription.CPUAccessFlags = 0; // CPU doesn't need access
+					textureDescription.MiscFlags = 0;
+				}
+				// The GPU renders to the depth/stencil buffer and so there is no initial data
+				// (like there would be with a traditional texture loaded from disk)
+				const D3D11_SUBRESOURCE_DATA* const noInitialData = NULL;
+				const HRESULT result = commonData->s_direct3dDevice->CreateTexture2D(&textureDescription, noInitialData, &depthBuffer);
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to create the depth buffer resource with HRESULT %#010x", result);
+					goto OnExit;
+				}
+			}
+			// Create the view
+			{
+				const D3D11_DEPTH_STENCIL_VIEW_DESC* const noSubResources = NULL;
+				const HRESULT result = commonData->s_direct3dDevice->CreateDepthStencilView(depthBuffer, noSubResources, &s_depthStencilView);
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to create the depth stencil view with HRESULT %#010x", result);
+					goto OnExit;
+				}
+			}
+		}
+
+		// Bind the views
+		{
+			const unsigned int renderTargetCount = 1;
+			commonData->s_direct3dImmediateContext->OMSetRenderTargets(renderTargetCount, &s_renderTargetView, s_depthStencilView);
+		}
+		// Specify that the entire render target should be visible
+		{
+			D3D11_VIEWPORT viewPort = { 0 };
+			viewPort.TopLeftX = viewPort.TopLeftY = 0.0f;
+			viewPort.Width = static_cast<float>(i_resolutionWidth);
+			viewPort.Height = static_cast<float>(i_resolutionHeight);
+			viewPort.MinDepth = 0.0f;
+			viewPort.MaxDepth = 1.0f;
+			const unsigned int viewPortCount = 1;
+			commonData->s_direct3dImmediateContext->RSSetViewports(viewPortCount, &viewPort);
+		}
+
+	OnExit:
+
+		if (backBuffer)
+		{
+			backBuffer->Release();
+			backBuffer = NULL;
+		}
+		if (depthBuffer)
+		{
+			depthBuffer->Release();
+			depthBuffer = NULL;
 		}
 
 		return !wereThereErrors;

@@ -8,7 +8,6 @@
 // Header Files
 //=============
 #include "../../Engine/Application/cbApplication.h"
-#include "../../Engine/Camera/cCamera.h"
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "Resource Files/Resource.h"
@@ -35,7 +34,6 @@ namespace eae6320
 		//=========================
 
 	private:
-		Camera::cCamera *camera;
 		// Configuration
 		//--------------
 
@@ -84,7 +82,12 @@ namespace eae6320
 		//--------------------------------
 
 		virtual bool Initialize();
+		virtual void ChangeCamera();
+		virtual void UpdateCameraPostion();
+		virtual void UpdateCameraOrientation();
+		virtual void SubmitCamera();
 		virtual void UpdateGameObjectPosition();
+		virtual void UpdateGameObjectOrientation();
 		virtual void SubmitMesh();
 		virtual bool CleanUp();	
 	};

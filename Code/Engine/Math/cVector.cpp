@@ -14,6 +14,10 @@ namespace
 	const float s_epsilon = 1.0e-9f;
 }
 
+const eae6320::Math::cVector eae6320::Math::cVector::right(1.0f, 0.0f, 0.0f);
+const eae6320::Math::cVector eae6320::Math::cVector::up(0.0f, 1.0f, 0.0f);
+const eae6320::Math::cVector eae6320::Math::cVector::forward(0.0f, 0.0f, 1.0f);
+
 // Interface
 //==========
 

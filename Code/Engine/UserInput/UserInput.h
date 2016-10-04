@@ -26,6 +26,7 @@ namespace eae6320
 		// and this interface is _not_ platform-independent.
 
 		bool IsKeyPressed( const int i_virtualKeyCode );
+		bool IsKeyPressedOnce(const int i_virtualKeyCode);
 		bool IsMouseButtonPressed( const int i_virtualButtonCode );
 	}
 }

@@ -69,6 +69,8 @@ namespace
 	bool CreateProgram();
 	bool CreateRenderingContext();
 	bool EnableBackFaceCulling();
+	bool EnableDepthTesting();
+	bool EnableDepthWriting();
 	bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_shader, size_t& o_size, std::string* o_errorMessage);
 	bool LoadFragmentShader(const GLuint i_programId);
 	bool LoadVertexShader(const GLuint i_programId);
@@ -100,8 +102,12 @@ void eae6320::Graphics::RenderFrame()
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		// In addition to the color, "depth" and "stencil" can also be cleared,
 		// but for now we only care about color
-		const GLbitfield clearColor = GL_COLOR_BUFFER_BIT;
-		glClear(clearColor);
+
+		// Clear depth to 1
+		glClearDepth(1.0f);
+		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+		const GLbitfield clearColorAndDepth = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+		glClear(clearColorAndDepth);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 	}
 
@@ -164,8 +170,20 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	
+
 	if (!EnableBackFaceCulling())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+
+	if (!EnableDepthTesting())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+
+	if (!EnableDepthWriting())
 	{
 		EAE6320_ASSERT(false);
 		return false;
@@ -258,10 +276,10 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y)
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z)
 {
 	gameObjects.push_back(GameObject);
-	GameObject->SetNewInitialOffset(x, y);
+	GameObject->SetNewInitialOffset(x, y, z);
 }
 
 // Helper Function Declarations
@@ -407,6 +425,8 @@ namespace
 					WGL_RED_BITS_ARB, 8,
 					WGL_GREEN_BITS_ARB, 8,
 					WGL_BLUE_BITS_ARB, 8,
+					WGL_DEPTH_BITS_ARB, 24,
+					WGL_STENCIL_BITS_ARB, 8,
 					// NULL terminator
 					NULL
 				};
@@ -444,6 +464,8 @@ namespace
 					pixelFormatDescriptor.iPixelType = PFD_TYPE_RGBA;
 					pixelFormatDescriptor.cColorBits = 24;
 					pixelFormatDescriptor.iLayerType = PFD_MAIN_PLANE;
+					pixelFormatDescriptor.cDepthBits = 24;
+					pixelFormatDescriptor.cStencilBits = 8;
 				}
 				if (SetPixelFormat(s_deviceContext, pixelFormatId, &pixelFormatDescriptor) == FALSE)
 				{
@@ -526,6 +548,48 @@ namespace
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			return false;
 		}
+		return true;
+	}
+
+	bool EnableDepthTesting()
+	{
+		{
+			glDepthFunc(GL_LESS);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
+			{
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to enable depth function: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				return false;
+			}
+		}
+		{
+			glEnable(GL_DEPTH_TEST);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
+			{
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to enable depth testing: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool EnableDepthWriting()
+	{
+		glDepthMask(GL_TRUE);
+		const GLenum errorCode = glGetError();
+		if (errorCode != GL_NO_ERROR)
+		{
+			EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+			eae6320::Logging::OutputError("OpenGL failed to enable depth writing: %s",
+				reinterpret_cast<const char*>(gluErrorString(errorCode)));
+			return false;
+		}
+
 		return true;
 	}
 

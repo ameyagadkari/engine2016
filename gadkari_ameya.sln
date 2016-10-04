@@ -112,10 +112,14 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gameplay", "Code\Game\Gameplay\Gameplay.vcxproj", "{F34CE434-9D44-4FCE-AED5-A4AC959E95DB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{03DF1422-A701-4855-9E1B-FFD4FF4D5E40} = {03DF1422-A701-4855-9E1B-FFD4FF4D5E40}
+		{5E640B5D-294A-4795-BE3F-58076BD28B7B} = {5E640B5D-294A-4795-BE3F-58076BD28B7B}
 		{865D6CD8-B399-4824-92BE-171BD9488873} = {865D6CD8-B399-4824-92BE-171BD9488873}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Camera", "Code\Engine\Camera\Camera.vcxproj", "{0DAB78B1-E1C4-4E31-A15F-C5CB57C1D272}"
+	ProjectSection(ProjectDependencies) = postProject
+		{03DF1422-A701-4855-9E1B-FFD4FF4D5E40} = {03DF1422-A701-4855-9E1B-FFD4FF4D5E40}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

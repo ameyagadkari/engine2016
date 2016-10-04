@@ -117,7 +117,12 @@ namespace eae6320
 			//---------------------------------
 
 			virtual bool Initialize() = 0;			
+			virtual void ChangeCamera() = 0;
+			virtual void UpdateCameraPostion() = 0;
+			virtual void UpdateCameraOrientation() = 0;
+			virtual void SubmitCamera() = 0;
 			virtual void UpdateGameObjectPosition() = 0;
+			virtual void UpdateGameObjectOrientation() = 0;
 			virtual void SubmitMesh() = 0;
 			virtual bool CleanUp() = 0;
 

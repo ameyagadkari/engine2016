@@ -9,6 +9,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
+		enum struct RotationAxis { X_AXIS, Y_AXIS, Z_AXIS };
 		class GameObject
 		{
 		public:
@@ -17,11 +18,14 @@ namespace eae6320
 			
 			static GameObject* Initilaize(const char* relativePath);
 			
-			void SetNewInitialOffset(const float x, const float y);
+			void SetNewInitialOffset(const float x, const float y, const float z);
 			void UpdateGameObjectPosition();
+			void UpdateGameObjectOrientation();
 
 #pragma region Gets
 			bool GetIsStatic()const;
+			bool GetIsRotating()const;
+			RotationAxis GetRotationAxis()const;
 			Graphics::Mesh* GetMesh()const;
 			Graphics::ConstantBufferData::sDrawCall GetDrawCallBufferData()const;
 			Math::cVector GetPosition()const;
@@ -30,6 +34,8 @@ namespace eae6320
 
 #pragma region Sets
 			void SetIsStatic(const bool isStatic);
+			void SetIsRotating(const bool isRotating);
+			void SetRotationAxis(const RotationAxis rotationAxis);
 			void SetMesh(Graphics::Mesh* const mesh);
 			void SetDrawCallBufferData(const Graphics::ConstantBufferData::sDrawCall drawCallBufferData);
 			void SetPosition(const Math::cVector position);
@@ -47,7 +53,10 @@ namespace eae6320
 
 			float initialOffset[3];
 			float offset[3];
+			float eularOrientationOffsetsDegrees[3];
 			bool isStatic;
+			bool isRotating;
+			RotationAxis rotationAxis;
 		};
 	}
 }
