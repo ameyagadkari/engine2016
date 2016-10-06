@@ -105,9 +105,10 @@ namespace eae6320
 
 		void cCamera::UpdateCurrentCameraPosition()
 		{
-			float localOffset[3] = { 0.0f,0.0f,0.0f };
 			if (!isStatic)
 			{
+				float localOffset[3] = { 0.0f,0.0f,0.0f };
+
 				if (UserInput::IsKeyPressed(0x4F))//O
 					localOffset[2] += 1.0f;
 				if (UserInput::IsKeyPressed(0x55))//U
@@ -126,18 +127,20 @@ namespace eae6320
 				localOffset[0] *= offsetModifier;
 				localOffset[1] *= offsetModifier;
 				localOffset[2] *= offsetModifier;
-			}
 
-			position.x += localOffset[0];
-			position.y += localOffset[1];
-			position.z += localOffset[2];
+				position.x += localOffset[0];
+				position.y += localOffset[1];
+				position.z += localOffset[2];
+			}
 		}
 
 		void cCamera::UpdateCurrentCameraOrientation()
 		{
-			float localOffset[3] = { 0.0f,0.0f,0.0f };
+			
 			if (!isStatic)
 			{
+				float localOffset[3] = { 0.0f,0.0f,0.0f };
+
 				if (UserInput::IsKeyPressed(0x59))//Y
 					localOffset[2] += 1.0f;
 				if (UserInput::IsKeyPressed(0x52))//R
@@ -156,16 +159,15 @@ namespace eae6320
 				localOffset[0] *= offsetModifier;
 				localOffset[1] *= offsetModifier;
 				localOffset[2] *= offsetModifier;
-			}
-			eularAngles.x += localOffset[0];
-			eularAngles.y += localOffset[1];
-			eularAngles.z += localOffset[2];
 
-			Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
-			Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
-			Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
-			if (!isStatic)
-			{
+				eularAngles.x += localOffset[0];
+				eularAngles.y += localOffset[1];
+				eularAngles.z += localOffset[2];
+
+				Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
+				Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
+				Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
+
 				orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
 			}
 		}
@@ -173,7 +175,7 @@ namespace eae6320
 		void cCamera::UpdateMaxCameras()
 		{
 			sMaxCameraNumber = cCamera::sCameras.size();
-			if (sMaxCameraNumber > 0)
+			if (sMaxCameraNumber > 0 && !sCurrentCamera)
 			{
 				sCurrentCamera = sCameras[0];
 			}
