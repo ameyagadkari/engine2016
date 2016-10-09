@@ -43,20 +43,24 @@ bool eae6320::cMyGame::Initialize()
 	{
 		gameObjects.push_back(Gameplay::GameObject::Initilaize(relativePaths[i].c_str()));
 	}
-	gameObjects[0]->SetIsStatic(false);
+
 	gameObjects[0]->SetIsRotating(true);
 	gameObjects[0]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
+
+	gameObjects[2]->SetIsStatic(false);
+	gameObjects[2]->SetIsRotating(true);
+	gameObjects[2]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
 
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 10.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
-	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 10.0f));
+	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 20.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);
-	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(5.0f, 5.0f, 10.0f));
+	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -25.0f, 0.0f), Math::cVector(5.0f, 5.0f, 20.0f));
 	Camera::cCamera::PushBackToVector(frontRightCamera);
-	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 135.0f, 0.0f), Math::cVector(-5.0f, 5.0f, -10.0f));
+	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 165.0f, 0.0f), Math::cVector(-5.0f, 5.0f, -20.0f));
 	Camera::cCamera::PushBackToVector(backLeftCamera);
-	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -135.0f, 0.0f), Math::cVector(5.0f, 5.0f, -10.0f));
+	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -165.0f, 0.0f), Math::cVector(5.0f, 5.0f, -20.0f));
 	Camera::cCamera::PushBackToVector(backRightCamera);
 
 	//After adding all cameras, doing this is must
@@ -126,8 +130,9 @@ void eae6320::cMyGame::UpdateGameObjectOrientation()
 
 void eae6320::cMyGame::SubmitGameObject()
 {
-	Graphics::SetGameObject(gameObjects[0], 0.0f, 1.0f, 0.0f);
+	Graphics::SetGameObject(gameObjects[0], 0.0f, 5.0f, -2.5f);
 	Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f, 0.0f);
+	Graphics::SetGameObject(gameObjects[2], 0.0f, 1.0f, 0.0f);
 }
 
 bool eae6320::cMyGame::CleanUp()
