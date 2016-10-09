@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+
 // Vertex Definition
 //==================
 
@@ -243,8 +244,7 @@ namespace
 		const int i_texcoordIndex, const int i_vertexColorIndex, const size_t i_shadingGroupIndex, const char* i_transformName)
 	{
 		std::ostringstream vertexKey;
-		vertexKey << i_positionIndex << "_" << i_normalIndex << "_" << i_tangentIndex
-			<< "_" << i_texcoordIndex << "_" << i_vertexColorIndex << "_" << i_shadingGroupIndex;
+		vertexKey << "_" << i_positionIndex << "_" << i_normalIndex << "_" << i_tangentIndex << "_" << i_texcoordIndex << "_" << i_vertexColorIndex << "_" << i_shadingGroupIndex;
 		if (i_transformName)
 		{
 			vertexKey << "_" << i_transformName;
@@ -753,21 +753,29 @@ namespace
 		size_t numberOfIndices = i_indexBuffer.size();
 
 		std::ofstream fout(i_fileName.asChar());
+
+		// Making the file stream to output only fixed floating point numbers with 5 decimal places
+		fout.precision(5);
+		fout << std::fixed;
+
 		if (fout.is_open())
 		{
 			fout <<
 				"--Mesh Data\n"
 				"return\n"
-				// Opening Main Table
+
+				// Opening Main Table			
 				"{\n"
 				"\t-- This table contains vertices\n"
 				"\t-- Total number of vertices: " << numberOfVertices << "\n"
 				"\tvertices =\n"
-				// Opening Vertices Table
+
+				// Opening Vertices Table			
 				"\t{\n"
 				"\t\t-- This table contains positions(x,y,z)\n"
 				"\t\tpositions =\n"
-				// Opening Positions Table
+
+				// Opening Positions Table				
 				"\t\t{\n";
 			for (size_t i = 0; i < numberOfVertices; i++)
 			{
@@ -776,8 +784,10 @@ namespace
 			fout <<
 				// Closing Position Table
 				"\t\t},\n"
+
 				"\t\t-- This table contains colors(r,g,b,a)(a has a default value of 1.0 if you don't specify)\n"
 				"\t\tcolors =\n"
+
 				// Opening Colors Table
 				"\t\t{\n";
 			for (size_t i = 0; i < numberOfVertices; i++)
@@ -785,15 +795,97 @@ namespace
 				fout << "\t\t\t{" << i_vertexBuffer[i].vertex.r << "," << i_vertexBuffer[i].vertex.g << "," << i_vertexBuffer[i].vertex.b << "," << i_vertexBuffer[i].vertex.a << "},\n";
 			}
 			fout <<
-				// Closing Colors Table
+				// Closing Colors Table				
 				"\t\t},\n"
-				//Closing Vertices Table
+
+				"\t\t-- This table contains normals(nx,ny,nz)\n"
+				"\t\tnormals =\n"
+
+				// Opening Normals Table
+				"\t\t{\n";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << "\t\t\t{" << i_vertexBuffer[i].vertex.nx << "," << i_vertexBuffer[i].vertex.ny << "," << i_vertexBuffer[i].vertex.nz << "},\n";
+			}
+			fout <<
+				// Closing Normals Table
+				"\t\t},\n"
+
+				"\t\t-- This table contains tangents(tx,ty,tz)\n"
+				"\t\ttangents =\n"
+
+				// Opening Tangents Table
+				"\t\t{\n";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << "\t\t\t{" << i_vertexBuffer[i].vertex.tx << "," << i_vertexBuffer[i].vertex.ty << "," << i_vertexBuffer[i].vertex.tz << "},\n";
+			}
+			fout <<
+				// Closing Tangents Table
+				"\t\t},\n"
+
+				"\t\t-- This table contains bitangents(btx,bty,btz)\n"
+				"\t\tbitangents =\n"
+
+				// Opening Bitangents Table
+				"\t\t{\n";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << "\t\t\t{" << i_vertexBuffer[i].vertex.btx << "," << i_vertexBuffer[i].vertex.bty << "," << i_vertexBuffer[i].vertex.btz << "},\n";
+			}
+			fout <<
+				// Closing Bitangents Table
+				"\t\t},\n"
+
+				"\t\t-- This table contains texture coordinates(u,v)\n"
+				"\t\ttexture_coordinates =\n"
+
+				// Opening Texture Coordinates Table
+				"\t\t{\n";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << "\t\t\t{" << i_vertexBuffer[i].vertex.u << "," << i_vertexBuffer[i].vertex.v << "},\n";
+			}
+			fout <<
+				// Closing Texture Coordinates Table
+				"\t\t},\n"
+
+				/*"\t\t-- This table contains shading groups\n"
+				"\t\tshading_groups = \n"
+
+				// Opening Shading Groups Table
+				"\t\t{\n"
+				"\t\t\t";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << i_vertexBuffer[i].shadingGroup << ",";
+			}
+			fout <<
+				// Closing Shading Groups Table
+				"\n\t\t},\n"
+
+				"\t\t-- This table contains unique keys\n"
+				"\t\tunique_keys = \n"
+
+				// Opening Unique Keys Table
+				"\t\t{\n";
+			for (size_t i = 0; i < numberOfVertices; i++)
+			{
+				fout << "\t\t\t" << i_vertexBuffer[i].uniqueKey << ",\n";
+			}
+			fout <<
+				// Closing Unique Keys Table
+				"\t\t},\n"*/
+
+				// Closing Vertices Table
 				"\t},\n"
+
 				"\t-- This table contains indices(triangles)\n"
 				"\t-- Total number of indices: " << numberOfIndices << "\n"
 				"\t-- Total number of triangles: " << static_cast<int>(numberOfIndices / 3) << "\n"
 				"\tindices =\n"
-				//Opening Indices Table
+
+				// Opening Indices Table
 				"\t{\n";
 			for (size_t i = 0; i < numberOfIndices;)
 			{
@@ -801,8 +893,9 @@ namespace
 				i += 3;
 			}
 			fout <<
-				//Closing Indices Table
+				// Closing Indices Table
 				"\t},\n"
+
 				// Closing Main Table
 				"}\n";
 			fout.close();
