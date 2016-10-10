@@ -100,10 +100,10 @@ namespace eae6320
 			float localOffset[3] = { 0.0f,0.0f,0.0f };
 			if (!isStatic)
 			{
-				if (UserInput::IsKeyPressed(0x45))//E
-					localOffset[2] += 1.0f;
-				if (UserInput::IsKeyPressed(0x51))//Q
-					localOffset[2] -= 1.0f;
+				//if (UserInput::IsKeyPressed(0x45))//E
+				//	localOffset[2] += 1.0f;
+				//if (UserInput::IsKeyPressed(0x51))//Q
+				//	localOffset[2] -= 1.0f;
 				if (UserInput::IsKeyPressed(0x57))//W
 					localOffset[1] += 1.0f;
 				if (UserInput::IsKeyPressed(0x53))//S
