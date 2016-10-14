@@ -22,7 +22,6 @@ This file manages mesh-related functionality
 
 #include "MeshData.h"
 #include "CommonData.h"
-#include "ConstantBufferData.h"
 // Interface
 //==========
 
@@ -38,7 +37,6 @@ namespace eae6320
 			void RenderMesh();		
 		private:		
 			uint16_t numberOfIndices = 0;
-			ConstantBufferData::sDrawCall drawCallData;
 			bool Initialize(MeshData&meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex

@@ -128,11 +128,11 @@ void eae6320::cMyGame::UpdateGameObjectOrientation()
 	}
 }
 
-void eae6320::cMyGame::SubmitGameObject()
+void eae6320::cMyGame::SubmitDrawcallData()
 {
-	Graphics::SetGameObject(gameObjects[0], 0.0f, 5.0f, -2.5f);
-	Graphics::SetGameObject(gameObjects[1], 0.0f, 0.0f, 0.0f);
-	Graphics::SetGameObject(gameObjects[2], 0.0f, 1.0f, 0.0f);
+	Graphics::SetGameObjectData(gameObjects[0], Math::cVector(0.0f, 5.0f, -2.5f));
+	Graphics::SetGameObjectData(gameObjects[1]);
+	Graphics::SetGameObjectData(gameObjects[2], Math::cVector(0.0f, 1.0f, 0.0f));
 }
 
 bool eae6320::cMyGame::CleanUp()

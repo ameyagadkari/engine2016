@@ -17,6 +17,10 @@ namespace eae6320
 		{
 			return position;
 		}
+		Math::cVector cCamera::GetOrientationEular()const
+		{
+			return eularAngles;
+		}
 		Math::cQuaternion cCamera::GetOrientation()const
 		{
 			return orientation;
@@ -44,9 +48,9 @@ namespace eae6320
 		{
 			this->position = position;
 		}
-		void cCamera::SetOrientation(const Math::cQuaternion orientation)
+		void cCamera::SetOrientationEular(const Math::cVector eularAngles)
 		{
-			this->orientation = orientation;
+			this->eularAngles = eularAngles;
 		}
 		void cCamera::SetFieldOfView(const float fieldOfView)
 		{
@@ -107,30 +111,25 @@ namespace eae6320
 		{
 			if (!isStatic)
 			{
-				float localOffset[3] = { 0.0f,0.0f,0.0f };
+				Math::cVector localOffset = Math::cVector::zero;
 
 				if (UserInput::IsKeyPressed(0x4F))//O
-					localOffset[2] += 1.0f;
+					localOffset.z += 1.0f;
 				if (UserInput::IsKeyPressed(0x55))//U
-					localOffset[2] -= 1.0f;
+					localOffset.z -= 1.0f;
 				if (UserInput::IsKeyPressed(0x49))//I
-					localOffset[1] += 1.0f;
+					localOffset.y += 1.0f;
 				if (UserInput::IsKeyPressed(0x4B))//K
-					localOffset[1] -= 1.0f;
+					localOffset.y -= 1.0f;
 				if (UserInput::IsKeyPressed(0x4A))//J
-					localOffset[0] -= 1.0f;
+					localOffset.x -= 1.0f;
 				if (UserInput::IsKeyPressed(0x4C))//L
-					localOffset[0] += 1.0f;
+					localOffset.x += 1.0f;
 
 				const float speed_unitsPerSecond = 1.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				localOffset[0] *= offsetModifier;
-				localOffset[1] *= offsetModifier;
-				localOffset[2] *= offsetModifier;
-
-				position.x += localOffset[0];
-				position.y += localOffset[1];
-				position.z += localOffset[2];
+				localOffset *= offsetModifier;
+				position += localOffset;
 			}
 		}
 
@@ -139,30 +138,25 @@ namespace eae6320
 			
 			if (!isStatic)
 			{
-				float localOffset[3] = { 0.0f,0.0f,0.0f };
+				Math::cVector localOffset = Math::cVector::zero;
 
 				if (UserInput::IsKeyPressed(0x59))//Y
-					localOffset[2] += 1.0f;
+					localOffset.z += 1.0f;
 				if (UserInput::IsKeyPressed(0x52))//R
-					localOffset[2] -= 1.0f;
+					localOffset.z -= 1.0f;
 				if (UserInput::IsKeyPressed(0x54))//T
-					localOffset[1] += 1.0f;
+					localOffset.y += 1.0f;
 				if (UserInput::IsKeyPressed(0x47))//G
-					localOffset[1] -= 1.0f;
+					localOffset.y -= 1.0f;
 				if (UserInput::IsKeyPressed(0x46))//F
-					localOffset[0] -= 1.0f;
+					localOffset.x -= 1.0f;
 				if (UserInput::IsKeyPressed(0x48))//H
-					localOffset[0] += 1.0f;
+					localOffset.x += 1.0f;
 
 				const float speed_unitsPerSecond = 10.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				localOffset[0] *= offsetModifier;
-				localOffset[1] *= offsetModifier;
-				localOffset[2] *= offsetModifier;
-
-				eularAngles.x += localOffset[0];
-				eularAngles.y += localOffset[1];
-				eularAngles.z += localOffset[2];
+				localOffset *= offsetModifier;
+				eularAngles += localOffset;
 
 				Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
 				Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);

@@ -11,6 +11,7 @@
 
 #include "Configuration.h"
 #include "../../Game/Gameplay/GameObject.h"
+#include "ConstantBufferData.h"
 #include "../Camera/cCamera.h"
 #include <vector>
 
@@ -30,7 +31,7 @@ namespace eae6320
 		// Render
 		//-------
 
-		void SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z);
+		void SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition = Math::cVector::zero, const Math::cVector startOrientation = Math::cVector::zero);
 		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();
 

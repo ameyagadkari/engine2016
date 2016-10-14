@@ -18,6 +18,8 @@ const eae6320::Math::cVector eae6320::Math::cVector::right(1.0f, 0.0f, 0.0f);
 const eae6320::Math::cVector eae6320::Math::cVector::up(0.0f, 1.0f, 0.0f);
 const eae6320::Math::cVector eae6320::Math::cVector::forward(0.0f, 0.0f, 1.0f);
 
+const eae6320::Math::cVector eae6320::Math::cVector::zero(0.0f, 0.0f, 0.0f);
+
 // Interface
 //==========
 
@@ -138,4 +140,19 @@ eae6320::Math::cVector::cVector( const float i_x, const float i_y, const float i
 	x( i_x ), y( i_y ), z( i_z )
 {
 
+}
+
+eae6320::Math::cVector::cVector(const cVector & i_other)
+	:
+	x(i_other.x), y(i_other.y), z(i_other.z)
+{
+
+}
+
+eae6320::Math::cVector& eae6320::Math::cVector::operator=(const cVector& i_other)
+{
+	x = i_other.x;
+	y = i_other.y;
+	z = i_other.z;
+	return *this;
 }

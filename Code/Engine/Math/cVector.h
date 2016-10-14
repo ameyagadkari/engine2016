@@ -55,6 +55,10 @@ namespace eae6320
 
 			cVector( const float i_x = 0.0f, const float i_y = 0.0f, const float i_z = 0.0f );
 
+			// Copy and assignment
+			cVector(const cVector& i_other);
+			cVector& operator=(const cVector& i_other);
+
 			// Data
 			//=====
 
@@ -63,6 +67,8 @@ namespace eae6320
 			static const cVector right;
 			static const cVector up;
 			static const cVector forward;
+
+			static const cVector zero;
 
 			float x, y, z;
 
