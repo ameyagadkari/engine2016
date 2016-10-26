@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cbBuilder.cpp" />
     <ClCompile Include="UtilityFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cbBuilder.h" />
     <ClInclude Include="UtilityFunctions.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

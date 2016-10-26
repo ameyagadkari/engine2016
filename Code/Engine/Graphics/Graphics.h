@@ -26,8 +26,7 @@
 namespace eae6320
 {
 	namespace Graphics
-	{
-		
+	{	
 		// Render
 		//-------
 

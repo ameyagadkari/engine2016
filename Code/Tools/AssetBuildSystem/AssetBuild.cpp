@@ -39,70 +39,8 @@ namespace
 // Interface
 //==========
 
-bool eae6320::AssetBuild::BuildAsset( const char* i_relativePath )
+bool eae6320::AssetBuild::BuildAssets( const char* const i_path_assetsToBuild )
 {
-	// The only thing that this C/C++ function does
-	// is call the corresponding Lua BuildAsset() function
-
-	// To call a function it must be pushed onto the stack
-	lua_getglobal( s_luaState, "BuildAsset" );
-	// This function has a single argument
-	const int argumentCount = 1;
-	{
-		lua_pushstring( s_luaState, i_relativePath );
-	}
-	// This function will return a boolean indicating success or failure
-	// (if the call fails the Lua function itself should output the reason)
-	const int returnValueCount = 1;
-	const int noErrorHandler = 0;
-	int result = lua_pcall( s_luaState, argumentCount, returnValueCount, noErrorHandler );
-	if ( result == LUA_OK )
-	{
-		result = lua_toboolean( s_luaState, -1 );
-		lua_pop( s_luaState, returnValueCount );
-		return result != 0;
-	}
-	else
-	{
-		// If this branch is reached it doesn't just mean that the asset failed to build
-		// (because in that case the branch above would have been reached with false as the return value),
-		// but it means that some exceptional error was thrown in the function call
-		const char* const errorMessage = lua_tostring( s_luaState, -1 );
-		std::cerr << errorMessage << "\n";
-		lua_pop( s_luaState, 1 );
-
-		return false;
-	}
-}
-
-// Initialization / Clean Up
-//--------------------------
-
-bool eae6320::AssetBuild::Initialize()
-{
-	// Create a new Lua state
-	{
-		s_luaState = luaL_newstate();
-		if ( !s_luaState )
-		{
-			OutputErrorMessage( "Memory allocation error creating Lua state", __FILE__ );
-			return false;
-		}
-	}
-	// Open the standard libraries
-	luaL_openlibs( s_luaState );
-	// Register custom functions
-	{
-		lua_register( s_luaState, "CopyFile", luaCopyFile );
-		lua_register( s_luaState, "CreateDirectoryIfNecessary", luaCreateDirectoryIfNecessary );
-		lua_register( s_luaState, "DoesFileExist", luaDoesFileExist );
-		lua_register( s_luaState, "ExecuteCommand", luaExecuteCommand );
-		lua_register( s_luaState, "GetEnvironmentVariable", luaGetEnvironmentVariable );
-		lua_register( s_luaState, "GetLastWriteTime", luaGetLastWriteTime );
-		lua_register( s_luaState, "InvalidateLastWriteTime", luaInvalidateLastWriteTime );
-		lua_register( s_luaState, "OutputErrorMessage", luaOutputErrorMessage );
-	}
-
 	// Load and execute the build script
 	{
 		// Get the path
@@ -131,13 +69,17 @@ bool eae6320::AssetBuild::Initialize()
 				if ( luaResult == LUA_OK )
 				{
 					// Execute the "chunk"
-					const int argumentCount = 0;
+					const int argumentCount = 1;
+					{
+						lua_pushstring( s_luaState, i_path_assetsToBuild );
+					}
 					const int returnValueCount = 0;
 					const int noErrorHandler = 0;
 					const int luaResult = lua_pcall( s_luaState, argumentCount, returnValueCount, noErrorHandler );
 					if ( luaResult != LUA_OK )
 					{
 						std::cerr << lua_tostring( s_luaState, -1 ) << "\n";
+						std::string a = lua_tostring(s_luaState, -1);
 						// Pop the error message
 						lua_pop( s_luaState, 1 );
 						return false;
@@ -157,6 +99,37 @@ bool eae6320::AssetBuild::Initialize()
 				return false;
 			}
 		}
+	}
+
+	return true;
+}
+
+// Initialization / Clean Up
+//--------------------------
+
+bool eae6320::AssetBuild::Initialize()
+{
+	// Create a new Lua state
+	{
+		s_luaState = luaL_newstate();
+		if ( !s_luaState )
+		{
+			OutputErrorMessage( "Memory allocation error creating Lua state", __FILE__ );
+			return false;
+		}
+	}
+	// Open the standard libraries
+	luaL_openlibs( s_luaState );
+	// Register custom functions
+	{
+		lua_register( s_luaState, "CopyFile", luaCopyFile );
+		lua_register( s_luaState, "CreateDirectoryIfNecessary", luaCreateDirectoryIfNecessary );
+		lua_register( s_luaState, "DoesFileExist", luaDoesFileExist );
+		lua_register( s_luaState, "ExecuteCommand", luaExecuteCommand );
+		lua_register( s_luaState, "GetEnvironmentVariable", luaGetEnvironmentVariable );
+		lua_register( s_luaState, "GetLastWriteTime", luaGetLastWriteTime );
+		lua_register( s_luaState, "InvalidateLastWriteTime", luaInvalidateLastWriteTime );
+		lua_register( s_luaState, "OutputErrorMessage", luaOutputErrorMessage );
 	}
 
 	return true;
@@ -188,29 +161,27 @@ namespace
 	{
 		// Argument #1: The source path
 		const char* i_path_source;
-		//EAE6320_TODO	// How do you get the source path from the Lua state?
-		if (lua_type(io_luaState, 1) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 1 ) )
 		{
-			i_path_source = lua_tostring(io_luaState, 1);;
+			i_path_source = lua_tostring( io_luaState, 1 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
-				"Argument #1 must be a source path (instead of a %s)",
-				luaL_typename(io_luaState, 1));
+			return luaL_error( io_luaState,
+				"Argument #1 must be a string (instead of a %s)",
+				luaL_typename( io_luaState, 1 ) );
 		}
 		// Argument #2: The target path
 		const char* i_path_target;
-		//EAE6320_TODO	// How do you get the target path from the Lua state?
-		if (lua_type(io_luaState, 2) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 2 ) )
 		{
-			i_path_target = lua_tostring(io_luaState, 2);;
+			i_path_target = lua_tostring( io_luaState, 2 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
-				"Argument #2 must be a target path (instead of a %s)",
-				luaL_typename(io_luaState, 2));
+			return luaL_error( io_luaState,
+				"Argument #2 must be a string (instead of a %s)",
+				luaL_typename( io_luaState, 2 ) );
 		}
 
 		// Copy the file
@@ -224,16 +195,14 @@ namespace
 			const bool updateTheTargetFileTime = true;
 			if ( eae6320::Platform::CopyFile( i_path_source, i_path_target, noErrorIfTargetAlreadyExists, updateTheTargetFileTime, &errorMessage ) )
 			{
-				//EAE6320_TODO	// Return a boolean [true]
-				lua_pushboolean(io_luaState, true);
+				lua_pushboolean( io_luaState, true );
 				const int returnValueCount = 1;
 				return returnValueCount;
 			}
 			else
 			{
-				//EAE6320_TODO	// On failure return two values: a boolean [false] and the error message
-				lua_pushboolean(io_luaState, false);
-				lua_pushstring(io_luaState, errorMessage.c_str());
+				lua_pushboolean( io_luaState, false );
+				lua_pushstring( io_luaState, errorMessage.c_str() );
 				const int returnValueCount = 2;
 				return returnValueCount;
 			}
@@ -244,30 +213,26 @@ namespace
 	{
 		// Argument #1: The path
 		const char* i_path;
-		//EAE6320_TODO	// How do you get the path from the Lua state?
-		if (lua_type(io_luaState, 1) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 1 ) )
 		{
-			i_path = lua_tostring(io_luaState, 1);;
+			i_path = lua_tostring( io_luaState, 1 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
-				"Argument #1 must be a path where the directory needs to be created (instead of a %s)",
-				luaL_typename(io_luaState, 1));
+			return luaL_error( io_luaState,
+				"Argument #1 must be a string (instead of a %s)",
+				luaL_typename( io_luaState, 1 ) );
 		}
 
 		std::string errorMessage;
 		if ( eae6320::Platform::CreateDirectoryIfNecessary( i_path, &errorMessage ) )
 		{
-			//EAE6320_TODO	// Return nothing (or [true], if you prefer)
-			lua_pushboolean(io_luaState, true);
-			const int returnValueCount = 1;
+			const int returnValueCount = 0;
 			return returnValueCount;
 		}
 		else
 		{
-			//EAE6320_TODO	// Throw a Lua error with the error message
-			return luaL_error(io_luaState, errorMessage.c_str());
+			return luaL_error( io_luaState, errorMessage.c_str() );
 		}
 	}
 
@@ -339,32 +304,29 @@ namespace
 	{
 		// Argument #1: The key
 		const char* i_key;
-		//EAE6320_TODO	// How do you get the key from the Lua state?
-		if (lua_type(io_luaState, 1) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 1 ) )
 		{
-			i_key = lua_tostring(io_luaState, 1);;
+			i_key = lua_tostring( io_luaState, 1 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
+			return luaL_error( io_luaState,
 				"Argument #1 must be a string (instead of a %s)",
-				luaL_typename(io_luaState, 1));
+				luaL_typename( io_luaState, 1 ) );
 		}
 
 		std::string value;
 		std::string errorMessage;
 		if ( eae6320::Platform::GetEnvironmentVariable( i_key, value, &errorMessage ) )
 		{
-			//EAE6320_TODO	// Return the value as a string
-			lua_pushstring(io_luaState, value.c_str());
+			lua_pushstring( io_luaState, value.c_str() );
 			const int returnValueCount = 1;
 			return returnValueCount;
 		}
 		else
 		{
-			//EAE6320_TODO	// On failure return two values: a nil and the error message
-			lua_pushnil(io_luaState);
-			lua_pushstring(io_luaState, errorMessage.c_str());
+			lua_pushboolean( io_luaState, false );
+			lua_pushstring( io_luaState, errorMessage.c_str() );
 			const int returnValueCount = 2;
 			return returnValueCount;
 		}
@@ -374,16 +336,15 @@ namespace
 	{
 		// Argument #1: The path
 		const char* i_path;
-		//EAE6320_TODO	// How do you get the path from the Lua state?
-		if (lua_type(io_luaState, 1) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 1 ) )
 		{
-			i_path = lua_tostring(io_luaState, 1);
+			i_path = lua_tostring( io_luaState, 1 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
+			return luaL_error( io_luaState,
 				"Argument #1 must be a string (instead of a %s)",
-				luaL_typename(io_luaState, 1));
+				luaL_typename( io_luaState, 1 ) );
 		}
 
 		// Get the last time that the file was written to
@@ -392,14 +353,12 @@ namespace
 		if ( eae6320::Platform::GetLastWriteTime( i_path, lastWriteTime, &errorMessage ) )
 		{
 			lua_pushnumber( io_luaState, static_cast<lua_Number>( lastWriteTime ) );
-			//EAE6320_TODO	// Return the last write time as a number
 			const int returnValueCount = 1;
 			return returnValueCount;
 		}
 		else
 		{
-			//EAE6320_TODO	// Throw a Lua error with the error message
-			return luaL_error(io_luaState, errorMessage.c_str());
+			return luaL_error( io_luaState, errorMessage.c_str() );
 		}
 	}
 
@@ -435,38 +394,36 @@ namespace
 	{
 		// Argument #1: The error message
 		const char* i_errorMessage;
-		//EAE6320_TODO	// How do you get the error message from the Lua state?
-		if (lua_type(io_luaState, 1) == LUA_TSTRING)
+		if ( lua_isstring( io_luaState, 1 ) )
 		{
-			i_errorMessage = lua_tostring(io_luaState, 1);
+			i_errorMessage = lua_tostring( io_luaState, 1 );
 		}
 		else
 		{
-			return luaL_error(io_luaState,
+			return luaL_error( io_luaState,
 				"Argument #1 must be a string (instead of a %s)",
-				luaL_typename(io_luaState, 1));
+				luaL_typename( io_luaState, 1 ) );
 		}
 		// Argument #2: An optional file name
 		const char* i_optionalFileName = NULL;
 		if ( !lua_isnoneornil( io_luaState, 2 ) )
 		{
-			//EAE6320_TODO	// How do you get the file name from the Lua state?
-			if (lua_type(io_luaState, 2) == LUA_TSTRING)
+			if ( lua_isstring( io_luaState, 2 ) )
 			{
-				i_optionalFileName = lua_tostring(io_luaState, 2);
+				i_optionalFileName = lua_tostring( io_luaState, 2 );
 			}
 			else
 			{
-				return luaL_error(io_luaState,
+				return luaL_error( io_luaState,
 					"Argument #2 must be a string (instead of a %s)",
-					luaL_typename(io_luaState, 2));
+					luaL_typename( io_luaState, 2 ) );
 			}
 		}
 
 		// Output the error message
 		eae6320::AssetBuild::OutputErrorMessage( i_errorMessage, i_optionalFileName );
 
-		//EAE6320_TODO	// Return nothing
-		return EXIT_SUCCESS;
+		const int returnValueCount = 0;
+		return returnValueCount;
 	}
 }
