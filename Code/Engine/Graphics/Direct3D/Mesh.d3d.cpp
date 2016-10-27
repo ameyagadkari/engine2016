@@ -56,7 +56,7 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 				}
 			}
 			const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
-				commonData->compiledVertexShader->GetBufferPointer(), commonData->compiledVertexShader->GetBufferSize(), &commonData->s_vertexLayout);
+				commonData->compiledVertexShader->data, commonData->compiledVertexShader->size, &commonData->s_vertexLayout);
 			if (FAILED(result))
 			{
 				EAE6320_ASSERT(false);
@@ -65,8 +65,7 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 			}
 			if (commonData->compiledVertexShader)
 			{
-				commonData->compiledVertexShader->Release();
-				commonData->compiledVertexShader = NULL;
+				commonData->compiledVertexShader->Free();
 			}
 		}
 	}

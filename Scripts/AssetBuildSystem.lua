@@ -4,7 +4,7 @@
 
 -- Static Data Initialization
 --===========================
-local s_AuthoredAssetDir, s_BinDir, s_BuiltAssetDir
+local s_AuthoredAssetDir, s_BinDir, s_BuiltAssetDir, s_Platform
 do
 	-- AuthoredAssetDir
 	do
@@ -30,6 +30,13 @@ do
 		local errorMessage
 		s_BuiltAssetDir, errorMessage = GetEnvironmentVariable( key )
 		if not s_BuiltAssetDir then
+			error( errorMessage )
+		end
+	end
+	do
+		local errorMessage
+		s_Platform, errorMessage = GetPlatformType()
+		if not s_Platform then
 			error( errorMessage )
 		end
 	end
@@ -155,10 +162,11 @@ end
 -- If you want to change the relative path (including file extension) of built assets from their source assets
 -- then you will need to override the following function
 function cbAssetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath )
-	local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
+	print("in base ConvertSourceRelativePathToBuiltRelativePath")
+	--[[local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
 	local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
 	-- By default the relative paths are the same
-	return relativeDirectory .. fileName .. extensionWithPeriod
+	return relativeDirectory .. fileName .. extensionWithPeriod]]
 end
 
 -- You will need to override the following function for some new asset types, but not for all
@@ -182,6 +190,21 @@ end
 --------------------
 
 --EAE6320_TODO
+NewAssetTypeInfo( "meshes",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "MeshBuilder.exe"
+		end,
+		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
+			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
+			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
+			--extensionWithPeriod = extensionWithPeriod:gsub("txt","bin")
+			-- By default the relative paths are the same
+			return relativeDirectory .. fileName .. extensionWithPeriod
+		end,
+	}
+)
 
 -- Shader Asset Type
 --------------------
@@ -191,6 +214,15 @@ NewAssetTypeInfo( "shaders",
 		-- This function is required for all asset types
 		GetBuilderRelativePath = function()
 			return "ShaderBuilder.exe"
+		end,		
+		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
+			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
+			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
+			if s_Platform == "EAE6320_PLATFORM_D3D" then
+				extensionWithPeriod = extensionWithPeriod:gsub("txt","bin")
+			end
+			-- By default the relative paths are the same
+			return relativeDirectory .. fileName .. extensionWithPeriod
 		end,
 	}
 )
@@ -271,7 +303,6 @@ local function BuildAsset( i_assetInfo )
 			end
 			-- Execute the command
 			local commandLine = command .. " " .. arguments			
-			print(commandLine)
 			local result, exitCode = ExecuteCommand( commandLine )
 			if result then
 				if exitCode == 0 then
@@ -351,7 +382,7 @@ local function BuildAssets( i_path_assetsToBuild, i_stackLevelOfCaller )
 
 	-- Build every asset that was registered
 	for i, assetInfo in ipairs( registeredAssetsToBuild ) do
-		if not BuildAsset( assetInfo ) then								
+		if not BuildAsset( assetInfo ) then							
 			wereThereErrors = true
 		end
 	end

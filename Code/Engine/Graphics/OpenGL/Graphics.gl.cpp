@@ -617,7 +617,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/Shaders/fragmentShader.glsl";
+				const char* path_sourceCode = "data/shaders/fragment.txtshader";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{
@@ -800,7 +800,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/Shaders/vertexShader.glsl";
+				const char* path_sourceCode = "data/shaders/vertex.txtshader";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{

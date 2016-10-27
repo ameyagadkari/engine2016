@@ -22,23 +22,6 @@ namespace eae6320
 		namespace ShaderTypes
 		{
 			enum struct eShaderType { Unknown, Vertex, Fragment };
-			/*const char* ToString(const eShaderType i_eShaderType)
-			{
-				switch (i_eShaderType)
-				{
-				case eShaderType::Unknown:
-					return "Unknown";
-					break;
-				case eShaderType::Vertex:
-					return "Vertex";
-					break;
-				case eShaderType::Fragment:
-					return "Fragment";
-					break;
-				default:
-					break;
-				}
-			}*/
 		}
 	}
 }

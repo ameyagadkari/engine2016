@@ -8,13 +8,13 @@ return
 	-- correspond to the asset types (inherited from cbAssetTypeInfo)
 	-- that you have defined in AssetBuildSystem.lua
 
-	--[[meshes =
+	meshes =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
 		"Meshes/MyName.txtmesh",
 		"Meshes/Plane.txtmesh",
 		"Meshes/Sphere.txtmesh",
-	},]]
+	},
 	shaders =
 	{
 		-- But it is also possible to define them as tables with more information
