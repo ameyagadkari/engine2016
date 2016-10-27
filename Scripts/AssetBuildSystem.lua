@@ -162,11 +162,10 @@ end
 -- If you want to change the relative path (including file extension) of built assets from their source assets
 -- then you will need to override the following function
 function cbAssetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath )
-	print("in base ConvertSourceRelativePathToBuiltRelativePath")
-	--[[local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
+	local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
 	local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
 	-- By default the relative paths are the same
-	return relativeDirectory .. fileName .. extensionWithPeriod]]
+	return relativeDirectory .. fileName .. extensionWithPeriod
 end
 
 -- You will need to override the following function for some new asset types, but not for all
@@ -197,11 +196,9 @@ NewAssetTypeInfo( "meshes",
 			return "MeshBuilder.exe"
 		end,
 		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
-			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
-			--extensionWithPeriod = extensionWithPeriod:gsub("txt","bin")
+			--i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
 			-- By default the relative paths are the same
-			return relativeDirectory .. fileName .. extensionWithPeriod
+			return i_sourceRelativePath
 		end,
 	}
 )
@@ -216,13 +213,11 @@ NewAssetTypeInfo( "shaders",
 			return "ShaderBuilder.exe"
 		end,		
 		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
-			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
 			if s_Platform == "EAE6320_PLATFORM_D3D" then
-				extensionWithPeriod = extensionWithPeriod:gsub("txt","bin")
+				i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
 			end
 			-- By default the relative paths are the same
-			return relativeDirectory .. fileName .. extensionWithPeriod
+			return i_sourceRelativePath
 		end,
 	}
 )
@@ -236,7 +231,9 @@ local function BuildAsset( i_assetInfo )
 	-- (The "source" is the authored asset,
 	-- and the "target" is the built asset that is ready to be used in-game)
 	local path_source = s_AuthoredAssetDir .. i_assetInfo.path
-	local path_target = s_BuiltAssetDir .. assetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_assetInfo.path )
+	local base_class = getmetatable( assetTypeInfo )
+	local path_intermediate = base_class.ConvertSourceRelativePathToBuiltRelativePath( i_assetInfo.path )
+	local path_target = s_BuiltAssetDir .. assetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( path_intermediate )
 	if not DoesFileExist( path_source ) then
 		OutputErrorMessage( "The source asset doesn't exist", path_source )
 		return false

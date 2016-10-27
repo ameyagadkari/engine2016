@@ -198,7 +198,6 @@ OnExit:
 	if (commonData->compiledVertexShader && wereThereErrors)
 	{
 		commonData->compiledVertexShader->Free();
-		commonData->compiledVertexShader = NULL;
 	}
 
 	return !wereThereErrors;
