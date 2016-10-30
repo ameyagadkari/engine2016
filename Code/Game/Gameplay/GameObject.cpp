@@ -11,15 +11,10 @@ namespace eae6320
 	{
 		inline GameObject::GameObject() 
 		{
-			initialOffset[0] = 0.0f;
-			initialOffset[1] = 0.0f;
-			initialOffset[2] = 0.0f;
-			offset[0] = 0.0f;
-			offset[1] = 0.0f;
-			offset[2] = 0.0f;
-			eularOrientationOffsetsDegrees[0] = 0.0f;
-			eularOrientationOffsetsDegrees[1] = 0.0f;
-			eularOrientationOffsetsDegrees[2] = 0.0f;
+			initialPositionOffset = Math::cVector::zero;
+			postionOffset = Math::cVector::zero;
+			initialEularOffset = Math::cVector::zero;
+			eularOffset = Math::cVector::zero;
 		}
 		inline GameObject::~GameObject() 
 		{
@@ -49,13 +44,13 @@ namespace eae6320
 		{
 			return mesh;
 		}
-		Graphics::ConstantBufferData::sDrawCall GameObject::GetDrawCallBufferData()const
-		{
-			return drawCallBufferData;
-		}
 		Math::cVector GameObject::GetPosition() const
 		{
 			return position;
+		}
+		Math::cVector GameObject::GetOrientationEular() const
+		{
+			return eularAngles;
 		}
 		Math::cQuaternion GameObject::GetOrientation() const
 		{
@@ -80,55 +75,41 @@ namespace eae6320
 		{
 			this->mesh = mesh;
 		}
-		void GameObject::SetDrawCallBufferData(const Graphics::ConstantBufferData::sDrawCall drawCallBufferData)
-		{
-			this->drawCallBufferData = drawCallBufferData;
-		}
 		void GameObject::SetPosition(const Math::cVector position)
 		{
 			this->position = position;
 		}
-		void GameObject::SetOrientation(const Math::cQuaternion orientation)
+		void GameObject::SetOrientationEular(const Math::cVector orientation)
 		{
-			this->orientation = orientation;
+			this->eularAngles = eularAngles;
 		}
 #pragma endregion
 
 
 		void GameObject::UpdateGameObjectPosition()
 		{
-			float localOffset[3] = { 0.0f,0.0f,0.0f };
+			Math::cVector localPositionOffset = Math::cVector::zero;
 			if (!isStatic)
 			{
 				//if (UserInput::IsKeyPressed(0x45))//E
-				//	localOffset[2] += 1.0f;
+				//	localPositionOffset.z += 1.0f;
 				//if (UserInput::IsKeyPressed(0x51))//Q
-				//	localOffset[2] -= 1.0f;
+				//	localPositionOffset.z -= 1.0f;
 				if (UserInput::IsKeyPressed(0x57))//W
-					localOffset[1] += 1.0f;
+					localPositionOffset.y += 1.0f;
 				if (UserInput::IsKeyPressed(0x53))//S
-					localOffset[1] -= 1.0f;
+					localPositionOffset.y -= 1.0f;
 				if (UserInput::IsKeyPressed(0x41))//A
-					localOffset[0] -= 1.0f;
+					localPositionOffset.x -= 1.0f;
 				if (UserInput::IsKeyPressed(0x44))//D
-					localOffset[0] += 1.0f;
+					localPositionOffset.x += 1.0f;
 
 				const float speed_unitsPerSecond = 0.5f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				localOffset[0] *= offsetModifier;
-				localOffset[1] *= offsetModifier;
-				localOffset[2] *= offsetModifier;
+				localPositionOffset *= offsetModifier;
+				postionOffset += localPositionOffset;				
 			}	
-
-			offset[0] += localOffset[0];
-			offset[1] += localOffset[1];
-			offset[2] += localOffset[2];
-
-			position.x = initialOffset[0] + offset[0];
-			position.y = initialOffset[1] + offset[1];
-			position.z = initialOffset[2] + offset[2];
-
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(orientation, position);
+			position = initialPositionOffset + postionOffset;
 		}
 
 		void GameObject::UpdateGameObjectOrientation()
@@ -140,22 +121,25 @@ namespace eae6320
 				switch (rotationAxis)
 				{
 				case RotationAxis::X_AXIS:
-					eularOrientationOffsetsDegrees[0] += offsetModifier;
-					orientation = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[0]), Math::cVector::right);
+					eularOffset.x += offsetModifier;
 					break;
 				case RotationAxis::Y_AXIS:
-					eularOrientationOffsetsDegrees[1] += offsetModifier;
-					orientation = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[1]), Math::cVector::up);
+					eularOffset.y += offsetModifier;
 					break;
 				case RotationAxis::Z_AXIS:
-					eularOrientationOffsetsDegrees[2] += offsetModifier;
-					orientation = Math::cQuaternion(Math::ConvertDegreesToRadians(eularOrientationOffsetsDegrees[2]), Math::cVector::forward);
+					eularOffset.z += offsetModifier;
 					break;
 				default:
-					break;
-				}
+					break;				
+				}						
 			}
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(orientation, position);
+			eularAngles = initialEularOffset + eularOffset;
+
+			Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
+			Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
+			Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
+
+			orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
 		}
 
 		GameObject* GameObject::Initilaize(const char* relativePath)
@@ -174,11 +158,14 @@ namespace eae6320
 			return NULL;
 		}
 
-		void GameObject::SetNewInitialOffset(const float x, const float y, const float z)
+		void GameObject::SetNewInitialPositionOffset(const Math::cVector startPosition)
 		{
-			initialOffset[0] = x;
-			initialOffset[1] = y;
-			initialOffset[2] = z;
+			initialPositionOffset = startPosition;
+		}
+
+		void GameObject::SetNewInitialEularOffset(const Math::cVector startOrientaion)
+		{
+			initialEularOffset = startOrientaion;
 		}
 	}
 }

@@ -18,7 +18,7 @@ namespace eae6320
 			void UpdateCurrentCameraPosition();
 			void UpdateCurrentCameraOrientation();
 
-			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector(0.0f, 0.0f, 10.0f), float fieldOfView = Math::ConvertDegreesToRadians(60.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 100.0f);
+			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(60.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 100.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
@@ -27,6 +27,7 @@ namespace eae6320
 
 #pragma region Gets
 			Math::cVector GetPosition()const;
+			Math::cVector GetOrientationEular()const;
 			Math::cQuaternion GetOrientation()const;
 			float GetFieldOfView()const;
 			float GetNearPlaneDistance()const;
@@ -37,7 +38,7 @@ namespace eae6320
 
 #pragma region Sets
 			void SetPosition(const Math::cVector position);
-			void SetOrientation(const Math::cQuaternion orientation);
+			void SetOrientationEular(const Math::cVector eularAngles);
 			void SetFieldOfView(const float fieldOfView);
 			void SetNearPlaneDistance(const float nearPlaneDistance);
 			void SetFarPlaneDistance(const float farPlaneDistance);

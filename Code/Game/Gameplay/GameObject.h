@@ -18,7 +18,8 @@ namespace eae6320
 			
 			static GameObject* Initilaize(const char* relativePath);
 			
-			void SetNewInitialOffset(const float x, const float y, const float z);
+			void SetNewInitialPositionOffset(const Math::cVector startPosition);
+			void SetNewInitialEularOffset(const Math::cVector startOrientaion);
 			void UpdateGameObjectPosition();
 			void UpdateGameObjectOrientation();
 
@@ -27,9 +28,9 @@ namespace eae6320
 			bool GetIsRotating()const;
 			RotationAxis GetRotationAxis()const;
 			Graphics::Mesh* GetMesh()const;
-			Graphics::ConstantBufferData::sDrawCall GetDrawCallBufferData()const;
 			Math::cVector GetPosition()const;
-			Math::cQuaternion GetOrientation()const;
+			Math::cVector GetOrientationEular()const;
+			Math::cQuaternion GetOrientation() const;
 #pragma endregion
 
 #pragma region Sets
@@ -37,23 +38,24 @@ namespace eae6320
 			void SetIsRotating(const bool isRotating);
 			void SetRotationAxis(const RotationAxis rotationAxis);
 			void SetMesh(Graphics::Mesh* const mesh);
-			void SetDrawCallBufferData(const Graphics::ConstantBufferData::sDrawCall drawCallBufferData);
 			void SetPosition(const Math::cVector position);
-			void SetOrientation(const Math::cQuaternion orientation);
+			void SetOrientationEular(const Math::cVector eularAngles);
 #pragma endregion
 			
 		private:
 			inline GameObject();
 
 			Graphics::Mesh*mesh;
-			Graphics::ConstantBufferData::sDrawCall drawCallBufferData;
 
 			Math::cVector position;
-			Math::cQuaternion orientation;
+			Math::cVector initialPositionOffset;
+			Math::cVector postionOffset;
 
-			float initialOffset[3];
-			float offset[3];
-			float eularOrientationOffsetsDegrees[3];
+			Math::cQuaternion orientation;
+			Math::cVector eularAngles;
+			Math::cVector initialEularOffset;
+			Math::cVector eularOffset;
+
 			bool isStatic;
 			bool isRotating;
 			RotationAxis rotationAxis;

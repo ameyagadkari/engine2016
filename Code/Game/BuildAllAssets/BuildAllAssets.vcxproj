@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" Shaders\fragmentShader.glsl Shaders\vertexShader.glsl Meshes\Sphere.txtmesh Meshes\Plane.txtmesh Meshes\MyName.txtmesh</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" Shaders\fragmentShader.hlsl Shaders\vertexShader.hlsl Meshes\Sphere.txtmesh Meshes\Plane.txtmesh Meshes\MyName.txtmesh</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" Shaders\fragmentShader.glsl Shaders\vertexShader.glsl Meshes\Sphere.txtmesh Meshes\Plane.txtmesh Meshes\MyName.txtmesh</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -148,7 +148,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" Shaders\fragmentShader.hlsl Shaders\vertexShader.hlsl Meshes\Sphere.txtmesh Meshes\Plane.txtmesh Meshes\MyName.txtmesh</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -158,6 +158,7 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\..\Scripts\AssetsToBuild.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

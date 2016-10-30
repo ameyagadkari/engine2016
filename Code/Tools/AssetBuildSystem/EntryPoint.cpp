@@ -7,6 +7,8 @@
 
 #include <cstdlib>
 #include "AssetBuild.h"
+#include <sstream>
+#include "../AssetBuildLibrary/UtilityFunctions.h"
 
 // Entry Point
 //============
@@ -21,18 +23,22 @@ int main( int i_argumentCount, char** i_arguments )
 		goto OnExit;
 	}
 
-	// The command line should have a list of assets to build
-	for ( int i = 1; i < i_argumentCount; ++i )
+	// The command line should have a path to the list of assets to build
+	if ( i_argumentCount == 2 )
 	{
-		const char* const relativePath = i_arguments[i];
-		if ( !eae6320::AssetBuild::BuildAsset( relativePath ) )
+		const char* const path_assetsToBuild = i_arguments[1];
+		if ( !eae6320::AssetBuild::BuildAssets( path_assetsToBuild ) )
 		{
 			wereThereErrors = true;
-			// Instead of exiting immediately an attempt should be made to build all assets
-			// (both because it gives a better idea of the number of errors
-			// but also because it could potentially allow the game to still be run with the
-			// assets that _did_ build successfully)
+			goto OnExit;
 		}
+	}
+	else
+	{
+		std::stringstream errorMessage;
+		errorMessage << "AssetBuildSystem.exe must be run with a single command line argument which is the path to the list of assets to build"
+			" (the invalid argument count being passed to main is " << i_argumentCount << ")";
+		eae6320::AssetBuild::OutputErrorMessage( errorMessage.str().c_str() );
 	}
 
 OnExit:

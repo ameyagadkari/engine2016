@@ -15,7 +15,7 @@ namespace eae6320
 		// Build
 		//------
 
-		bool BuildAsset( const char* const i_relativePath );
+		bool BuildAssets( const char* const i_path_assetsToBuild );
 
 		// Initialization / Clean Up
 		//--------------------------

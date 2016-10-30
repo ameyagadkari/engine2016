@@ -126,9 +126,11 @@ void eae6320::Graphics::RenderFrame()
 	}
 
 	size_t numberOfMeshes = gameObjects.size();
+	ConstantBufferData::sDrawCall drawCallBufferData;
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		drawCallBuffer.UpdateConstantBuffer((&gameObjects[i]->GetDrawCallBufferData()), sizeof(gameObjects[i]->GetDrawCallBufferData()));
+		drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
+		drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 		gameObjects[i]->GetMesh()->RenderMesh();
 	}
 	gameObjects._Pop_back_n(numberOfMeshes);
@@ -276,10 +278,11 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z)
+void eae6320::Graphics::SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition, const Math::cVector startOrientation)
 {
-	gameObjects.push_back(GameObject);
-	GameObject->SetNewInitialOffset(x, y, z);
+	gameObjects.push_back(gameObject);
+	gameObject->SetNewInitialPositionOffset(startPosition);
+	gameObject->SetNewInitialEularOffset(startOrientation);
 }
 
 // Helper Function Declarations
@@ -614,7 +617,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/Shaders/fragmentShader.glsl";
+				const char* path_sourceCode = "data/shaders/fragment.txtshader";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{
@@ -797,7 +800,7 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/Shaders/vertexShader.glsl";
+				const char* path_sourceCode = "data/shaders/vertex.txtshader";
 				std::string errorMessage;
 				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
 				{

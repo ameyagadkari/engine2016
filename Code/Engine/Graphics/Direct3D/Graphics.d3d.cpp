@@ -22,7 +22,7 @@ namespace
 {
 	using namespace eae6320::Graphics;
 	CommonData *commonData = CommonData::GetCommonData();
-	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
+	std::vector < eae6320::Gameplay::GameObject* > gameObjects;
 	// This is the main window handle from Windows
 	HWND s_renderingWindow = NULL;
 	// These are D3D interfaces
@@ -65,7 +65,7 @@ namespace
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool LoadFragmentShader();
-	bool LoadVertexShader(ID3D10Blob*& o_compiledShader);
+	bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader);
 }
 
 // Interface
@@ -108,9 +108,11 @@ void eae6320::Graphics::RenderFrame()
 		}
 
 		size_t numberOfMeshes = gameObjects.size();
+		ConstantBufferData::sDrawCall drawCallBufferData;
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
-			drawCallBuffer.UpdateConstantBuffer(&gameObjects[i]->GetDrawCallBufferData(), sizeof(gameObjects[i]->GetDrawCallBufferData()));
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
+			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			gameObjects[i]->GetMesh()->RenderMesh();
 		}
 		gameObjects._Pop_back_n(numberOfMeshes);
@@ -195,8 +197,7 @@ OnExit:
 	// it can be freed.
 	if (commonData->compiledVertexShader && wereThereErrors)
 	{
-		commonData->compiledVertexShader->Release();
-		commonData->compiledVertexShader = NULL;
+		commonData->compiledVertexShader->Free();
 	}
 
 	return !wereThereErrors;
@@ -263,10 +264,11 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetGameObject(Gameplay::GameObject*GameObject, const float x, const float y, const float z)
-{	
-	gameObjects.push_back(GameObject);
-	GameObject->SetNewInitialOffset(x, y, z);
+void eae6320::Graphics::SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition, const Math::cVector startOrientation)
+{
+	gameObjects.push_back(gameObject);
+	gameObject->SetNewInitialPositionOffset(startPosition);
+	gameObject->SetNewInitialEularOffset(startOrientation);
 }
 
 // Helper Function Definitions
@@ -510,7 +512,7 @@ namespace
 	}
 
 	bool LoadFragmentShader()
-	{
+	/*{
 		// Load the source code and compile it
 		ID3D10Blob* compiledShader = NULL;
 		{
@@ -565,61 +567,129 @@ namespace
 			compiledShader->Release();
 		}
 		return !wereThereErrors;
+	}*/
+	{
+		bool wereThereErrors = false;
+
+		// Load the compiled shader
+		eae6320::Platform::sDataFromFile compiledShader;
+		const char* const path = "data/shaders/fragment.binshader";
+		{
+			std::string errorMessage;
+			if (!eae6320::Platform::LoadBinaryFile(path, compiledShader, &errorMessage))
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, errorMessage.c_str());
+				eae6320::Logging::OutputError("Failed to load the shader file \"%s\": %s", path, errorMessage.c_str());
+				goto OnExit;
+			}
+		}
+		// Create the shader object
+		{
+			ID3D11ClassLinkage* const noInterfaces = NULL;
+			const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(
+				compiledShader.data, compiledShader.size, noInterfaces, &s_fragmentShader);
+			if (FAILED(result))
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", path, result);
+				goto OnExit;
+			}
+		}
+
+	OnExit:
+
+		compiledShader.Free();
+
+		return !wereThereErrors;
 	}
 
-	bool LoadVertexShader(ID3D10Blob*& o_compiledShader)
-	{
-		// Load the source code and compile it
-		{
-			const char* const sourceCodeFileName = "data/Shaders/vertexShader.hlsl";
-			D3D10_SHADER_MACRO* const noMacros = NULL;
-			ID3DInclude* const noIncludes = NULL;
-			const char* const entryPoint = "main";
-			const char* const profile = "vs_4_0";
-			const unsigned int noFlags = 0;
-			ID3DX11ThreadPump* const blockUntilLoaded = NULL;
-			ID3D10Blob* errorMessages = NULL;
-			HRESULT result;
-			result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-				noFlags, noFlags, blockUntilLoaded, &o_compiledShader, &errorMessages, &result);
-			if (SUCCEEDED(result))
+	bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader)
+		/*{
+			// Load the source code and compile it
 			{
-				if (errorMessages)
+				const char* const sourceCodeFileName = "data/Shaders/vertexShader.hlsl";
+				D3D10_SHADER_MACRO* const noMacros = NULL;
+				ID3DInclude* const noIncludes = NULL;
+				const char* const entryPoint = "main";
+				const char* const profile = "vs_4_0";
+				const unsigned int noFlags = 0;
+				ID3DX11ThreadPump* const blockUntilLoaded = NULL;
+				ID3D10Blob* errorMessages = NULL;
+				HRESULT result;
+				result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
+					noFlags, noFlags, blockUntilLoaded, &o_compiledShader, &errorMessages, &result);
+				if (SUCCEEDED(result))
 				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
-				if (errorMessages)
-				{
-					EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-					eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s: %s",
-						sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-					errorMessages->Release();
+					if (errorMessages)
+					{
+						errorMessages->Release();
+					}
 				}
 				else
 				{
-					EAE6320_ASSERT(false);
-					eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s",
-						sourceCodeFileName);
+					if (errorMessages)
+					{
+						EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+						eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s: %s",
+							sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+						errorMessages->Release();
+					}
+					else
+					{
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s",
+							sourceCodeFileName);
+					}
+					return false;
 				}
-				return false;
+			}
+			// Create the vertex shader object
+			bool wereThereErrors = false;
+			{
+				ID3D11ClassLinkage* const noInterfaces = NULL;
+				const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(o_compiledShader->GetBufferPointer(), o_compiledShader->GetBufferSize(),
+					noInterfaces, &s_vertexShader);
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to create the vertex shader with HRESULT %#010x", result);
+					wereThereErrors = true;
+				}
+			}
+			return !wereThereErrors;
+		}*/
+	{
+		bool wereThereErrors = false;
+
+		// Load the compiled shader
+		const char* const path = "data/shaders/vertex.binshader";
+		{
+			std::string errorMessage;
+			if (!eae6320::Platform::LoadBinaryFile(path, *o_compiledShader, &errorMessage))
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, errorMessage.c_str());
+				eae6320::Logging::OutputError("Failed to load the shader file \"%s\": %s", path, errorMessage.c_str());
+				goto OnExit;
 			}
 		}
-		// Create the vertex shader object
-		bool wereThereErrors = false;
+		// Create the shader object
 		{
 			ID3D11ClassLinkage* const noInterfaces = NULL;
-			const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(o_compiledShader->GetBufferPointer(), o_compiledShader->GetBufferSize(),
-				noInterfaces, &s_vertexShader);
+			const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(
+				o_compiledShader->data, o_compiledShader->size, noInterfaces, &s_vertexShader);
 			if (FAILED(result))
 			{
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("Direct3D failed to create the vertex shader with HRESULT %#010x", result);
 				wereThereErrors = true;
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", path, result);
+				goto OnExit;
 			}
 		}
+
+	OnExit:
 		return !wereThereErrors;
 	}
 }

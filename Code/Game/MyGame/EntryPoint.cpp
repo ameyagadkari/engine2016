@@ -9,7 +9,9 @@
 #include "cMyGame.h"
 
 #ifdef _DEBUG
-#include  "crtdbg.h"
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #endif // _DEBUG
 
 // Entry Point
@@ -18,17 +20,7 @@
 int WINAPI WinMain( HINSTANCE i_thisInstanceOfTheApplication, HINSTANCE, char* i_commandLineArguments, int i_initialWindowDisplayState )
 {
 #ifdef _DEBUG
-
-	// get current dbg flag (report it)
-	int flag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
-
-	// logically OR leak check bit
-	flag |= _CRTDBG_LEAK_CHECK_DF;
-
-	// set the flags again
-	_CrtSetDbgFlag(flag);
-
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif // _DEBUG
-	//_crtBreakAlloc = 687;
 	return eae6320::Application::Run<eae6320::cMyGame>( i_thisInstanceOfTheApplication, i_commandLineArguments, i_initialWindowDisplayState );
 }
