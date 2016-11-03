@@ -68,6 +68,10 @@ namespace eae6320
 			static const cVector up;
 			static const cVector forward;
 
+			static const cVector left;
+			static const cVector down;
+			static const cVector back;
+
 			static const cVector zero;
 
 			float x, y, z;

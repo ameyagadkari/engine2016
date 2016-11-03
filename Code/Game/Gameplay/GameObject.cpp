@@ -9,12 +9,13 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		inline GameObject::GameObject() 
+		inline GameObject::GameObject() :
+			isStatic(true), 
+			isRotating(false), 
+			rotationAxis(RotationAxis::X_AXIS),
+			initialEularOffset(Math::cVector::zero),
+			initialPositionOffset(Math::cVector::zero)
 		{
-			initialPositionOffset = Math::cVector::zero;
-			postionOffset = Math::cVector::zero;
-			initialEularOffset = Math::cVector::zero;
-			eularOffset = Math::cVector::zero;
 		}
 		inline GameObject::~GameObject() 
 		{
@@ -24,7 +25,13 @@ namespace eae6320
 				Logging::OutputError("Mesh cleanup failed");
 			}
 			if (mesh)
+			{
 				delete mesh;
+			}
+			if (controller)
+			{
+				delete controller;
+			}
 		}
 
 #pragma region Gets
@@ -88,67 +95,62 @@ namespace eae6320
 
 		void GameObject::UpdateGameObjectPosition()
 		{
-			Math::cVector localPositionOffset = Math::cVector::zero;
 			if (!isStatic)
 			{
-				//if (UserInput::IsKeyPressed(0x45))//E
-				//	localPositionOffset.z += 1.0f;
-				//if (UserInput::IsKeyPressed(0x51))//Q
-				//	localPositionOffset.z -= 1.0f;
-				if (UserInput::IsKeyPressed(0x57))//W
-					localPositionOffset.y += 1.0f;
-				if (UserInput::IsKeyPressed(0x53))//S
-					localPositionOffset.y -= 1.0f;
-				if (UserInput::IsKeyPressed(0x41))//A
-					localPositionOffset.x -= 1.0f;
-				if (UserInput::IsKeyPressed(0x44))//D
-					localPositionOffset.x += 1.0f;
-
-				const float speed_unitsPerSecond = 0.5f;
-				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				localPositionOffset *= offsetModifier;
-				postionOffset += localPositionOffset;				
-			}	
-			position = initialPositionOffset + postionOffset;
+				if (controller)
+				{
+					position = initialPositionOffset + controller->UpdatePosition();
+				}
+				else
+				{
+					position = initialPositionOffset;
+				}
+			}
+			else
+			{
+				position = initialPositionOffset;
+			}
 		}
 
 		void GameObject::UpdateGameObjectOrientation()
 		{
 			if (isRotating)
 			{
-				const float rotationSpeed = 100.0f;
-				const float offsetModifier = rotationSpeed * Time::GetElapsedSecondCount_duringPreviousFrame();
-				switch (rotationAxis)
+				if (controller)
 				{
-				case RotationAxis::X_AXIS:
-					eularOffset.x += offsetModifier;
-					break;
-				case RotationAxis::Y_AXIS:
-					eularOffset.y += offsetModifier;
-					break;
-				case RotationAxis::Z_AXIS:
-					eularOffset.z += offsetModifier;
-					break;
-				default:
-					break;				
-				}						
+					eularAngles = initialEularOffset + controller->UpdateOrientation(rotationAxis);
+				}
+				else
+				{
+					eularAngles = initialEularOffset;
+				}
+			}	
+			else
+			{
+				eularAngles = initialEularOffset;
 			}
-			eularAngles = initialEularOffset + eularOffset;
-
 			Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
 			Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
 			Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
-
 			orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
 		}
 
-		GameObject* GameObject::Initilaize(const char* relativePath)
+		GameObject* GameObject::Initilaize(const char * const relativePath, const char * const classType)
 		{
 			GameObject *gameObject = new GameObject();
-			gameObject->mesh = Graphics::Mesh::LoadMesh(relativePath);
-			gameObject->isStatic = true;
-			gameObject->isRotating = false;
-			gameObject->rotationAxis = RotationAxis::X_AXIS;
+			if (strcmp(classType, CubeController::classType) == 0)
+			{
+				gameObject->controller = reinterpret_cast<IGameObjectController*>(CubeController::Initialize());
+			}
+			else if (strcmp(classType, SnakeController::classType) == 0)
+			{
+				gameObject->controller = reinterpret_cast<IGameObjectController*>(SnakeController::Initialize());
+			}
+			else
+			{
+				gameObject->controller = NULL;
+			}
+			gameObject->mesh = Graphics::Mesh::LoadMesh(relativePath);			
 			if (gameObject->mesh)
 			{
 				return gameObject;

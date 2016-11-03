@@ -18,6 +18,10 @@ const eae6320::Math::cVector eae6320::Math::cVector::right(1.0f, 0.0f, 0.0f);
 const eae6320::Math::cVector eae6320::Math::cVector::up(0.0f, 1.0f, 0.0f);
 const eae6320::Math::cVector eae6320::Math::cVector::forward(0.0f, 0.0f, 1.0f);
 
+const eae6320::Math::cVector eae6320::Math::cVector::left(-1.0f, 0.0f, 0.0f);
+const eae6320::Math::cVector eae6320::Math::cVector::down(0.0f, -1.0f, 0.0f);
+const eae6320::Math::cVector eae6320::Math::cVector::back(0.0f, 0.0f, -1.0f);
+
 const eae6320::Math::cVector eae6320::Math::cVector::zero(0.0f, 0.0f, 0.0f);
 
 // Interface

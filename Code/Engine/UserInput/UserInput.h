@@ -4,7 +4,7 @@
 
 #ifndef EAE6320_USERINPUT_H
 #define EAE6320_USERINPUT_H
-
+#include "../../Engine/Windows/Includes.h"
 // Interface
 //==========
 

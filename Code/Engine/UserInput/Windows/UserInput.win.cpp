@@ -3,8 +3,6 @@
 
 #include "../UserInput.h"
 
-#include "../../Windows/Includes.h"
-
 // Helper Function Declarations
 //=============================
 

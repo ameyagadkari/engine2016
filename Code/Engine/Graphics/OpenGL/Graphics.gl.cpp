@@ -280,9 +280,17 @@ bool eae6320::Graphics::CleanUp()
 
 void eae6320::Graphics::SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition, const Math::cVector startOrientation)
 {
-	gameObjects.push_back(gameObject);
-	gameObject->SetNewInitialPositionOffset(startPosition);
-	gameObject->SetNewInitialEularOffset(startOrientation);
+	if (gameObject)
+	{
+		gameObjects.push_back(gameObject);
+		gameObject->SetNewInitialPositionOffset(startPosition);
+		gameObject->SetNewInitialEularOffset(startOrientation);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Trying to draw a non existent gameobject. Check gameobject name");
+	}
 }
 
 // Helper Function Declarations
