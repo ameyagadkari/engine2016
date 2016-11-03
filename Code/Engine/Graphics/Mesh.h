@@ -32,7 +32,7 @@ namespace eae6320
 		class Mesh
 		{
 		public:
-			static Mesh* LoadMesh(const char* const relativePath);
+			static Mesh* LoadMesh(const char * const relativePath);
 			bool CleanUp();
 			void RenderMesh();		
 		private:		

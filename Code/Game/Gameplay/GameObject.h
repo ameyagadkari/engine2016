@@ -4,19 +4,19 @@
 #include "../../Engine/Graphics/Mesh.h"
 #include "../../Engine/Math/cVector.h"
 #include "../../Engine/Math/cQuaternion.h"
+#include "CubeController.h"
+#include "SnakeController.h"
 
 namespace eae6320
 {
 	namespace Gameplay
-	{
-		enum struct RotationAxis { X_AXIS, Y_AXIS, Z_AXIS };
+	{		
 		class GameObject
 		{
 		public:
 			
 			inline virtual ~GameObject();
-			
-			static GameObject* Initilaize(const char* relativePath);
+			static GameObject* Initilaize(const char * const relativePath, const char * const classType);
 			
 			void SetNewInitialPositionOffset(const Math::cVector startPosition);
 			void SetNewInitialEularOffset(const Math::cVector startOrientaion);
@@ -46,15 +46,13 @@ namespace eae6320
 			inline GameObject();
 
 			Graphics::Mesh*mesh;
-
+			IGameObjectController* controller;
 			Math::cVector position;
-			Math::cVector initialPositionOffset;
-			Math::cVector postionOffset;
-
 			Math::cQuaternion orientation;
 			Math::cVector eularAngles;
+
+			Math::cVector initialPositionOffset;
 			Math::cVector initialEularOffset;
-			Math::cVector eularOffset;
 
 			bool isStatic;
 			bool isRotating;

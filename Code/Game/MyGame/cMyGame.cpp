@@ -1,8 +1,9 @@
 // Header Files
 //=============
 
-
+#include <map>
 #include <vector>
+#include <regex>
 #include "../Gameplay/GameObject.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
@@ -26,9 +27,12 @@ eae6320::cMyGame::~cMyGame()
 namespace
 {
 	void GenerateRelativePaths();
-	std::vector<eae6320::Gameplay::GameObject*> gameObjects;
+	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<std::string> relativePaths;
+	std::vector<std::string> fileNames;
 	size_t numberOfMeshes;
+	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
+	const std::string pattern_replace("");
 }
 // Inherited Implementation
 //=========================
@@ -41,18 +45,18 @@ bool eae6320::cMyGame::Initialize()
 	GenerateRelativePaths();
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		gameObjects.push_back(Gameplay::GameObject::Initilaize(relativePaths[i].c_str()));
+		gameObjects[fileNames[i]] = (Gameplay::GameObject::Initilaize(relativePaths[i].c_str(), fileNames[i].c_str()));
 	}
 
-	gameObjects[0]->SetIsRotating(true);
-	gameObjects[0]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
+	gameObjects["newcube"]->SetIsRotating(true);
+	//gameObjects["myname"]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
 
-	gameObjects[2]->SetIsStatic(false);
-	gameObjects[2]->SetIsRotating(true);
-	gameObjects[2]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
+	gameObjects["snake"]->SetIsStatic(false);
+	//gameObjects["snake"]->SetIsRotating(true);
+	//gameObjects["snake"]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
 
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 10.0f));
+	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
 	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 20.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);
@@ -114,39 +118,46 @@ void eae6320::cMyGame::SubmitCamera()
 
 void eae6320::cMyGame::UpdateGameObjectPosition()
 {
-	for (size_t i = 0; i < numberOfMeshes; i++)
+	for (auto const& gameObject : gameObjects)
 	{
-		gameObjects[i]->UpdateGameObjectPosition();
+		if (gameObject.second)
+		{
+			gameObject.second->UpdateGameObjectPosition();
+		}
 	}
 }
 
 void eae6320::cMyGame::UpdateGameObjectOrientation()
 {
-	for (size_t i = 0; i < numberOfMeshes; i++)
+	for (auto const& gameObject : gameObjects)
 	{
-		gameObjects[i]->UpdateGameObjectOrientation();
+		if (gameObject.second)
+		{
+			gameObject.second->UpdateGameObjectOrientation();
+		}
 	}
 }
 
 void eae6320::cMyGame::SubmitDrawcallData()
 {
-	Graphics::SetGameObjectData(gameObjects[0], Math::cVector(0.0f, 5.0f, -2.5f));
-	Graphics::SetGameObjectData(gameObjects[1]);
-	Graphics::SetGameObjectData(gameObjects[2], Math::cVector(0.0f, 1.0f, 0.0f));
+	Graphics::SetGameObjectData(gameObjects["plane"]);
+	Graphics::SetGameObjectData(gameObjects["newcube"], Math::cVector(0.0f, 10.0f, 0.0f));
+	Graphics::SetGameObjectData(gameObjects["snake"], Math::cVector(0.0f, 1.0f, 0.0f));
 }
 
 bool eae6320::cMyGame::CleanUp()
 {
-	for (size_t i = 0; i < numberOfMeshes; i++)
+	for (auto const& gameObject : gameObjects)
 	{
-		if (gameObjects[i])
+		if (gameObject.second)
 		{
-			delete gameObjects[i];
+			delete gameObject.second;
 		}
 	}
-	gameObjects._Pop_back_n(numberOfMeshes);
+	gameObjects.clear();
 	if (!Camera::cCamera::CleanUp())
 	{
+		EAE6320_ASSERT(false);
 		Logging::OutputError("Camera Cleanup Failed");
 	}
 	bool wereThereErrors = false;
@@ -180,7 +191,7 @@ namespace
 {
 	void GenerateRelativePaths()
 	{
-		std::string prefix = "data/Meshes/";
+		std::string prefix = "data/meshes/";
 		WIN32_FIND_DATA search_data;
 		memset(&search_data, 0, sizeof(WIN32_FIND_DATA));
 		HANDLE handle = FindFirstFile((prefix + "*").c_str(), &search_data);
@@ -191,7 +202,10 @@ namespace
 				if (!strcmp(search_data.cFileName, "."))continue;
 				else if (!strcmp(search_data.cFileName, ".."))continue;
 				else
+				{
 					relativePaths.push_back((prefix + search_data.cFileName).c_str());
+					fileNames.push_back(std::regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
+				}
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);

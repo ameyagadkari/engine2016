@@ -11,16 +11,17 @@ return
 	meshes =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
-		"Meshes/MyName.txtmesh",
-		"Meshes/Plane.txtmesh",
-		"Meshes/Sphere.txtmesh",
+		--"Meshes/MyName.txtmesh",
+		"meshes/plane.txtmesh",
+		"meshes/snake.txtmesh",
+		"meshes/newcube.txtmesh",
 	},
 	shaders =
 	{
 		-- But it is also possible to define them as tables with more information
 		-- (shaders must specify an additional command line argument for ShaderBuilder.exe
 		-- to specify whether an asset is a vertex shader or a fragment shader)
-		{ path = "Shaders/vertex.txtshader", arguments = { "vertex" } },
-		{ path = "Shaders/fragment.txtshader", arguments = { "fragment" } },
+		{ path = "shaders/vertex.txtshader", arguments = { "vertex" } },
+		{ path = "shaders/fragment.txtshader", arguments = { "fragment" } },
 	},
 }

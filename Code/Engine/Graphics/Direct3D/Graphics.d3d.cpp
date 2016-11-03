@@ -229,11 +229,11 @@ bool eae6320::Graphics::CleanUp()
 
 		if (!frameBuffer.CleanUpConstantBuffer())
 		{
-			
+
 		}
 		if (!drawCallBuffer.CleanUpConstantBuffer())
 		{
-			
+
 		}
 		if (s_renderTargetView)
 		{
@@ -266,9 +266,17 @@ bool eae6320::Graphics::CleanUp()
 
 void eae6320::Graphics::SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition, const Math::cVector startOrientation)
 {
-	gameObjects.push_back(gameObject);
-	gameObject->SetNewInitialPositionOffset(startPosition);
-	gameObject->SetNewInitialEularOffset(startOrientation);
+	if (gameObject)
+	{
+		gameObjects.push_back(gameObject);
+		gameObject->SetNewInitialPositionOffset(startPosition);
+		gameObject->SetNewInitialEularOffset(startOrientation);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Trying to draw a non existent gameobject. Check gameobject name");
+	}
 }
 
 // Helper Function Definitions
@@ -512,62 +520,62 @@ namespace
 	}
 
 	bool LoadFragmentShader()
-	/*{
-		// Load the source code and compile it
-		ID3D10Blob* compiledShader = NULL;
-		{
-			const char* const sourceCodeFileName = "data/Shaders/fragmentShader.hlsl";
-			D3D10_SHADER_MACRO* const noMacros = NULL;
-			ID3DInclude* const noIncludes = NULL;
-			const char* const entryPoint = "main";
-			const char* const profile = "ps_4_0";
-			const unsigned int noFlags = 0;
-			ID3DX11ThreadPump* const blockUntilLoaded = NULL;
-			ID3D10Blob* errorMessages = NULL;
-			HRESULT result;
-			result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-				noFlags, noFlags, blockUntilLoaded, &compiledShader, &errorMessages, &result);
-			if (SUCCEEDED(result))
+		/*{
+			// Load the source code and compile it
+			ID3D10Blob* compiledShader = NULL;
 			{
-				if (errorMessages)
+				const char* const sourceCodeFileName = "data/Shaders/fragmentShader.hlsl";
+				D3D10_SHADER_MACRO* const noMacros = NULL;
+				ID3DInclude* const noIncludes = NULL;
+				const char* const entryPoint = "main";
+				const char* const profile = "ps_4_0";
+				const unsigned int noFlags = 0;
+				ID3DX11ThreadPump* const blockUntilLoaded = NULL;
+				ID3D10Blob* errorMessages = NULL;
+				HRESULT result;
+				result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
+					noFlags, noFlags, blockUntilLoaded, &compiledShader, &errorMessages, &result);
+				if (SUCCEEDED(result))
 				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
-				if (errorMessages)
-				{
-					EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-					eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s: %s",
-						sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-					errorMessages->Release();
+					if (errorMessages)
+					{
+						errorMessages->Release();
+					}
 				}
 				else
 				{
-					EAE6320_ASSERT(false);
-					eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s",
-						sourceCodeFileName);
+					if (errorMessages)
+					{
+						EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+						eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s: %s",
+							sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
+						errorMessages->Release();
+					}
+					else
+					{
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s",
+							sourceCodeFileName);
+					}
+					return false;
 				}
-				return false;
 			}
-		}
-		// Create the fragment shader object
-		bool wereThereErrors = false;
-		{
-			ID3D11ClassLinkage* const noInterfaces = NULL;
-			const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(),
-				noInterfaces, &s_fragmentShader);
-			if (FAILED(result))
+			// Create the fragment shader object
+			bool wereThereErrors = false;
 			{
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("Direct3D failed to create the fragment shader with HRESULT %#010x", result);
-				wereThereErrors = true;
+				ID3D11ClassLinkage* const noInterfaces = NULL;
+				const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(),
+					noInterfaces, &s_fragmentShader);
+				if (FAILED(result))
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("Direct3D failed to create the fragment shader with HRESULT %#010x", result);
+					wereThereErrors = true;
+				}
+				compiledShader->Release();
 			}
-			compiledShader->Release();
-		}
-		return !wereThereErrors;
-	}*/
+			return !wereThereErrors;
+		}*/
 	{
 		bool wereThereErrors = false;
 

@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" "$(ScriptDir)AssetsToBuild.lua"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" "$(ScriptDir)AssetsToBuild.lua"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" "$(ScriptDir)AssetsToBuild.lua"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -148,7 +148,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuildSystem.exe" $(ScriptDir)AssetsToBuild.lua</Command>
+      <Command>"$(BinDir)AssetBuildSystem.exe" "$(ScriptDir)AssetsToBuild.lua"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
