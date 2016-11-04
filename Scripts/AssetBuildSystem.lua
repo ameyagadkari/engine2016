@@ -185,10 +185,24 @@ function cbAssetTypeInfo.ShouldTargetBeBuilt( i_lastWriteTime_builtAsset )
 	return false
 end
 
+-- Gameobject Asset Type
+--------------------
+
+NewAssetTypeInfo( "gameobjects",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "GameobjectBuilder.exe"
+		end,		
+		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
+			-- By default the relative paths are the same
+			return i_sourceRelativePath
+		end,
+	}
+)
 -- Mesh Asset Type
 --------------------
 
---EAE6320_TODO
 NewAssetTypeInfo( "meshes",
 	{
 		-- This function is required for all asset types

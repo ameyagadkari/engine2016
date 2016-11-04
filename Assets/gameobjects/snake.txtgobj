@@ -1,0 +1,11 @@
+-- Gameobject Data for Snake
+return
+{
+	mesh_filepath = "data/meshes/snake.txtmesh",
+	position = {0.0,1.0,0.0},
+	eular_angles = {0.0,0.0,0.0},
+	controller = "SnakeController",
+	is_static = false,
+	is_rotating = false,
+	rotation_axis = "x_axis",	
+}

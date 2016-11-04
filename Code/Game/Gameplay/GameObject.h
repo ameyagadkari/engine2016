@@ -6,6 +6,7 @@
 #include "../../Engine/Math/cQuaternion.h"
 #include "CubeController.h"
 #include "SnakeController.h"
+#include "../../External/Lua/Includes.h"
 
 namespace eae6320
 {
@@ -16,16 +17,14 @@ namespace eae6320
 		public:
 			
 			inline virtual ~GameObject();
-			static GameObject* Initilaize(const char * const relativePath, const char * const classType);
-			
-			void SetNewInitialPositionOffset(const Math::cVector startPosition);
-			void SetNewInitialEularOffset(const Math::cVector startOrientaion);
+			static GameObject* LoadGameObject(const char * const relativePath);
+
 			void UpdateGameObjectPosition();
 			void UpdateGameObjectOrientation();
 
 #pragma region Gets
-			bool GetIsStatic()const;
-			bool GetIsRotating()const;
+			int GetIsStatic()const;
+			int GetIsRotating()const;
 			RotationAxis GetRotationAxis()const;
 			Graphics::Mesh* GetMesh()const;
 			Math::cVector GetPosition()const;
@@ -34,8 +33,8 @@ namespace eae6320
 #pragma endregion
 
 #pragma region Sets
-			void SetIsStatic(const bool isStatic);
-			void SetIsRotating(const bool isRotating);
+			void SetIsStatic(const int isStatic);
+			void SetIsRotating(const int isRotating);
 			void SetRotationAxis(const RotationAxis rotationAxis);
 			void SetMesh(Graphics::Mesh* const mesh);
 			void SetPosition(const Math::cVector position);
@@ -44,6 +43,7 @@ namespace eae6320
 			
 		private:
 			inline GameObject();
+			bool LoadGameObjectDataTable(lua_State& io_luaState);
 
 			Graphics::Mesh*mesh;
 			IGameObjectController* controller;
@@ -54,8 +54,8 @@ namespace eae6320
 			Math::cVector initialPositionOffset;
 			Math::cVector initialEularOffset;
 
-			bool isStatic;
-			bool isRotating;
+			int isStatic;
+			int isRotating;
 			RotationAxis rotationAxis;
 		};
 	}

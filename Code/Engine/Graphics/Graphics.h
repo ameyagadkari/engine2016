@@ -30,7 +30,7 @@ namespace eae6320
 		// Render
 		//-------
 
-		void SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition = Math::cVector::zero, const Math::cVector startOrientation = Math::cVector::zero);
+		void SetGameObject(Gameplay::GameObject*gameObject);
 		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();
 

@@ -264,13 +264,11 @@ bool eae6320::Graphics::CleanUp()
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::SetGameObjectData(Gameplay::GameObject*gameObject, const Math::cVector startPosition, const Math::cVector startOrientation)
+void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 {
 	if (gameObject)
 	{
 		gameObjects.push_back(gameObject);
-		gameObject->SetNewInitialPositionOffset(startPosition);
-		gameObject->SetNewInitialEularOffset(startOrientation);
 	}
 	else
 	{

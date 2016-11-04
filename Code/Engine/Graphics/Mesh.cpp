@@ -30,6 +30,7 @@ eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const re
 {
 	{
 		bool wereThereErrors = false;
+		std::string errorMessage;
 		Mesh *mesh = new Mesh();
 		// Create a new Lua state
 		lua_State* luaState = NULL;
@@ -47,8 +48,7 @@ eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const re
 		luaL_openlibs(luaState);
 
 		// Load and execute it
-		{
-			std::string errorMessage;
+		{		
 			if (Platform::DoesFileExist(relativePath, &errorMessage))
 			{
 
@@ -166,6 +166,8 @@ eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const re
 
 		if (wereThereErrors)
 		{
+			EAE6320_ASSERT(false);
+			Logging::OutputError("Mesh at %s was not loaded", relativePath);
 			return NULL;
 		}
 		else
@@ -271,7 +273,7 @@ namespace
 				eae6320::Logging::OutputError("Not enough vertices to draw a triangle");
 				goto OnExit;
 			}
-			eae6320::Logging::OutputMessage("Iterating through every x,y coordinate tables in position table");
+			eae6320::Logging::OutputMessage("Iterating through every x,y,z coordinate tables in position table");
 			for (int i = 1; i <= meshData.numberOfVertices; ++i)
 			{
 				if (!LoadXYZTable(io_luaState, meshData, (i - 1)))
@@ -314,7 +316,7 @@ namespace
 			float xyz[3] = { 0.0f,0.0f,0.0f };
 			if (arrayLength == 3)
 			{
-				eae6320::Logging::OutputMessage("Iterating through XY for index:\"%d\"", (index + 1));
+				//eae6320::Logging::OutputMessage("Iterating through XY for index:\"%d\"", (index + 1));
 				// Remember that Lua arrays are 1-based and not 0-based!
 				for (int i = 1; i <= arrayLength; ++i)
 				{
@@ -350,7 +352,7 @@ namespace
 			{
 				wereThereErrors = true;
 				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("There are %d coordinates instead of 2", arrayLength);
+				eae6320::Logging::OutputError("There are %d coordinates instead of 3", arrayLength);
 				goto OnExit;
 			}
 		}
@@ -435,7 +437,7 @@ namespace
 			float rgba[4] = { 0.0f,0.0f,0.0f,1.0f };
 			if ((arrayLength == 3) || (arrayLength == 4))
 			{
-				eae6320::Logging::OutputMessage("Iterating through RGBA for index:\"%d\"", (index + 1));
+				//eae6320::Logging::OutputMessage("Iterating through RGBA for index:\"%d\"", (index + 1));
 				// Remember that Lua arrays are 1-based and not 0-based!
 				for (int i = 1; i <= arrayLength; ++i)
 				{
