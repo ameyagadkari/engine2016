@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <climits>
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../AssetBuildLibrary/UtilityFunctions.h"
@@ -26,13 +27,18 @@ namespace
 {
 	using namespace eae6320::Graphics;
 
-	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, int index);
-	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, int index);
-	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
+	template<typename T> MeshData<T> *meshData = NULL;
+	const std::type_info* type;
+
+	void InitializeMeshData(bool is16bit);
+
+	bool LoadInitialTable(lua_State& io_luaState);
+	bool LoadVerticesTable(lua_State& io_luaState);
+	bool LoadPositionsTable(lua_State& io_luaState);
+	bool LoadXYZTable(lua_State& io_luaState, int index);
+	bool LoadColorsTable(lua_State& io_luaState);
+	bool LoadRGBATable(lua_State& io_luaState, int index);
+	bool LoadIndicesTable(lua_State& io_luaState);
 
 	bool CheckIfColorIsInCorrectFormat(float *rgba);
 }
@@ -64,7 +70,7 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 
 	bool wereThereErrors = false;
 	std::string errorMessage;
-	Graphics::MeshData *meshData = NULL;
+
 	FILE * outputFile = NULL;
 	// Create a new Lua state
 	lua_State* luaState = NULL;
@@ -164,7 +170,7 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 	//If this code is reached the asset file was loaded successfully,
 	//and its table is now at index -1
 
-	meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
+	//meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
 	if (!LoadInitialTable(*luaState, *meshData))
 	{
 		wereThereErrors = true;
@@ -229,13 +235,13 @@ OnExit:
 	{
 		if (meshData->indexData)
 		{
-			free(meshData->indexData);
+			free(meshData_uint16_t->indexData);
 		}
-		if (meshData->vertexData)
+		if (meshData_uint16_t->vertexData)
 		{
-			free(meshData->vertexData);
+			free(meshData_uint16_t->vertexData);
 		}
-		free(meshData);
+		free(meshData_uint16_t);
 	}
 
 	if (luaState)
@@ -257,13 +263,28 @@ OnExit:
 
 namespace
 {
-	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData)
+	void InitializeMeshData(bool is16bit)
 	{
-		if (!LoadVerticesTable(io_luaState, meshData))
+		if (is16bit)
+		{
+			meshData<uint16_t> = reinterpret_cast<MeshData<uint16_t>*>(malloc(sizeof(MeshData<uint16_t>)));
+			type = &typeid(meshData<uint16_t>);
+		}
+		else
+		{
+			meshData<uint32_t> = reinterpret_cast<MeshData<uint32_t>*>(malloc(sizeof(MeshData<uint32_t>)));
+			type = &typeid(meshData<uint32_t>);
+		}
+	}
+
+	bool LoadInitialTable(lua_State& io_luaState)
+	{
+		if (!LoadIndicesTable(io_luaState))
 		{
 			return false;
 		}
-		if (!LoadIndicesTable(io_luaState, meshData))
+
+		if (!LoadVerticesTable(io_luaState))
 		{
 			return false;
 		}
@@ -543,7 +564,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData)
+	bool LoadIndicesTable(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
 		const char* const key = "indices";
@@ -558,9 +579,17 @@ namespace
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
 			const int arrayLength = luaL_len(&io_luaState, -1);
+			if (arrayLength > USHRT_MAX)
+			{
+				InitializeMeshData(false);
+			}
+			else
+			{
+				InitializeMeshData(true);
+			}
 			if (arrayLength % 3 == 0)
 			{
-				meshData.numberOfIndices = arrayLength;
+				meshData<type>.numberOfIndices = arrayLength;
 				meshData.indexData = reinterpret_cast<uint16_t*>(malloc(meshData.numberOfIndices * sizeof(uint16_t)));
 				// Remember that Lua arrays are 1-based and not 0-based!
 				for (int i = 1; i <= arrayLength; ++i)
