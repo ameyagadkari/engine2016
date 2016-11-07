@@ -13,6 +13,7 @@
 #include "../../Game/Gameplay/GameObject.h"
 #include "ConstantBufferData.h"
 #include "../Camera/cCamera.h"
+#include "Effect.h"
 #include <vector>
 
 #if defined( EAE6320_PLATFORM_WINDOWS )

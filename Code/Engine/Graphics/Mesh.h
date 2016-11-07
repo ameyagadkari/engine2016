@@ -48,6 +48,3 @@ namespace eae6320
 	}
 }
 #endif	// EAE6320_MESH_H
-
-
-

@@ -38,7 +38,7 @@ namespace
 	//	* Position
 	//		(So that the graphics hardware knows which pixels to fill in for the triangle)
 	//	* Any other data we want
-	ID3D11VertexShader* s_vertexShader = NULL;
+	//ID3D11VertexShader* s_vertexShader = NULL;
 	// The fragment shader is a program that operates on fragments
 	// (or potential pixels).
 	// Its input is:
@@ -47,7 +47,7 @@ namespace
 	//		to each vertex in the triangle.
 	// Its output is:
 	//	* The final color that the pixel should be
-	ID3D11PixelShader* s_fragmentShader = NULL;
+	//ID3D11PixelShader* s_fragmentShader = NULL;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
 
@@ -56,6 +56,8 @@ namespace
 	ConstantBuffer drawCallBuffer;
 
 	eae6320::Camera::cCamera* camera;
+
+	Effect effect;
 }
 // Helper Function Declarations
 //=============================
@@ -64,8 +66,8 @@ namespace
 {
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
-	bool LoadFragmentShader();
-	bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader);
+	//bool LoadFragmentShader();
+	//bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader);
 }
 
 // Interface
@@ -101,10 +103,12 @@ void eae6320::Graphics::RenderFrame()
 	{
 		// Set the vertex and fragment shaders
 		{
-			ID3D11ClassInstance** const noInterfaces = NULL;
+			/*ID3D11ClassInstance** const noInterfaces = NULL;
 			const unsigned int interfaceCount = 0;
+
 			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
-			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);
+			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);*/
+			
 		}
 
 		size_t numberOfMeshes = gameObjects.size();
@@ -158,7 +162,15 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	}
 
 	// Initialize the graphics objects
-	if (!LoadVertexShader(commonData->compiledVertexShader))
+	if (!effect.LoadEffect())
+	{
+		wereThereErrors = true;
+		goto OnExit;
+	}
+	//---In future if I have more than 1 effect place the binding before mesh gets rendered----
+	effect.BindEffect();
+	//-------------------------------------------------------------------------------------------
+	/*if (!LoadVertexShader(commonData->compiledVertexShader))
 	{
 		wereThereErrors = true;
 		goto OnExit;
@@ -167,7 +179,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	{
 		wereThereErrors = true;
 		goto OnExit;
-	}
+	}*/
 
 	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(ConstantBufferData::sFrame), &frameBufferData))
 	{
@@ -195,10 +207,6 @@ OnExit:
 	// The compiled vertex shader is the actual compiled code,
 	// and once it has been used to create the vertex input layout
 	// it can be freed.
-	if (commonData->compiledVertexShader && wereThereErrors)
-	{
-		commonData->compiledVertexShader->Free();
-	}
 
 	return !wereThereErrors;
 }
@@ -209,7 +217,7 @@ bool eae6320::Graphics::CleanUp()
 
 	if (commonData->s_direct3dDevice)
 	{
-		if (commonData->s_vertexLayout)
+		/*if (commonData->s_vertexLayout)
 		{
 			commonData->s_vertexLayout->Release();
 			commonData->s_vertexLayout = NULL;
@@ -225,6 +233,11 @@ bool eae6320::Graphics::CleanUp()
 		{
 			s_fragmentShader->Release();
 			s_fragmentShader = NULL;
+		}*/
+
+		if (!effect.CleanUpEffect())
+		{
+
 		}
 
 		if (!frameBuffer.CleanUpConstantBuffer())
@@ -517,63 +530,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadFragmentShader()
-		/*{
-			// Load the source code and compile it
-			ID3D10Blob* compiledShader = NULL;
-			{
-				const char* const sourceCodeFileName = "data/Shaders/fragmentShader.hlsl";
-				D3D10_SHADER_MACRO* const noMacros = NULL;
-				ID3DInclude* const noIncludes = NULL;
-				const char* const entryPoint = "main";
-				const char* const profile = "ps_4_0";
-				const unsigned int noFlags = 0;
-				ID3DX11ThreadPump* const blockUntilLoaded = NULL;
-				ID3D10Blob* errorMessages = NULL;
-				HRESULT result;
-				result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-					noFlags, noFlags, blockUntilLoaded, &compiledShader, &errorMessages, &result);
-				if (SUCCEEDED(result))
-				{
-					if (errorMessages)
-					{
-						errorMessages->Release();
-					}
-				}
-				else
-				{
-					if (errorMessages)
-					{
-						EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-						eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s: %s",
-							sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-						errorMessages->Release();
-					}
-					else
-					{
-						EAE6320_ASSERT(false);
-						eae6320::Logging::OutputError("Direct3D failed to compile the fragment shader from the file %s",
-							sourceCodeFileName);
-					}
-					return false;
-				}
-			}
-			// Create the fragment shader object
-			bool wereThereErrors = false;
-			{
-				ID3D11ClassLinkage* const noInterfaces = NULL;
-				const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(),
-					noInterfaces, &s_fragmentShader);
-				if (FAILED(result))
-				{
-					EAE6320_ASSERT(false);
-					eae6320::Logging::OutputError("Direct3D failed to create the fragment shader with HRESULT %#010x", result);
-					wereThereErrors = true;
-				}
-				compiledShader->Release();
-			}
-			return !wereThereErrors;
-		}*/
+	/*bool LoadFragmentShader()
 	{
 		bool wereThereErrors = false;
 
@@ -609,63 +566,9 @@ namespace
 		compiledShader.Free();
 
 		return !wereThereErrors;
-	}
+	}*/
 
-	bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader)
-		/*{
-			// Load the source code and compile it
-			{
-				const char* const sourceCodeFileName = "data/Shaders/vertexShader.hlsl";
-				D3D10_SHADER_MACRO* const noMacros = NULL;
-				ID3DInclude* const noIncludes = NULL;
-				const char* const entryPoint = "main";
-				const char* const profile = "vs_4_0";
-				const unsigned int noFlags = 0;
-				ID3DX11ThreadPump* const blockUntilLoaded = NULL;
-				ID3D10Blob* errorMessages = NULL;
-				HRESULT result;
-				result = D3DX11CompileFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile,
-					noFlags, noFlags, blockUntilLoaded, &o_compiledShader, &errorMessages, &result);
-				if (SUCCEEDED(result))
-				{
-					if (errorMessages)
-					{
-						errorMessages->Release();
-					}
-				}
-				else
-				{
-					if (errorMessages)
-					{
-						EAE6320_ASSERTF(false, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-						eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s: %s",
-							sourceCodeFileName, reinterpret_cast<char*>(errorMessages->GetBufferPointer()));
-						errorMessages->Release();
-					}
-					else
-					{
-						EAE6320_ASSERT(false);
-						eae6320::Logging::OutputError("Direct3D failed to compile the vertex shader from the file %s",
-							sourceCodeFileName);
-					}
-					return false;
-				}
-			}
-			// Create the vertex shader object
-			bool wereThereErrors = false;
-			{
-				ID3D11ClassLinkage* const noInterfaces = NULL;
-				const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(o_compiledShader->GetBufferPointer(), o_compiledShader->GetBufferSize(),
-					noInterfaces, &s_vertexShader);
-				if (FAILED(result))
-				{
-					EAE6320_ASSERT(false);
-					eae6320::Logging::OutputError("Direct3D failed to create the vertex shader with HRESULT %#010x", result);
-					wereThereErrors = true;
-				}
-			}
-			return !wereThereErrors;
-		}*/
+	/*bool LoadVertexShader(eae6320::Platform::sDataFromFile* o_compiledShader)
 	{
 		bool wereThereErrors = false;
 
@@ -697,5 +600,5 @@ namespace
 
 	OnExit:
 		return !wereThereErrors;
-	}
+	}*/
 }

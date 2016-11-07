@@ -29,6 +29,12 @@
     <ClCompile Include="OpenGL\ConstantBuffer.gl.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGL\Effect.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D\Effect.d3d.cpp">
+      <Filter>Direct3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -41,5 +47,6 @@
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="ConstantBufferData.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="Effect.h" />
   </ItemGroup>
 </Project>

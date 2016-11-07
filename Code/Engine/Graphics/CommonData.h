@@ -8,7 +8,6 @@ This file manages common functionality
 
 #if defined( EAE6320_PLATFORM_D3D )
 #include <D3D11.h>
-#include "../Platform/Platform.h"
 #endif	
 
 namespace eae6320
@@ -25,8 +24,6 @@ namespace eae6320
 #if defined( EAE6320_PLATFORM_D3D )
 			ID3D11Device* s_direct3dDevice = NULL;
 			ID3D11DeviceContext* s_direct3dImmediateContext = NULL;
-			ID3D11InputLayout* s_vertexLayout = NULL;
-			Platform::sDataFromFile* compiledVertexShader = NULL;
 #endif	
 		private:
 			inline CommonData();
