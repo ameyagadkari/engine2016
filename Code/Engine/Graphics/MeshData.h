@@ -14,7 +14,6 @@ namespace eae6320
 				float x, y, z;
 				uint8_t r, g, b, a;
 			};
-
 			Vertex *vertexData = NULL;
 			T *indexData = NULL;
 			T numberOfVertices = 0;

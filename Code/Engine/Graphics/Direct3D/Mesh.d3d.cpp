@@ -9,13 +9,33 @@
 #include "../../Logging/Logging.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
+bool eae6320::Graphics::Mesh::Initialize(void* meshData)
 {
 	CommonData *commonData = CommonData::GetCommonData();
-	numberOfIndices = meshData.numberOfIndices;
+	MeshData<uint16_t> *meshData_16 = NULL;
+	MeshData<uint32_t> *meshData_32 = NULL;
+	if (is16bit)
+	{
+		meshData_16 = reinterpret_cast<MeshData<uint16_t>*>(meshData);
+		numberOfIndices_16 = meshData_16->numberOfIndices;
+	}
+	else
+	{
+		meshData_32 = reinterpret_cast<MeshData<uint32_t>*>(meshData);
+		numberOfIndices_32 = meshData_32->numberOfIndices;
+	}
 
 	//Vertex Buffer Init
-	const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
+	unsigned int vertexBufferSize = 0;
+	if (is16bit)
+	{
+		vertexBufferSize = meshData_16->numberOfVertices * sizeof(MeshData<uint16_t>::Vertex);
+	}
+	else
+	{
+		vertexBufferSize = meshData_32->numberOfVertices * sizeof(MeshData<uint32_t>::Vertex);
+	}
+	
 	D3D11_BUFFER_DESC bufferDescriptionVertexBuffer = { 0 };
 	{
 		bufferDescriptionVertexBuffer.ByteWidth = vertexBufferSize;
@@ -27,15 +47,31 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataVertexBuffer = { 0 };
 	{
-		if (meshData.vertexData)
+		if (is16bit)
 		{
-			initialDataVertexBuffer.pSysMem = meshData.vertexData;
-		}
+			if (meshData_16->vertexData)
+			{
+				initialDataVertexBuffer.pSysMem = meshData_16->vertexData;
+			}
+			else
+			{
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the vertex buffer because there is no Vertex Data");
+				return false;
+			}
+		}	
 		else
 		{
-			EAE6320_ASSERT(false);
-			eae6320::Logging::OutputError("Direct3D failed to create the vertex buffer because there is no Vertex Data");
-			return false;
+			if (meshData_32->vertexData)
+			{
+				initialDataVertexBuffer.pSysMem = meshData_32->vertexData;
+			}
+			else
+			{
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the vertex buffer because there is no Vertex Data");
+				return false;
+			}
 		}
 		// (The other data members are ignored for non-texture buffers)
 	}
@@ -49,7 +85,15 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 	}
 
 	//Index Buffer Init
-	const unsigned int indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
+	unsigned int indexBufferSize = 0;
+	if (is16bit)
+	{
+		indexBufferSize = meshData_16->numberOfIndices * sizeof(uint16_t);
+	}
+	else
+	{
+		indexBufferSize = meshData_32->numberOfIndices * sizeof(uint32_t);
+	}
 	D3D11_BUFFER_DESC bufferDescriptionIndexBuffer = { 0 };
 	{
 		bufferDescriptionIndexBuffer.ByteWidth = indexBufferSize;
@@ -61,16 +105,32 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataIndexBuffer = { 0 };
 	{
-		if (meshData.indexData)
+		if (is16bit)
 		{
-			initialDataIndexBuffer.pSysMem = meshData.indexData;
+			if (meshData_16->indexData)
+			{
+				initialDataIndexBuffer.pSysMem = meshData_16->indexData;
+			}
+			else
+			{
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the index buffer because there is no Index Data");
+				return false;
+			}
 		}
 		else
 		{
-			EAE6320_ASSERT(false);
-			eae6320::Logging::OutputError("Direct3D failed to create the index buffer because there is no Index Data");
-			return false;
-		}
+			if (meshData_32->indexData)
+			{
+				initialDataIndexBuffer.pSysMem = meshData_32->indexData;
+			}
+			else
+			{
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create the index buffer because there is no Index Data");
+				return false;
+			}
+		}	
 		// (The other data members are ignored for non-texture buffers)
 	}
 
@@ -110,7 +170,16 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		const unsigned int startingSlot = 0;
 		const unsigned int vertexBufferCount = 1;
 		// The "stride" defines how large a single vertex is in the stream of data
-		const unsigned int bufferStride = sizeof(MeshData::Vertex);
+		unsigned int bufferStride = 0;
+		if (is16bit)
+		{
+			bufferStride = sizeof(MeshData<uint16_t>::Vertex);
+		}
+		else
+		{
+			bufferStride = sizeof(MeshData<uint32_t>::Vertex);
+		}
+		
 		// It's possible to start streaming data in the middle of a vertex buffer
 		const unsigned int bufferOffset = 0;
 		commonData->s_direct3dImmediateContext->IASetVertexBuffers(startingSlot, vertexBufferCount, &s_vertexBuffer, &bufferStride, &bufferOffset);	
@@ -127,7 +196,16 @@ void eae6320::Graphics::Mesh::RenderMesh()
 	{
 		EAE6320_ASSERT(s_indexBuffer != NULL);
 		// Every index is a 16 bit unsigned integer
-		const DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
+		DXGI_FORMAT format;
+		if (is16bit)
+		{
+			format = DXGI_FORMAT_R16_UINT;
+		}
+		else
+		{
+			format = DXGI_FORMAT_R32_UINT;
+		}
+		
 		// The indices start at the beginning of the buffer
 		const unsigned int offset = 0;
 		commonData->s_direct3dImmediateContext->IASetIndexBuffer(s_indexBuffer, format, offset);
@@ -138,6 +216,13 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		// It's possible to start rendering primitives in the middle of the stream
 		const unsigned int indexOfFirstIndexToUse = 0;
 		const unsigned int offsetToAddToEachIndex = 0;
-		commonData->s_direct3dImmediateContext->DrawIndexed(numberOfIndices, indexOfFirstIndexToUse, offsetToAddToEachIndex);
+		if (is16bit)
+		{
+			commonData->s_direct3dImmediateContext->DrawIndexed(numberOfIndices_16, indexOfFirstIndexToUse, offsetToAddToEachIndex);
+		}
+		else
+		{
+			commonData->s_direct3dImmediateContext->DrawIndexed(numberOfIndices_32, indexOfFirstIndexToUse, offsetToAddToEachIndex);
+		}
 	}
 }

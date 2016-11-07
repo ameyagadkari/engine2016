@@ -5,8 +5,6 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "../Platform/Platform.h"
-#include "../../Tools/AssetBuildLibrary/UtilityFunctions.h"
-#include "../../External/Lua/Includes.h"
 
 //// Helper Function Declarations
 ////=============================
@@ -178,7 +176,8 @@ OnExit:
 }*/
 {
 	bool wereThereErrors = false;
-	MeshData *meshData = NULL;
+	MeshData<uint16_t> *meshData_16 = NULL;
+	MeshData<uint32_t> *meshData_32 = NULL;
 	// Load the binary mesh file
 	eae6320::Platform::sDataFromFile binaryMesh;
 	{
@@ -195,40 +194,95 @@ OnExit:
 	// Casting data to uint8_t* for pointer arithematic
 	uint8_t* data = reinterpret_cast<uint8_t*>(binaryMesh.data);
 
-	// Extracting Binary Data
+	// Determining what which pointer to initialize
+	uint8_t meshDataFormat = *reinterpret_cast<uint8_t*>(data);
+	if (meshDataFormat == 16)
 	{
-		meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
-
-		// Extracting Number Of Vertices
-		meshData->numberOfVertices = *reinterpret_cast<uint16_t*>(data);
-
-		// Extracting Number Of Indices
-		data += sizeof(uint16_t);
-		meshData->numberOfIndices = *reinterpret_cast<uint16_t*>(data);
-
-		// Extracting Vertex Array
-		data += sizeof(uint16_t);
-		meshData->vertexData = reinterpret_cast<MeshData::Vertex*>(data);
-
-		// Extracting Index Array
-		data += meshData->numberOfVertices * sizeof(MeshData::Vertex);
-		meshData->indexData = reinterpret_cast<uint16_t*>(data);
+		meshData_16 = reinterpret_cast<Graphics::MeshData<uint16_t>*>(malloc(sizeof(Graphics::MeshData<uint16_t>)));
+		o_mesh.is16bit = true;
 	}
-
-	if (!o_mesh.Initialize(*meshData))
+	else if(meshDataFormat == 32)
+	{
+		meshData_32 = reinterpret_cast<Graphics::MeshData<uint32_t>*>(malloc(sizeof(Graphics::MeshData<uint32_t>)));
+		o_mesh.is16bit = false;
+	}
+	else
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-		Logging::OutputError("Failed to initialize mesh: %s", relativePath);
+		Logging::OutputError("Wrong mesh data format in: %s", relativePath);
 		goto OnExit;
 	}
-
-OnExit:
-	if (meshData)
+	// Extracting Binary Data
 	{
-		free(meshData);
+		if (o_mesh.is16bit)
+		{
+			// Extracting Number Of Vertices
+			data += sizeof(uint8_t);
+			meshData_16->numberOfVertices = *reinterpret_cast<uint16_t*>(data);
+
+			// Extracting Number Of Indices
+			data += sizeof(uint16_t);
+			meshData_16->numberOfIndices = *reinterpret_cast<uint16_t*>(data);
+
+			// Extracting Vertex Array
+			data += sizeof(uint16_t);
+			meshData_16->vertexData = reinterpret_cast<MeshData<uint16_t>::Vertex*>(data);
+
+			// Extracting Index Array
+			data += meshData_16->numberOfVertices * sizeof(MeshData<uint16_t>::Vertex);
+			meshData_16->indexData = reinterpret_cast<uint16_t*>(data);
+		}
+		else
+		{
+			// Extracting Number Of Vertices
+			data += sizeof(uint8_t);
+			meshData_32->numberOfVertices = *reinterpret_cast<uint32_t*>(data);
+
+			// Extracting Number Of Indices
+			data += sizeof(uint32_t);
+			meshData_32->numberOfIndices = *reinterpret_cast<uint32_t*>(data);
+
+			// Extracting Vertex Array
+			data += sizeof(uint32_t);
+			meshData_32->vertexData = reinterpret_cast<MeshData<uint32_t>::Vertex*>(data);
+
+			// Extracting Index Array
+			data += meshData_32->numberOfVertices * sizeof(MeshData<uint32_t>::Vertex);
+			meshData_32->indexData = reinterpret_cast<uint32_t*>(data);
+		}
+		
 	}
 
+	if (o_mesh.is16bit)
+	{
+		if (!o_mesh.Initialize(meshData_16))
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			Logging::OutputError("Failed to initialize mesh: %s", relativePath);
+			goto OnExit;
+		}
+	}
+	else
+	{
+		if (!o_mesh.Initialize(meshData_32))
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			Logging::OutputError("Failed to initialize mesh: %s", relativePath);
+			goto OnExit;
+		}
+	}
+OnExit:
+	if (meshData_16)
+	{
+		free(meshData_16);
+	}
+	if (meshData_32)
+	{
+		free(meshData_32);
+	}
 	binaryMesh.Free();
 
 	return !wereThereErrors;

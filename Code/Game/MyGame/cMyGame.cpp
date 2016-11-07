@@ -51,7 +51,7 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
+	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 20.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
 	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 20.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);
