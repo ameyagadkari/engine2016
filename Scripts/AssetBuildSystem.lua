@@ -210,7 +210,7 @@ NewAssetTypeInfo( "meshes",
 			return "MeshBuilder.exe"
 		end,
 		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			--i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
+			i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
 			-- By default the relative paths are the same
 			return i_sourceRelativePath
 		end,

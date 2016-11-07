@@ -13,11 +13,12 @@ return
 		"gameobjects/plane.txtgobj",
 		"gameobjects/snake.txtgobj",
 		"gameobjects/cube.txtgobj",
+		"gameobjects/apple.txtgobj",
 	},
 	meshes =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
-		--"Meshes/MyName.txtmesh",
+		"meshes/apple.txtmesh",
 		"meshes/plane.txtmesh",
 		"meshes/snake.txtmesh",
 		"meshes/newcube.txtmesh",

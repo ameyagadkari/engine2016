@@ -1,7 +1,7 @@
 -- Gameobject Data for Snake
 return
 {
-	mesh_filepath = "data/meshes/snake.txtmesh",
+	mesh_filepath = "data/meshes/snake.binmesh",
 	position = {0.0,1.0,0.0},
 	eular_angles = {0.0,0.0,0.0},
 	controller = "SnakeController",

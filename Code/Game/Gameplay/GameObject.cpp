@@ -141,7 +141,10 @@ namespace eae6320
 			}
 		}
 
-		inline GameObject::GameObject() {}
+		inline GameObject::GameObject() 
+		{
+			mesh = new Graphics::Mesh();
+		}
 		inline GameObject::~GameObject()
 		{
 			if (mesh && !mesh->CleanUp())
@@ -279,7 +282,15 @@ namespace eae6320
 				}
 				if (lua_type(&io_luaState, -1) == LUA_TSTRING)
 				{
-					mesh = Graphics::Mesh::LoadMesh(lua_tostring(&io_luaState, -1));
+					const char * const relativePath = lua_tostring(&io_luaState, -1);
+					if (!Graphics::Mesh::LoadMesh(relativePath, *mesh))
+					{
+						wereThereErrors = true;
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Failed to load the binary mesh file: %s", relativePath);
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
 					lua_pop(&io_luaState, 1);
 				}
 				else

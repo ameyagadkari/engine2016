@@ -1,8 +1,8 @@
 -- Gameobject Data for Cube
 return
 {
-	mesh_filepath = "data/meshes/newcube.txtmesh",
-	position = {0.0,10.0,0.0},
+	mesh_filepath = "data/meshes/newcube.binmesh",
+	position = {10.0,10.0,0.0},
 	eular_angles = {0.0,0.0,0.0},
 	controller = "CubeController",
 	is_static = true,

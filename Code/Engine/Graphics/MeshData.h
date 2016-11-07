@@ -15,8 +15,8 @@ namespace eae6320
 				uint8_t r, g, b, a;
 			};
 
-			Vertex *vertexData = nullptr;
-			uint16_t *indexData = nullptr;
+			Vertex *vertexData = NULL;
+			uint16_t *indexData = NULL;
 			uint16_t numberOfVertices = 0;
 			uint16_t numberOfIndices = 0;
 		};

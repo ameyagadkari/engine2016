@@ -8,179 +8,235 @@
 #include "../../Tools/AssetBuildLibrary/UtilityFunctions.h"
 #include "../../External/Lua/Includes.h"
 
-// Helper Function Declarations
-//=============================
+//// Helper Function Declarations
+////=============================
+//
+//namespace
+//{
+//	using namespace eae6320::Graphics;
+//
+//	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData);
+//	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData);
+//	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData);
+//	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, int index);
+//	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
+//	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, int index);
+//	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
+//
+//	bool CheckIfColorIsInCorrectFormat(float *rgba);
+//}
 
-namespace
-{
-	using namespace eae6320::Graphics;
+bool eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath, Mesh &o_mesh)
+/*{
 
-	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, int index);
-	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
-	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, int index);
-	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
-
-	bool CheckIfColorIsInCorrectFormat(float *rgba);
-}
-
-eae6320::Graphics::Mesh* eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath)
-{
+	bool wereThereErrors = false;
+	std::string errorMessage;
+	Mesh *mesh = new Mesh();
+	// Create a new Lua state
+	lua_State* luaState = NULL;
 	{
-		bool wereThereErrors = false;
-		std::string errorMessage;
-		Mesh *mesh = new Mesh();
-		// Create a new Lua state
-		lua_State* luaState = NULL;
+		luaState = luaL_newstate();
+		if (!luaState)
 		{
-			luaState = luaL_newstate();
-			if (!luaState)
-			{
-				wereThereErrors = true;
-				eae6320::Logging::OutputError("Failed to create a new Lua state");
-				goto OnExit;
-			}
+			wereThereErrors = true;
+			eae6320::Logging::OutputError("Failed to create a new Lua state");
+			goto OnExit;
 		}
+	}
 
-		// Open the standard libraries
-		luaL_openlibs(luaState);
+	// Open the standard libraries
+	luaL_openlibs(luaState);
 
-		// Load and execute it
-		{		
-			if (Platform::DoesFileExist(relativePath, &errorMessage))
+	// Load and execute it
+	{
+		if (Platform::DoesFileExist(relativePath, &errorMessage))
+		{
+
+			// Load the asset file as a "chunk",
+			// meaning there will be a callable function at the top of the stack
+			const int stackTopBeforeLoad = lua_gettop(luaState);
 			{
-
-				// Load the asset file as a "chunk",
-				// meaning there will be a callable function at the top of the stack
-				const int stackTopBeforeLoad = lua_gettop(luaState);
+				const int luaResult = luaL_loadfile(luaState, relativePath);
+				if (luaResult != LUA_OK)
 				{
-					const int luaResult = luaL_loadfile(luaState, relativePath);
-					if (luaResult != LUA_OK)
-					{
-						wereThereErrors = true;
-						std::cerr << lua_tostring(luaState, -1) << std::endl;
-						// Pop the error message
-						lua_pop(luaState, 1);
-						goto OnExit;
-					}
+					wereThereErrors = true;
+					std::cerr << lua_tostring(luaState, -1) << std::endl;
+					// Pop the error message
+					lua_pop(luaState, 1);
+					goto OnExit;
 				}
-				// Execute the "chunk", which should load the asset
-				// into a table at the top of the stack
+			}
+			// Execute the "chunk", which should load the asset
+			// into a table at the top of the stack
+			{
+				const int argumentCount = 0;
+				const int returnValueCount = LUA_MULTRET;	// Return _everything_ that the file returns
+				const int noErrorHandler = 0;
+				const int luaResult = lua_pcall(luaState, argumentCount, returnValueCount, noErrorHandler);
+				if (luaResult == LUA_OK)
 				{
-					const int argumentCount = 0;
-					const int returnValueCount = LUA_MULTRET;	// Return _everything_ that the file returns
-					const int noErrorHandler = 0;
-					const int luaResult = lua_pcall(luaState, argumentCount, returnValueCount, noErrorHandler);
-					if (luaResult == LUA_OK)
+					// A well-behaved asset file will only return a single value
+					const int returnedValueCount = lua_gettop(luaState) - stackTopBeforeLoad;
+					if (returnedValueCount == 1)
 					{
-						// A well-behaved asset file will only return a single value
-						const int returnedValueCount = lua_gettop(luaState) - stackTopBeforeLoad;
-						if (returnedValueCount == 1)
-						{
-							// A correct asset file _must_ return a table
-							if (!lua_istable(luaState, -1))
-							{
-								wereThereErrors = true;
-								std::cerr << "Asset files must return a table (instead of a "
-									<< luaL_typename(luaState, -1) << ")" << std::endl;
-								// Pop the returned non-table value
-								lua_pop(luaState, 1);
-								goto OnExit;
-							}
-						}
-						else
+						// A correct asset file _must_ return a table
+						if (!lua_istable(luaState, -1))
 						{
 							wereThereErrors = true;
-							std::cerr << "Asset files must return a single table (instead of "
-								<< returnedValueCount << " values)" << std::endl;
-							// Pop every value that was returned
-							lua_pop(luaState, returnedValueCount);
+							std::cerr << "Asset files must return a table (instead of a "
+								<< luaL_typename(luaState, -1) << ")" << std::endl;
+							// Pop the returned non-table value
+							lua_pop(luaState, 1);
 							goto OnExit;
 						}
 					}
 					else
 					{
 						wereThereErrors = true;
-						std::cerr << lua_tostring(luaState, -1) << std::endl;
-						// Pop the error message
-						lua_pop(luaState, 1);
+						std::cerr << "Asset files must return a single table (instead of "
+							<< returnedValueCount << " values)" << std::endl;
+						// Pop every value that was returned
+						lua_pop(luaState, returnedValueCount);
 						goto OnExit;
 					}
 				}
+				else
+				{
+					wereThereErrors = true;
+					std::cerr << lua_tostring(luaState, -1) << std::endl;
+					// Pop the error message
+					lua_pop(luaState, 1);
+					goto OnExit;
+				}
 			}
-			else
-			{
-				wereThereErrors = true;
-				AssetBuild::OutputErrorMessage(errorMessage.c_str(), relativePath);
-				goto OnExit;
-			}
-		}
-
-		//If this code is reached the asset file was loaded successfully,
-		//and its table is now at index -1
-		MeshData *meshData = reinterpret_cast<MeshData*>(malloc(sizeof(MeshData)));
-		if (!LoadInitialTable(*luaState, *meshData))
-		{
-			wereThereErrors = true;
-			EAE6320_ASSERT(false);
-			Logging::OutputError("Failed to load initial table");
-			goto OnExit;
-		}
-		lua_pop(luaState, 1);
-
-
-		if (!mesh->Initialize(*meshData))
-		{
-			wereThereErrors = true;
-			EAE6320_ASSERT(false);
-			Logging::OutputError("Failed to initialize mesh");
-			goto OnExit;
-		}
-		if (meshData->indexData)
-		{
-			free(meshData->indexData);
-		}
-		if (meshData->vertexData)
-		{
-			free(meshData->vertexData);
-		}
-		if (meshData)
-		{
-			free(meshData);
-		}
-	OnExit:
-
-		if (luaState)
-		{
-			// If I haven't made any mistakes
-			// there shouldn't be anything on the stack
-			// regardless of any errors
-			EAE6320_ASSERT(lua_gettop(luaState) == 0);
-
-			lua_close(luaState);
-			luaState = NULL;
-		}
-		
-
-		if (wereThereErrors)
-		{
-			EAE6320_ASSERT(false);
-			Logging::OutputError("Mesh at %s was not loaded", relativePath);
-			return NULL;
 		}
 		else
 		{
-			return mesh;
+			wereThereErrors = true;
+			AssetBuild::OutputErrorMessage(errorMessage.c_str(), relativePath);
+			goto OnExit;
 		}
 	}
-}
 
+	//If this code is reached the asset file was loaded successfully,
+	//and its table is now at index -1
+	MeshData *meshData = reinterpret_cast<MeshData*>(malloc(sizeof(MeshData)));
+	if (!LoadInitialTable(*luaState, *meshData))
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Failed to load initial table");
+		goto OnExit;
+	}
+	lua_pop(luaState, 1);
+
+
+	if (!mesh->Initialize(*meshData))
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Failed to initialize mesh");
+		goto OnExit;
+	}
+	if (meshData->indexData)
+	{
+		free(meshData->indexData);
+	}
+	if (meshData->vertexData)
+	{
+		free(meshData->vertexData);
+	}
+	if (meshData)
+	{
+		free(meshData);
+	}
+OnExit:
+
+	if (luaState)
+	{
+		// If I haven't made any mistakes
+		// there shouldn't be anything on the stack
+		// regardless of any errors
+		EAE6320_ASSERT(lua_gettop(luaState) == 0);
+
+		lua_close(luaState);
+		luaState = NULL;
+	}
+
+
+	if (wereThereErrors)
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Mesh at %s was not loaded", relativePath);
+		return NULL;
+	}
+	else
+	{
+		return mesh;
+	}
+
+}*/
+{
+	bool wereThereErrors = false;
+	MeshData *meshData = NULL;
+	// Load the binary mesh file
+	eae6320::Platform::sDataFromFile binaryMesh;
+	{
+		std::string errorMessage;
+		if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryMesh, &errorMessage))
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERTF(false, errorMessage.c_str());
+			eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", relativePath, errorMessage.c_str());
+			goto OnExit;
+		}
+	}
+
+	// Casting data to uint8_t* for pointer arithematic
+	uint8_t* data = reinterpret_cast<uint8_t*>(binaryMesh.data);
+
+	// Extracting Binary Data
+	{
+		meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
+
+		// Extracting Number Of Vertices
+		meshData->numberOfVertices = *reinterpret_cast<uint16_t*>(data);
+
+		// Extracting Number Of Indices
+		data += sizeof(uint16_t);
+		meshData->numberOfIndices = *reinterpret_cast<uint16_t*>(data);
+
+		// Extracting Vertex Array
+		data += sizeof(uint16_t);
+		meshData->vertexData = reinterpret_cast<MeshData::Vertex*>(data);
+
+		// Extracting Index Array
+		data += meshData->numberOfVertices * sizeof(MeshData::Vertex);
+		meshData->indexData = reinterpret_cast<uint16_t*>(data);
+	}
+
+	if (!o_mesh.Initialize(*meshData))
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Failed to initialize mesh: %s", relativePath);
+		goto OnExit;
+	}
+
+OnExit:
+	if (meshData)
+	{
+		free(meshData);
+	}
+
+	binaryMesh.Free();
+
+	return !wereThereErrors;
+}
 // Helper Function Definitions
 //=============================
 
-namespace
+/*namespace
 {
 	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData)
 	{
@@ -593,4 +649,4 @@ namespace
 		}
 		return true;
 	}
-}
+}*/
