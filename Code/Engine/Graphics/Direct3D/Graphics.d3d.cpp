@@ -169,7 +169,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	}
 	//---In future if I have more than 1 effect place the binding before mesh gets rendered----
 	effect.BindEffect();
-	//-------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
 	/*if (!LoadVertexShader(commonData->compiledVertexShader))
 	{
 		wereThereErrors = true;
@@ -354,68 +354,6 @@ namespace
 			return false;
 		}
 	}
-
-	/*bool CreateView(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
-	{
-		bool wereThereErrors = false;
-
-		// Create and bind the render target view
-		ID3D11Texture2D* backBuffer = NULL;
-		{
-			// Get the back buffer from the swap chain
-			HRESULT result;
-			{
-				const unsigned int bufferIndex = 0;	// This must be 0 since the swap chain is discarded
-				result = s_swapChain->GetBuffer(bufferIndex, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
-				if (FAILED(result))
-				{
-					EAE6320_ASSERT(false);
-					eae6320::Logging::OutputError("Direct3D failed to get the back buffer from the swap chain with HRESULT %#010x", result);
-					goto OnExit;
-				}
-			}
-			// Create the view
-			{
-				const D3D11_RENDER_TARGET_VIEW_DESC* const accessAllSubResources = NULL;
-				result = commonData->s_direct3dDevice->CreateRenderTargetView(backBuffer, accessAllSubResources, &s_renderTargetView);
-			}
-			if (SUCCEEDED(result))
-			{
-				// Bind it
-				const unsigned int renderTargetCount = 1;
-				ID3D11DepthStencilView* const noDepthStencilState = NULL;
-				commonData->s_direct3dImmediateContext->OMSetRenderTargets(renderTargetCount, &s_renderTargetView, noDepthStencilState);
-			}
-			else
-			{
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("Direct3D failed to create the render target view with HRESULT %#010x", result);
-				goto OnExit;
-			}
-		}
-
-		// Specify that the entire render target should be visible
-		{
-			D3D11_VIEWPORT viewPort = { 0 };
-			viewPort.TopLeftX = viewPort.TopLeftY = 0.0f;
-			viewPort.Width = static_cast<float>(i_resolutionWidth);
-			viewPort.Height = static_cast<float>(i_resolutionHeight);
-			viewPort.MinDepth = 0.0f;
-			viewPort.MaxDepth = 1.0f;
-			const unsigned int viewPortCount = 1;
-			commonData->s_direct3dImmediateContext->RSSetViewports(viewPortCount, &viewPort);
-		}
-
-	OnExit:
-
-		if (backBuffer)
-		{
-			backBuffer->Release();
-			backBuffer = NULL;
-		}
-
-		return !wereThereErrors;
-	}*/
 
 	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{

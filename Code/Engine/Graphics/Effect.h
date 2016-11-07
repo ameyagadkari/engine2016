@@ -7,6 +7,8 @@ This file manages effect-related functionality
 
 #if defined( EAE6320_PLATFORM_D3D )
 #include <D3D11.h>
+#elif defined( EAE6320_PLATFORM_GL )
+#include "OpenGL\Includes.h"
 #endif	
 
 namespace eae6320
@@ -26,7 +28,7 @@ namespace eae6320
 			ID3D11PixelShader* s_fragmentShader = NULL;
 			ID3D11InputLayout* s_vertexLayout = NULL;
 #elif defined( EAE6320_PLATFORM_GL )
-
+			GLuint s_programId = 0;
 #endif
 		};
 	}

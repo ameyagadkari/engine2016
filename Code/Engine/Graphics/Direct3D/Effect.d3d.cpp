@@ -132,26 +132,25 @@ namespace eae6320
 		bool Effect::CleanUpEffect()
 		{
 			bool wereThereErrors = false;
-			if (commonData->s_direct3dDevice)
+
+			if (s_vertexLayout)
 			{
-				if (s_vertexLayout)
-				{
-					s_vertexLayout->Release();
-					s_vertexLayout = NULL;
-				}
-
-				if (s_vertexShader)
-				{
-					s_vertexShader->Release();
-					s_vertexShader = NULL;
-				}
-
-				if (s_fragmentShader)
-				{
-					s_fragmentShader->Release();
-					s_fragmentShader = NULL;
-				}
+				s_vertexLayout->Release();
+				s_vertexLayout = NULL;
 			}
+
+			if (s_vertexShader)
+			{
+				s_vertexShader->Release();
+				s_vertexShader = NULL;
+			}
+
+			if (s_fragmentShader)
+			{
+				s_fragmentShader->Release();
+				s_fragmentShader = NULL;
+			}
+
 			return !wereThereErrors;
 		}
 

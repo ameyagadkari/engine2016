@@ -34,7 +34,7 @@ namespace eae6320
 		void SetGameObject(Gameplay::GameObject*gameObject);
 		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();
-
+		
 		// Initialization / Clean Up
 		//--------------------------
 

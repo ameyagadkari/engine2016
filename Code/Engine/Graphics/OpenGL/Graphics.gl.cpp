@@ -14,8 +14,8 @@
 #include "../../Platform/Platform.h"
 #include "../../Time/Time.h"
 #include "../../Windows/Functions.h"
-#include "../../Windows/OpenGl.h"
-#include "../../../External/OpenGlExtensions/OpenGlExtensions.h"
+//#include "../../Windows/OpenGl.h"
+//#include "../../../External/OpenGlExtensions/OpenGlExtensions.h"
 #include "../ConstantBuffer.h"
 #include "../../Math/cMatrix_transformation.h"
 
@@ -51,12 +51,14 @@ namespace
 	//		to each vertex in the triangle.
 	// Its output is:
 	//	* The final color that the pixel should be
-	GLuint s_programId = 0;
+	//GLuint s_programId = 0;
 
 	// This struct determines the layout of the constant data that the CPU will send to the GPU
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
+
+	Effect effect;
 
 	eae6320::Camera::cCamera *camera;
 }
@@ -66,23 +68,13 @@ namespace
 
 namespace
 {
-	bool CreateProgram();
+	//bool CreateProgram();
 	bool CreateRenderingContext();
 	bool EnableBackFaceCulling();
 	bool EnableDepthTesting();
 	bool EnableDepthWriting();
 	bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_shader, size_t& o_size, std::string* o_errorMessage);
-	bool LoadFragmentShader(const GLuint i_programId);
-	bool LoadVertexShader(const GLuint i_programId);
-
-	// This helper struct exists to be able to dynamically allocate memory to get "log info"
-	// which will automatically be freed when the struct goes out of scope
-	struct sLogInfo
-	{
-		GLchar* memory;
-		sLogInfo(const size_t i_size) { memory = reinterpret_cast<GLchar*>(malloc(i_size)); }
-		~sLogInfo() { if (memory) free(memory); }
-	};
+	
 }
 
 // Interface
@@ -119,10 +111,10 @@ void eae6320::Graphics::RenderFrame()
 	// Draw the geometry
 	{
 		// Set the vertex and fragment shaders
-		{
+		/*{
 			glUseProgram(s_programId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}
+		}*/
 	}
 
 	size_t numberOfMeshes = gameObjects.size();
@@ -191,11 +183,14 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		return false;
 	}
 
-	if (!CreateProgram())
+	if (!effect.LoadEffect())
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
+	//---In future if I have more than 1 effect place the binding before mesh gets rendered----
+	effect.BindEffect();
+	//------------------------------------------------------------------------------------------
 	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
@@ -224,7 +219,11 @@ bool eae6320::Graphics::CleanUp()
 
 	if (s_openGlRenderingContext != NULL)
 	{
-		if (s_programId != 0)
+		if (!effect.CleanUpEffect())
+		{
+			wereThereErrors = true;
+		}
+		/*if (s_programId != 0)
 		{
 			glDeleteProgram(s_programId);
 			const GLenum errorCode = glGetError();
@@ -236,7 +235,7 @@ bool eae6320::Graphics::CleanUp()
 					reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			}
 			s_programId = 0;
-		}
+		}*/
 
 		if (!frameBuffer.CleanUpConstantBuffer())
 		{
@@ -297,7 +296,7 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 namespace
 {
 
-	bool CreateProgram()
+	/*bool CreateProgram()
 	{
 		// Create a program
 		{
@@ -402,7 +401,7 @@ namespace
 		}
 
 		return true;
-	}
+	}*/
 
 	bool CreateRenderingContext()
 	{
@@ -602,7 +601,7 @@ namespace
 		return true;
 	}
 
-	bool LoadFragmentShader(const GLuint i_programId)
+	/*bool LoadFragmentShader(const GLuint i_programId)
 	{
 		// Verify that compiling shaders at run-time is supported
 		{
@@ -966,5 +965,5 @@ namespace
 		dataFromFile.Free();
 
 		return !wereThereErrors;
-	}
+	}*/
 }
