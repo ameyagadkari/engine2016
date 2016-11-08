@@ -588,12 +588,12 @@ namespace
 				if (meshData.numberOfIndices > USHRT_MAX)
 				{
 					meshData.typeOfIndexData = 32;
-					meshData.indexData = reinterpret_cast<uint32_t*>(malloc(meshData.numberOfIndices * sizeof(uint32_t)));
+					meshData.indexData = malloc(meshData.numberOfIndices * sizeof(uint32_t));
 				}
 				else
 				{
 					meshData.typeOfIndexData = 16;
-					meshData.indexData = reinterpret_cast<uint16_t*>(malloc(meshData.numberOfIndices * sizeof(uint16_t)));
+					meshData.indexData = malloc(meshData.numberOfIndices * sizeof(uint16_t));
 				}
 				// Remember that Lua arrays are 1-based and not 0-based!
 				for (int i = 1; i <= arrayLength; ++i)

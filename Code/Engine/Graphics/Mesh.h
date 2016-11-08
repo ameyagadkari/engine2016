@@ -30,7 +30,7 @@ namespace eae6320
 		private:		
 			uint32_t numberOfIndices = 0;
 			bool is16bit;
-			bool Initialize(MeshData *meshData);		
+			bool Initialize(MeshData &meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
 			ID3D11Buffer* s_vertexBuffer = NULL;

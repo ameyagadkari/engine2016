@@ -9,12 +9,13 @@
 #include "../../Logging/Logging.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(MeshData* meshData)
+bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 {
 	CommonData *commonData = CommonData::GetCommonData();
+	numberOfIndices = meshData.numberOfIndices;
 
 	//Vertex Buffer Init
-	const unsigned int vertexBufferSize = meshData->numberOfVertices * sizeof(MeshData::Vertex);
+	const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
 
 	D3D11_BUFFER_DESC bufferDescriptionVertexBuffer = { 0 };
 	{
@@ -27,9 +28,9 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData* meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataVertexBuffer = { 0 };
 	{
-		if (meshData->vertexData)
+		if (meshData.vertexData)
 		{
-			initialDataVertexBuffer.pSysMem = meshData->vertexData;
+			initialDataVertexBuffer.pSysMem = meshData.vertexData;
 		}
 		else
 		{
@@ -51,14 +52,14 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData* meshData)
 
 	//Index Buffer Init
 	unsigned int indexBufferSize = 0;
-	if (meshData->typeOfIndexData == 16)
+	if (meshData.typeOfIndexData == 16)
 	{
-		indexBufferSize = meshData->numberOfIndices * sizeof(uint16_t);
+		indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
 		is16bit = true;
 	}
 	else
 	{
-		indexBufferSize = meshData->numberOfIndices * sizeof(uint32_t);
+		indexBufferSize = meshData.numberOfIndices * sizeof(uint32_t);
 		is16bit = false;
 	}
 	D3D11_BUFFER_DESC bufferDescriptionIndexBuffer = { 0 };
@@ -72,9 +73,9 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData* meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataIndexBuffer = { 0 };
 	{
-		if (meshData->indexData)
+		if (meshData.indexData)
 		{
-			initialDataIndexBuffer.pSysMem = meshData->indexData;
+			initialDataIndexBuffer.pSysMem = meshData.indexData;
 		}
 		else
 		{

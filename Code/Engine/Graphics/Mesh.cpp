@@ -217,7 +217,7 @@ OnExit:
 		meshData->indexData = data;
 	}
 
-	if (!o_mesh.Initialize(meshData))
+	if (!o_mesh.Initialize(*meshData))
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);

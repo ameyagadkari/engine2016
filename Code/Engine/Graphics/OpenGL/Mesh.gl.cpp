@@ -6,24 +6,13 @@
 #include "../../Logging/Logging.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(void *meshData)
+bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 {
-	MeshData<uint16_t> *meshData_16 = NULL;
-	MeshData<uint32_t> *meshData_32 = NULL;
-
-	if (is16bit)
-	{
-		meshData_16 = reinterpret_cast<MeshData<uint16_t>*>(meshData);
-		numberOfIndices_16 = meshData_16->numberOfIndices;
-	}
-	else
-	{
-		meshData_32 = reinterpret_cast<MeshData<uint32_t>*>(meshData);
-		numberOfIndices_32 = meshData_32->numberOfIndices;
-	}
 	bool wereThereErrors = false;
 	GLuint vertexBufferId = 0;
 	GLuint indexBufferId = 0;
+
+	numberOfIndices = meshData.numberOfIndices;
 
 	// Create a vertex array object and make it active
 	{
@@ -84,81 +73,35 @@ bool eae6320::Graphics::Mesh::Initialize(void *meshData)
 	// Assign the data to the buffer
 	{
 		//Vextex Buffer init
-		unsigned int vertexBufferSize = 0;
-		if (is16bit)
+		const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
+		if (meshData.vertexData)
 		{
-			vertexBufferSize = meshData_16->numberOfVertices * sizeof(MeshData<uint16_t>::Vertex);
-		}
-		else
-		{
-			vertexBufferSize = meshData_32->numberOfVertices * sizeof(MeshData<uint32_t>::Vertex);
-		}
-		if (is16bit)
-		{
-			if (meshData_16->vertexData)
-			{
-				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, reinterpret_cast<GLvoid*>(meshData_16->vertexData),
-					// In our class we won't ever read from the buffer
-					GL_STATIC_DRAW);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer: %s",
-						reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					goto OnExit;
-				}
-			}
-			else
+			glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, reinterpret_cast<GLvoid*>(meshData.vertexData),
+				// In our class we won't ever read from the buffer
+				GL_STATIC_DRAW);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
 			{
 				wereThereErrors = true;
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer because there is no Vertex Data");
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				goto OnExit;
 			}
 		}
 		else
 		{
-			if (meshData_32->vertexData)
-			{
-				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, reinterpret_cast<GLvoid*>(meshData_32->vertexData),
-					// In our class we won't ever read from the buffer
-					GL_STATIC_DRAW);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer: %s",
-						reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer because there is no Vertex Data");
-				goto OnExit;
-			}
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			eae6320::Logging::OutputError("OpenGL failed to allocate the vertex buffer because there is no Vertex Data");
+			goto OnExit;
 		}
 	}
 	// Initialize the vertex format
 	{
 		// The "stride" defines how large a single vertex is in the stream of data
 		// (or, said another way, how far apart each position element is)
-		GLsizei stride = 0;
-		if (is16bit)
-		{
-			stride = sizeof(MeshData<uint16_t>::Vertex);
-		}
-		else
-		{
-			stride = sizeof(MeshData<uint32_t>::Vertex);
-		}
-
-
+		const GLsizei stride = sizeof(MeshData::Vertex);
 		// Position (0)
 		// 3 floats == 12 bytes
 		// Offset = 0
@@ -166,16 +109,10 @@ bool eae6320::Graphics::Mesh::Initialize(void *meshData)
 			const GLuint vertexElementLocation = 0;
 			const GLint elementCount = 3;
 			const GLboolean isNormalized = GL_FALSE;	// The given floats should be used as-is
-			if (is16bit)
-			{
-				glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
-					reinterpret_cast<GLvoid*>(offsetof(MeshData<uint16_t>::Vertex, x)));
-			}
-			else
-			{
-				glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
-					reinterpret_cast<GLvoid*>(offsetof(MeshData<uint32_t>::Vertex, x)));
-			}	
+
+			glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
+				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, x)));
+
 			const GLenum errorCode = glGetError();
 			if (errorCode == GL_NO_ERROR)
 			{
@@ -204,16 +141,10 @@ bool eae6320::Graphics::Mesh::Initialize(void *meshData)
 			const GLuint vertexElementLocation = 1;
 			const GLint elementCount = 4;
 			const GLboolean isNormalized = GL_TRUE;	// The given floats should be used as-is
-			if (is16bit)
-			{
-				glVertexAttribPointer(vertexElementLocation, elementCount, GL_UNSIGNED_BYTE, isNormalized, stride,
-					reinterpret_cast<GLvoid*>(offsetof(MeshData<uint16_t>::Vertex, r)));
-			}
-			else
-			{
-				glVertexAttribPointer(vertexElementLocation, elementCount, GL_UNSIGNED_BYTE, isNormalized, stride,
-					reinterpret_cast<GLvoid*>(offsetof(MeshData<uint32_t>::Vertex, r)));
-			}
+
+			glVertexAttribPointer(vertexElementLocation, elementCount, GL_UNSIGNED_BYTE, isNormalized, stride,
+				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, r)));
+
 			const GLenum errorCode = glGetError();
 			if (errorCode == GL_NO_ERROR)
 			{
@@ -270,65 +201,38 @@ bool eae6320::Graphics::Mesh::Initialize(void *meshData)
 	{
 		//Index Buffer init
 		unsigned int indexBufferSize = 0;
-		if (is16bit)
+		if (meshData.typeOfIndexData == 16)
 		{
-			indexBufferSize = meshData_16->numberOfIndices * sizeof(uint16_t);
+			indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
+			is16bit = true;
 		}
 		else
 		{
-			indexBufferSize = meshData_32->numberOfIndices * sizeof(uint32_t);
+			indexBufferSize = meshData.numberOfIndices * sizeof(uint32_t);
+			is16bit = false;
 		}
-		if (is16bit)
+		if (meshData.indexData)
 		{
-			if (meshData_16->indexData)
-			{
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(meshData_16->indexData),
-					// In our class we won't ever read from the buffer
-					GL_STATIC_DRAW);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer: %s",
-						reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					goto OnExit;
-				}
-			}
-			else
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(meshData.indexData),
+				// In our class we won't ever read from the buffer
+				GL_STATIC_DRAW);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
 			{
 				wereThereErrors = true;
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer because there is no Index Data");
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				goto OnExit;
 			}
 		}
 		else
 		{
-			if (meshData_32->indexData)
-			{
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(meshData_32->indexData),
-					// In our class we won't ever read from the buffer
-					GL_STATIC_DRAW);
-				const GLenum errorCode = glGetError();
-				if (errorCode != GL_NO_ERROR)
-				{
-					wereThereErrors = true;
-					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer: %s",
-						reinterpret_cast<const char*>(gluErrorString(errorCode)));
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERT(false);
-				eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer because there is no Index Data");
-				goto OnExit;
-			}
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			eae6320::Logging::OutputError("OpenGL failed to allocate the index buffer because there is no Index Data");
+			goto OnExit;
 		}
-		
 	}
 
 OnExit:
@@ -394,8 +298,8 @@ OnExit:
 			eae6320::Logging::OutputError("OpenGL failed to unbind the vertex array: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			goto OnExit;
-		}
-	}
+				}
+			}
 
 	return !wereThereErrors;
 
@@ -418,7 +322,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
 		s_vertexBufferId = 0;
-	}
+		}
 
 	if (s_indexBufferId != 0)
 	{
@@ -450,7 +354,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 		s_vertexArrayId = 0;
 	}
 	return !wereThereErrors;
-}
+	}
 
 void eae6320::Graphics::Mesh::RenderMesh()
 {
@@ -477,14 +381,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		}
 		// It's possible to start rendering primitives in the middle of the stream
 		const GLvoid* const offset = 0;
-		if (is16bit)
-		{
-			glDrawElements(mode, numberOfIndices_16, indexType, offset);
-		}
-		else
-		{
-			glDrawElements(mode, numberOfIndices_32, indexType, offset);
-		}
+		glDrawElements(mode, numberOfIndices, indexType, offset);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 	}
 }
