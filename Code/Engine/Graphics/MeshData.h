@@ -7,7 +7,7 @@ namespace eae6320
 {
 	namespace Graphics
 	{
-		template<typename T>struct MeshData
+		struct MeshData
 		{
 			struct Vertex
 			{
@@ -15,9 +15,10 @@ namespace eae6320
 				uint8_t r, g, b, a;
 			};
 			Vertex *vertexData = NULL;
-			T *indexData = NULL;
-			T numberOfVertices = 0;
-			T numberOfIndices = 0;
+			void *indexData = NULL;
+			uint32_t numberOfVertices = 0;
+			uint32_t numberOfIndices = 0;
+			uint8_t typeOfIndexData = 0;
 		};
 	}
 }

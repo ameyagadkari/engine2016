@@ -97,7 +97,7 @@ namespace eae6320
 						positionElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
 						positionElement.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 						positionElement.InputSlot = 0;
-						positionElement.AlignedByteOffset = offsetof(MeshData<uint16_t>::Vertex, x);
+						positionElement.AlignedByteOffset = offsetof(MeshData::Vertex, x);
 						positionElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 						positionElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 					}
@@ -109,7 +109,7 @@ namespace eae6320
 						colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
 						colorElement.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 						colorElement.InputSlot = 0;
-						colorElement.AlignedByteOffset = offsetof(MeshData<uint16_t>::Vertex, r);
+						colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, r);
 						colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 						colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 					}

@@ -28,10 +28,9 @@ namespace eae6320
 			bool CleanUp();
 			void RenderMesh();		
 		private:		
-			uint16_t numberOfIndices_16 = 0;
-			uint32_t numberOfIndices_32 = 0;
+			uint32_t numberOfIndices = 0;
 			bool is16bit;
-			bool Initialize(void *meshData);		
+			bool Initialize(MeshData *meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
 			ID3D11Buffer* s_vertexBuffer = NULL;

@@ -27,18 +27,13 @@ namespace
 {
 	using namespace eae6320::Graphics;
 
-	MeshData<uint16_t> *meshData_16 = NULL;
-	MeshData<uint32_t> *meshData_32 = NULL;
-	bool is16bit = false;
-	void InitializeMeshData();
-
-	bool LoadInitialTable(lua_State& io_luaState);
-	bool LoadVerticesTable(lua_State& io_luaState);
-	bool LoadPositionsTable(lua_State& io_luaState);
-	bool LoadXYZTable(lua_State& io_luaState, size_t index);
-	bool LoadColorsTable(lua_State& io_luaState);
-	bool LoadRGBATable(lua_State& io_luaState, size_t index);
-	bool LoadIndicesTable(lua_State& io_luaState);
+	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, size_t index);
+	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, size_t index);
+	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
 
 	bool CheckIfColorIsInCorrectFormat(float *rgba);
 }
@@ -70,7 +65,7 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 
 	bool wereThereErrors = false;
 	std::string errorMessage;
-
+	Graphics::MeshData *meshData = NULL;
 	FILE * outputFile = NULL;
 	// Create a new Lua state
 	lua_State* luaState = NULL;
@@ -170,8 +165,8 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 	//If this code is reached the asset file was loaded successfully,
 	//and its table is now at index -1
 
-	//meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
-	if (!LoadInitialTable(*luaState))
+	meshData = reinterpret_cast<Graphics::MeshData*>(malloc(sizeof(Graphics::MeshData)));
+	if (!LoadInitialTable(*luaState, *meshData))
 	{
 		wereThereErrors = true;
 		OutputErrorMessage("Failed to load initial table", __FILE__);
@@ -181,29 +176,29 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 
 
 
-	// Writing 16 bit data to file 
-	if(is16bit)
+	// Writing data to file 
 	{
-		uint8_t type = 16;
-		// Writing the type of meshdata
-		fwrite(&type, sizeof(uint8_t), 1, outputFile);
+		// Writing Type of index array to file	
+		fwrite(&meshData->typeOfIndexData, sizeof(uint8_t), 1, outputFile);
 		if (ferror(outputFile))
 		{
-			fprintf_s(stderr, "Error writing type to %s \n", m_path_target);
+			fprintf_s(stderr, "Error writing type of index array to %s \n", m_path_target);
 			wereThereErrors = true;
 			goto OnExit;
 		}
+
+
 		// Writing Number Of Vertices
-		fwrite(&meshData_16->numberOfVertices, sizeof(uint16_t), 1, outputFile);
+		fwrite(&meshData->numberOfVertices, sizeof(uint32_t), 1, outputFile);
 		if (ferror(outputFile))
 		{
-			fprintf_s(stderr, "Error writing number of vertices to %s \n", m_path_target);
+			fprintf_s(stderr, "Error writing number of indices to %s \n", m_path_target);
 			wereThereErrors = true;
 			goto OnExit;
 		}
 
 		// Writing Number Of Indices
-		fwrite(&meshData_16->numberOfIndices, sizeof(uint16_t), 1, outputFile);
+		fwrite(&meshData->numberOfIndices, sizeof(uint32_t), 1, outputFile);
 		if (ferror(outputFile))
 		{
 			fprintf_s(stderr, "Error writing number of indices to %s \n", m_path_target);
@@ -212,7 +207,7 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 		}
 
 		// Writing Vertex Array
-		fwrite(meshData_16->vertexData, sizeof(Graphics::MeshData<uint16_t>::Vertex), meshData_16->numberOfVertices, outputFile);
+		fwrite(meshData->vertexData, sizeof(Graphics::MeshData::Vertex), meshData->numberOfVertices, outputFile);
 		if (ferror(outputFile))
 		{
 			fprintf_s(stderr, "Error writing vertex array to %s \n", m_path_target);
@@ -221,60 +216,25 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 		}
 
 		// Writing Index Array
-		fwrite(meshData_16->indexData, sizeof(uint16_t), meshData_16->numberOfIndices, outputFile);
-		if (ferror(outputFile))
+		if (meshData->typeOfIndexData == 16)
 		{
-			fprintf_s(stderr, "Error writing index array to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
+			fwrite(meshData->indexData, sizeof(uint16_t), meshData->numberOfIndices, outputFile);
+			if (ferror(outputFile))
+			{
+				fprintf_s(stderr, "Error writing index array to %s \n", m_path_target);
+				wereThereErrors = true;
+				goto OnExit;
+			}
 		}
-	}
-	// Writing 32 bit data to file 
-	else
-	{
-		uint8_t type = 32;
-		// Writing the type of meshdata
-		fwrite(&type, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
+		else
 		{
-			fprintf_s(stderr, "Error writing type to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-		// Writing Number Of Vertices
-		fwrite(&meshData_32->numberOfVertices, sizeof(uint32_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing number of vertices to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-
-		// Writing Number Of Indices
-		fwrite(&meshData_32->numberOfIndices, sizeof(uint32_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing number of indices to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-
-		// Writing Vertex Array
-		fwrite(meshData_32->vertexData, sizeof(Graphics::MeshData<uint32_t>::Vertex), meshData_32->numberOfVertices, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing vertex array to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-
-		// Writing Index Array
-		fwrite(meshData_32->indexData, sizeof(uint32_t), meshData_32->numberOfIndices, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing index array to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
+			fwrite(meshData->indexData, sizeof(uint32_t), meshData->numberOfIndices, outputFile);
+			if (ferror(outputFile))
+			{
+				fprintf_s(stderr, "Error writing index array to %s \n", m_path_target);
+				wereThereErrors = true;
+				goto OnExit;
+			}
 		}
 	}
 
@@ -289,30 +249,17 @@ OnExit:
 		}
 	}
 
-	if (meshData_16)
+	if (meshData)
 	{
-		if (meshData_16->indexData)
+		if (meshData->indexData)
 		{
-			free(meshData_16->indexData);
+			free(meshData->indexData);
 		}
-		if (meshData_16->vertexData)
+		if (meshData->vertexData)
 		{
-			free(meshData_16->vertexData);
+			free(meshData->vertexData);
 		}
-		free(meshData_16);
-	}
-
-	if (meshData_32)
-	{
-		if (meshData_32->indexData)
-		{
-			free(meshData_32->indexData);
-		}
-		if (meshData_32->vertexData)
-		{
-			free(meshData_32->vertexData);
-		}
-		free(meshData_32);
+		free(meshData);
 	}
 
 	if (luaState)
@@ -334,33 +281,20 @@ OnExit:
 
 namespace
 {
-	void InitializeMeshData()
+	bool LoadInitialTable(lua_State& io_luaState, MeshData&meshData)
 	{
-		if (is16bit)
-		{
-			meshData_16 = reinterpret_cast<MeshData<uint16_t>*>(malloc(sizeof(MeshData<uint16_t>)));
-		}
-		else
-		{
-			meshData_32 = reinterpret_cast<MeshData<uint32_t>*>(malloc(sizeof(MeshData<uint32_t>)));
-		}
-	}
-
-	bool LoadInitialTable(lua_State& io_luaState)
-	{
-		if (!LoadIndicesTable(io_luaState))
+		if (!LoadVerticesTable(io_luaState, meshData))
 		{
 			return false;
 		}
-
-		if (!LoadVerticesTable(io_luaState))
+		if (!LoadIndicesTable(io_luaState, meshData))
 		{
 			return false;
 		}
 
 		return true;
 	}
-	bool LoadVerticesTable(lua_State& io_luaState)
+	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData)
 	{
 		bool wereThereErrors = false;
 		const char* const key = "vertices";
@@ -374,12 +308,12 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
-			if (!LoadPositionsTable(io_luaState))
+			if (!LoadPositionsTable(io_luaState, meshData))
 			{
 				wereThereErrors = true;
 				goto OnExit;
 			}
-			if (!LoadColorsTable(io_luaState))
+			if (!LoadColorsTable(io_luaState, meshData))
 			{
 				wereThereErrors = true;
 				goto OnExit;
@@ -400,7 +334,7 @@ namespace
 		return !wereThereErrors;
 
 	}
-	bool LoadPositionsTable(lua_State& io_luaState)
+	bool LoadPositionsTable(lua_State& io_luaState, MeshData&meshData)
 	{
 		bool wereThereErrors = false;
 		const char* const key = "positions";
@@ -415,46 +349,20 @@ namespace
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
 			const int positions = luaL_len(&io_luaState, -1);
-			if (is16bit)
+			meshData.numberOfVertices = positions;
+			meshData.vertexData = reinterpret_cast<MeshData::Vertex*>(malloc(meshData.numberOfVertices * sizeof(MeshData::Vertex)));
+			if (!meshData.vertexData)
 			{
-				meshData_16->numberOfVertices = positions;
-				meshData_16->vertexData = reinterpret_cast<MeshData<uint16_t>::Vertex*>(malloc(meshData_16->numberOfVertices * sizeof(MeshData<uint16_t>::Vertex)));
-
-				if (!meshData_16->vertexData)
-				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "Could not initialize the Vertex Data");
-					goto OnExit;
-				}
-
-				for (size_t i = 1; i <= meshData_16->numberOfVertices; ++i)
-				{
-					if (!LoadXYZTable(io_luaState, (i - 1)))
-					{
-						wereThereErrors = true;
-						goto OnExit;
-					}
-				}
+				wereThereErrors = true;
+				fprintf_s(stderr, "Could not initialize the Vertex Data");
+				goto OnExit;
 			}
-			else
+			for (size_t i = 1; i <= meshData.numberOfVertices; ++i)
 			{
-				meshData_32->numberOfVertices = positions;
-				meshData_32->vertexData = reinterpret_cast<MeshData<uint32_t>::Vertex*>(malloc(meshData_32->numberOfVertices * sizeof(MeshData<uint32_t>::Vertex)));
-
-				if (!meshData_32->vertexData)
+				if (!LoadXYZTable(io_luaState, meshData, (i - 1)))
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "Could not initialize the Vertex Data");
 					goto OnExit;
-				}
-
-				for (size_t i = 1; i <= meshData_32->numberOfVertices; ++i)
-				{
-					if (!LoadXYZTable(io_luaState, (i - 1)))
-					{
-						wereThereErrors = true;
-						goto OnExit;
-					}
 				}
 			}
 		}
@@ -472,7 +380,7 @@ namespace
 
 		return !wereThereErrors;
 	}
-	bool LoadXYZTable(lua_State& io_luaState, size_t index)
+	bool LoadXYZTable(lua_State& io_luaState, MeshData&meshData, size_t index)
 	{
 		bool wereThereErrors = false;
 		lua_pushinteger(&io_luaState, index + 1);
@@ -513,18 +421,9 @@ namespace
 						goto OnExit;
 					}
 				}
-				if (is16bit)
-				{
-					meshData_16->vertexData[index].x = xyz[0];
-					meshData_16->vertexData[index].y = xyz[1];
-					meshData_16->vertexData[index].z = xyz[2];
-				}
-				else
-				{
-					meshData_32->vertexData[index].x = xyz[0];
-					meshData_32->vertexData[index].y = xyz[1];
-					meshData_32->vertexData[index].z = xyz[2];
-				}
+				meshData.vertexData[index].x = xyz[0];
+				meshData.vertexData[index].y = xyz[1];
+				meshData.vertexData[index].z = xyz[2];
 			}
 			else
 			{
@@ -536,7 +435,7 @@ namespace
 		else
 		{
 			wereThereErrors = true;
-			fprintf_s(stderr, "The value at \"%zud\" must be a table (instead of a %s) ", (index + 1), luaL_typename(&io_luaState, -1));
+			fprintf_s(stderr, "The value at \"%zu\" must be a table (instead of a %s) ", (index + 1), luaL_typename(&io_luaState, -1));
 			goto OnExit;
 		}
 	OnExit:
@@ -546,7 +445,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadColorsTable(lua_State& io_luaState)
+	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData)
 	{
 		bool wereThereErrors = false;
 		const char* const key = "colors";
@@ -561,46 +460,23 @@ namespace
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
 			const int colors = luaL_len(&io_luaState, -1);
-			if (is16bit)
+			if (colors != meshData.numberOfVertices)
 			{
-				if (colors != meshData_16->numberOfVertices)
-				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "The number of color tables and position tables do not match");
-					goto OnExit;
-				}
-				else
-				{
-					for (int i = 1; i <= meshData_16->numberOfVertices; ++i)
-					{
-						if (!LoadRGBATable(io_luaState, (i - 1)))
-						{
-							wereThereErrors = true;
-							goto OnExit;
-						}
-					}
-				}
+				wereThereErrors = true;
+				fprintf_s(stderr, "The number of color tables and position tables do not match");
+				goto OnExit;
 			}
 			else
 			{
-				if (colors != meshData_32->numberOfVertices)
+				for (size_t i = 1; i <= meshData.numberOfVertices; ++i)
 				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "The number of color tables and position tables do not match");
-					goto OnExit;
-				}
-				else
-				{
-					for (size_t i = 1; i <= meshData_32->numberOfVertices; ++i)
+					if (!LoadRGBATable(io_luaState, meshData, (i - 1)))
 					{
-						if (!LoadRGBATable(io_luaState, (i - 1)))
-						{
-							wereThereErrors = true;
-							goto OnExit;
-						}
+						wereThereErrors = true;
+						goto OnExit;
 					}
 				}
-			}			
+			}
 		}
 		else
 		{
@@ -614,7 +490,7 @@ namespace
 
 		return !wereThereErrors;
 	}
-	bool LoadRGBATable(lua_State& io_luaState, size_t index)
+	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, size_t index)
 	{
 		bool wereThereErrors = false;
 		lua_pushinteger(&io_luaState, index + 1);
@@ -655,38 +531,21 @@ namespace
 						goto OnExit;
 					}
 				}
-				if (is16bit)
+
+				if (CheckIfColorIsInCorrectFormat(rgba))
 				{
-					if (CheckIfColorIsInCorrectFormat(rgba))
-					{
-						meshData_16->vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
-						meshData_16->vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
-						meshData_16->vertexData[index].b = static_cast<uint8_t>(roundf(rgba[2] * 255.0f));
-						meshData_16->vertexData[index].a = static_cast<uint8_t>(roundf(rgba[3] * 255.0f));
-					}
-					else
-					{
-						wereThereErrors = true;
-						fprintf_s(stderr, "The color values were not normalized in range [0,1]");
-						goto OnExit;
-					}
+					meshData.vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
+					meshData.vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
+					meshData.vertexData[index].b = static_cast<uint8_t>(roundf(rgba[2] * 255.0f));
+					meshData.vertexData[index].a = static_cast<uint8_t>(roundf(rgba[3] * 255.0f));
 				}
 				else
 				{
-					if (CheckIfColorIsInCorrectFormat(rgba))
-					{
-						meshData_32->vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
-						meshData_32->vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
-						meshData_32->vertexData[index].b = static_cast<uint8_t>(roundf(rgba[2] * 255.0f));
-						meshData_32->vertexData[index].a = static_cast<uint8_t>(roundf(rgba[3] * 255.0f));
-					}
-					else
-					{
-						wereThereErrors = true;
-						fprintf_s(stderr, "The color values were not normalized in range [0,1]");
-						goto OnExit;
-					}
+					wereThereErrors = true;
+					fprintf_s(stderr, "The color values were not normalized in range [0,1]");
+					goto OnExit;
 				}
+
 			}
 			else
 			{
@@ -708,7 +567,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadIndicesTable(lua_State& io_luaState)
+	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData)
 	{
 		bool wereThereErrors = false;
 		const char* const key = "indices";
@@ -723,27 +582,18 @@ namespace
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
 			const int arrayLength = luaL_len(&io_luaState, -1);
-			if (arrayLength > USHRT_MAX)
-			{
-				is16bit = false;
-				InitializeMeshData();
-			}
-			else
-			{
-				is16bit = true;
-				InitializeMeshData();
-			}
 			if (arrayLength % 3 == 0)
 			{
-				if (is16bit)
+				meshData.numberOfIndices = arrayLength;
+				if (meshData.numberOfIndices > USHRT_MAX)
 				{
-					meshData_16->numberOfIndices = arrayLength;
-					meshData_16->indexData = reinterpret_cast<uint16_t*>(malloc(meshData_16->numberOfIndices * sizeof(uint16_t)));
+					meshData.typeOfIndexData = 32;
+					meshData.indexData = reinterpret_cast<uint32_t*>(malloc(meshData.numberOfIndices * sizeof(uint32_t)));
 				}
 				else
 				{
-					meshData_32->numberOfIndices = arrayLength;
-					meshData_32->indexData = reinterpret_cast<uint32_t*>(malloc(meshData_32->numberOfIndices * sizeof(uint32_t)));
+					meshData.typeOfIndexData = 16;
+					meshData.indexData = reinterpret_cast<uint16_t*>(malloc(meshData.numberOfIndices * sizeof(uint16_t)));
 				}
 				// Remember that Lua arrays are 1-based and not 0-based!
 				for (int i = 1; i <= arrayLength; ++i)
@@ -760,22 +610,22 @@ namespace
 					if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
 					{
 #if defined( EAE6320_PLATFORM_D3D )
-						if (is16bit)
+						if (meshData.typeOfIndexData == 16)
 						{
-							meshData_16->indexData[meshData_16->numberOfIndices - i] = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
+							reinterpret_cast<uint16_t*>(meshData.indexData)[meshData.numberOfIndices - i] = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
 						}
 						else
 						{
-							meshData_32->indexData[meshData_32->numberOfIndices - i] = static_cast<uint32_t>(lua_tonumber(&io_luaState, -1));
+							reinterpret_cast<uint32_t*>(meshData.indexData)[meshData.numberOfIndices - i] = static_cast<uint32_t>(lua_tonumber(&io_luaState, -1));
 						}
 #elif defined( EAE6320_PLATFORM_GL )
-						if (is16bit)
+						if (meshData.typeOfIndexData == 16)
 						{
-							meshData_16->indexData[i - 1] = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
+							reinterpret_cast<uint16_t*>(meshData.indexData)[i - 1] = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
 						}
 						else
 						{
-							meshData_32->indexData[i - 1] = static_cast<uint32_t>(lua_tonumber(&io_luaState, -1));
+							reinterpret_cast<uint32_t*>(meshData.indexData)[i - 1] = static_cast<uint32_t>(lua_tonumber(&io_luaState, -1));
 						}
 #endif
 						lua_pop(&io_luaState, 1);
