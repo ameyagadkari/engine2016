@@ -108,6 +108,7 @@ void eae6320::Graphics::RenderFrame()
 
 			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
 			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);*/
+			effect.BindEffect();
 			
 		}
 
@@ -167,9 +168,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		wereThereErrors = true;
 		goto OnExit;
 	}
-	//---In future if I have more than 1 effect place the binding before mesh gets rendered----
-	effect.BindEffect();
-	//------------------------------------------------------------------------------------------
+
 	/*if (!LoadVertexShader(commonData->compiledVertexShader))
 	{
 		wereThereErrors = true;

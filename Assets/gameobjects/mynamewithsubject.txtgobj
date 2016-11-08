@@ -1,11 +1,11 @@
--- Gameobject Data for Apple
+-- Gameobject Data for MyNameWithSubject
 return
 {
 	mesh_filepath = "data/meshes/mynamewithsubject.binmesh",
-	position = {0.0,0.0,0.0},
-	eular_angles = {0.0,0.0,0.0},
-	controller = "CubeController",
+	position = {5.0,10.0,20.0},
+	eular_angles = {0.0,0.0,30.0},
+	controller = "NoController",
 	is_static = true,
-	is_rotating = true,
-	rotation_axis = "y_axis",	
+	is_rotating = false,
+	rotation_axis = "x_axis",	
 }

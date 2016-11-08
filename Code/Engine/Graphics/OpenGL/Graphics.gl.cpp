@@ -115,6 +115,7 @@ void eae6320::Graphics::RenderFrame()
 			glUseProgram(s_programId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		}*/
+		effect.BindEffect();
 	}
 
 	size_t numberOfMeshes = gameObjects.size();
@@ -188,9 +189,6 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	//---In future if I have more than 1 effect place the binding before mesh gets rendered----
-	effect.BindEffect();
-	//------------------------------------------------------------------------------------------
 	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);

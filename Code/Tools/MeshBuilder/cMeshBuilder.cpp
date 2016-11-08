@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <climits>
-#include <cinttypes>
+#include <chrono>
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../AssetBuildLibrary/UtilityFunctions.h"
@@ -41,6 +41,8 @@ namespace
 
 bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_arguments)
 {
+	auto begin = std::chrono::high_resolution_clock::now();
+
 	bool wereThereErrors = false;
 	std::string errorMessage;
 	Graphics::MeshData *meshData = NULL;
@@ -155,6 +157,14 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 
 	// Writing data to file 
 	{
+		// Writing Type of index array to file	
+		fwrite(&meshData->typeOfIndexData, sizeof(uint32_t), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing type of index array to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
+		}
 		// Writing Number Of Vertices
 		fwrite(&meshData->numberOfVertices, sizeof(uint32_t), 1, outputFile);
 		if (ferror(outputFile))
@@ -200,14 +210,6 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 				goto OnExit;
 			}
 		}
-		// Writing Type of index array to file	
-		fwrite(&meshData->typeOfIndexData, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing type of index array to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
 	}
 
 OnExit:
@@ -244,7 +246,9 @@ OnExit:
 		lua_close(luaState);
 		luaState = NULL;
 	}
-
+	auto end = std::chrono::high_resolution_clock::now();
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+	std::cerr << ms << std::endl;
 	return !wereThereErrors;
 }
 

@@ -18,7 +18,7 @@ namespace eae6320
 			void *indexData = NULL;
 			uint32_t numberOfVertices = 0;
 			uint32_t numberOfIndices = 0;
-			uint8_t typeOfIndexData = 0;
+			uint32_t typeOfIndexData = 0;
 		};
 	}
 }

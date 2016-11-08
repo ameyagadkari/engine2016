@@ -6,6 +6,8 @@
 #include "../Logging/Logging.h"
 #include "../Platform/Platform.h"
 
+#include <chrono>
+
 //// Helper Function Declarations
 ////=============================
 //
@@ -175,6 +177,10 @@ OnExit:
 
 }*/
 {
+	auto begin = std::chrono::high_resolution_clock::now();
+	std::chrono::time_point<std::chrono::steady_clock> end;
+	long long ms;
+
 	bool wereThereErrors = false;
 	MeshData *meshData = NULL;
 
@@ -196,12 +202,13 @@ OnExit:
 
 	meshData = reinterpret_cast<MeshData*>(malloc(sizeof(MeshData)));
 
-	meshData->typeOfIndexData = *reinterpret_cast<uint8_t*>(data);
-
 	// Extracting Binary Data
 	{
+		// Extracting Type Of IndexData		
+		meshData->typeOfIndexData = *reinterpret_cast<uint32_t*>(data);
+
 		// Extracting Number Of Vertices
-		data += sizeof(uint8_t);
+		data += sizeof(uint32_t);
 		meshData->numberOfVertices = *reinterpret_cast<uint32_t*>(data);
 
 		// Extracting Number Of Indices
@@ -214,8 +221,12 @@ OnExit:
 
 		// Extracting Index Array
 		data += meshData->numberOfVertices * sizeof(MeshData::Vertex);
-		meshData->indexData = data;
+		meshData->indexData = data;	
 	}
+
+	end = std::chrono::high_resolution_clock::now();
+	ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+	Logging::OutputMessage("%lld", ms);
 
 	if (!o_mesh.Initialize(*meshData))
 	{
