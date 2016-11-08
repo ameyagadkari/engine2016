@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <climits>
+#include <cinttypes>
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../AssetBuildLibrary/UtilityFunctions.h"
@@ -40,33 +41,11 @@ namespace
 
 bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_arguments)
 {
-	/*bool wereThereErrors = false;
-
-	// Copy the source to the target
-	{
-		std::string errorMessage;
-		//EAE6320_TODO	// Copy m_path_source to m_path_target
-		// There are many reasons that a source should be rebuilt,
-		// and so even if the target already exists it should just be written over
-		const bool noErrorIfTargetAlreadyExists = false;
-		// Since we rely on timestamps to determine when a target was built
-		// its file time should be updated when the source gets copied
-		const bool updateTheTargetFileTime = true;
-		if (!(eae6320::Platform::CopyFile(m_path_source, m_path_target, noErrorIfTargetAlreadyExists, updateTheTargetFileTime, &errorMessage)))
-		{
-			wereThereErrors = true;
-			std::ostringstream errorMessage;
-			errorMessage << "Failed to copy \"" << m_path_source << "\" to \"" << m_path_target << "\": " << errorMessage.str();
-			OutputErrorMessage(errorMessage.str().c_str(), __FILE__);
-		}
-	}
-
-	return !wereThereErrors;*/
-
 	bool wereThereErrors = false;
 	std::string errorMessage;
 	Graphics::MeshData *meshData = NULL;
 	FILE * outputFile = NULL;
+
 	// Create a new Lua state
 	lua_State* luaState = NULL;
 	{
@@ -174,20 +153,8 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 	}
 	lua_pop(luaState, 1);
 
-
-
 	// Writing data to file 
 	{
-		// Writing Type of index array to file	
-		fwrite(&meshData->typeOfIndexData, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing type of index array to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-
-
 		// Writing Number Of Vertices
 		fwrite(&meshData->numberOfVertices, sizeof(uint32_t), 1, outputFile);
 		if (ferror(outputFile))
@@ -196,7 +163,6 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 			wereThereErrors = true;
 			goto OnExit;
 		}
-
 		// Writing Number Of Indices
 		fwrite(&meshData->numberOfIndices, sizeof(uint32_t), 1, outputFile);
 		if (ferror(outputFile))
@@ -205,16 +171,14 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 			wereThereErrors = true;
 			goto OnExit;
 		}
-
 		// Writing Vertex Array
-		fwrite(meshData->vertexData, sizeof(Graphics::MeshData::Vertex), meshData->numberOfVertices, outputFile);
+		fwrite(meshData->vertexData, sizeof(MeshData::Vertex), meshData->numberOfVertices, outputFile);
 		if (ferror(outputFile))
 		{
 			fprintf_s(stderr, "Error writing vertex array to %s \n", m_path_target);
 			wereThereErrors = true;
 			goto OnExit;
 		}
-
 		// Writing Index Array
 		if (meshData->typeOfIndexData == 16)
 		{
@@ -235,6 +199,14 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 				wereThereErrors = true;
 				goto OnExit;
 			}
+		}
+		// Writing Type of index array to file	
+		fwrite(&meshData->typeOfIndexData, sizeof(uint8_t), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing type of index array to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
 		}
 	}
 

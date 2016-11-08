@@ -10,20 +10,20 @@ return
 	gameobjects =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
-		--[["gameobjects/plane.txtgobj",
-		"gameobjects/snake.txtgobj",
+		"gameobjects/plane.txtgobj",
+		--[["gameobjects/snake.txtgobj",
 		"gameobjects/cube.txtgobj",
-		"gameobjects/apple.txtgobj",]]
-		"gameobjects/mynamewithsubject.txtgobj",
+		"gameobjects/apple.txtgobj",
+		"gameobjects/mynamewithsubject.txtgobj",]]
 	},
 	meshes =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
-		--[["meshes/apple.txtmesh",
 		"meshes/plane.txtmesh",
-		"meshes/snake.txtmesh",
-		"meshes/newcube.txtmesh",]]
-		"meshes/mynamewithsubject.txtmesh",
+		--[["meshes/snake.txtmesh",
+		"meshes/newcube.txtmesh",
+		"meshes/apple.txtmesh",
+		"meshes/mynamewithsubject.txtmesh",]]
 	},
 	shaders =
 	{
