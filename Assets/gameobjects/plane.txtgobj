@@ -1,0 +1,11 @@
+-- Gameobject Data for Plane
+return
+{
+	mesh_filepath = "data/meshes/plane.binmesh",
+	position = {0.0,0.0,0.0},
+	eular_angles = {0.0,0.0,0.0},
+	controller = "NoController",
+	is_static = true,
+	is_rotating = false,
+	rotation_axis = "x_axis",	
+}

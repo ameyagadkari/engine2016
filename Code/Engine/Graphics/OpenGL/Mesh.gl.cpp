@@ -6,12 +6,13 @@
 #include "../../Logging/Logging.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
+bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 {
-	numberOfIndices = meshData.numberOfIndices;
 	bool wereThereErrors = false;
 	GLuint vertexBufferId = 0;
 	GLuint indexBufferId = 0;
+
+	numberOfIndices = meshData.numberOfIndices;
 
 	// Create a vertex array object and make it active
 	{
@@ -101,7 +102,6 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 		// The "stride" defines how large a single vertex is in the stream of data
 		// (or, said another way, how far apart each position element is)
 		const GLsizei stride = sizeof(MeshData::Vertex);
-
 		// Position (0)
 		// 3 floats == 12 bytes
 		// Offset = 0
@@ -109,8 +109,10 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 			const GLuint vertexElementLocation = 0;
 			const GLint elementCount = 3;
 			const GLboolean isNormalized = GL_FALSE;	// The given floats should be used as-is
+
 			glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
 				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, x)));
+
 			const GLenum errorCode = glGetError();
 			if (errorCode == GL_NO_ERROR)
 			{
@@ -139,8 +141,10 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 			const GLuint vertexElementLocation = 1;
 			const GLint elementCount = 4;
 			const GLboolean isNormalized = GL_TRUE;	// The given floats should be used as-is
+
 			glVertexAttribPointer(vertexElementLocation, elementCount, GL_UNSIGNED_BYTE, isNormalized, stride,
 				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, r)));
+
 			const GLenum errorCode = glGetError();
 			if (errorCode == GL_NO_ERROR)
 			{
@@ -196,7 +200,17 @@ bool eae6320::Graphics::Mesh::Initialize(eae6320::Graphics::MeshData&meshData)
 
 	{
 		//Index Buffer init
-		const unsigned int indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
+		unsigned int indexBufferSize = 0;
+		if (meshData.typeOfIndexData == 16)
+		{
+			indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
+			is16bit = true;
+		}
+		else
+		{
+			indexBufferSize = meshData.numberOfIndices * sizeof(uint32_t);
+			is16bit = false;
+		}
 		if (meshData.indexData)
 		{
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(meshData.indexData),
@@ -284,8 +298,8 @@ OnExit:
 			eae6320::Logging::OutputError("OpenGL failed to unbind the vertex array: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			goto OnExit;
-		}
-	}
+				}
+			}
 
 	return !wereThereErrors;
 
@@ -308,7 +322,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
 		s_vertexBufferId = 0;
-	}
+		}
 
 	if (s_indexBufferId != 0)
 	{
@@ -340,7 +354,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 		s_vertexArrayId = 0;
 	}
 	return !wereThereErrors;
-}
+	}
 
 void eae6320::Graphics::Mesh::RenderMesh()
 {
@@ -356,7 +370,15 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		// (meaning that every primitive is a triangle and will be defined by three vertices)
 		const GLenum mode = GL_TRIANGLES;
 		// Every index is a 16 bit unsigned integer
-		const GLenum indexType = GL_UNSIGNED_SHORT;
+		GLenum indexType;
+		if (is16bit)
+		{
+			indexType = GL_UNSIGNED_SHORT;
+		}
+		else
+		{
+			indexType = GL_UNSIGNED_INT;
+		}
 		// It's possible to start rendering primitives in the middle of the stream
 		const GLvoid* const offset = 0;
 		glDrawElements(mode, numberOfIndices, indexType, offset);

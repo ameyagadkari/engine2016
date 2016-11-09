@@ -8,7 +8,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		const char * const SnakeController::classType = "snake";
+		const char * const SnakeController::classType = "SnakeController";
 		SnakeController* SnakeController::Initialize()
 		{
 			return new SnakeController();

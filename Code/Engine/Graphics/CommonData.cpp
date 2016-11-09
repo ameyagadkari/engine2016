@@ -6,23 +6,9 @@ namespace eae6320
 	{
 		CommonData* CommonData::commonData = nullptr;
 
-		inline CommonData::CommonData() 
-		{
-#if defined( EAE6320_PLATFORM_D3D )
-			compiledVertexShader = reinterpret_cast<eae6320::Platform::sDataFromFile*>(malloc(sizeof(eae6320::Platform::sDataFromFile)));
-#endif
-		}
+		inline CommonData::CommonData() {}
 
-		inline CommonData::~CommonData() 
-		{
-#if defined( EAE6320_PLATFORM_D3D )
-			if (compiledVertexShader)
-			{
-				free(compiledVertexShader);
-				compiledVertexShader = NULL;
-			}
-#endif
-		}
+		inline CommonData::~CommonData() {}
 
 		CommonData * CommonData::GetCommonData()
 		{
@@ -32,7 +18,7 @@ namespace eae6320
 			}
 			return commonData;
 		}
-		bool eae6320::Graphics::CommonData::Initialize()
+		bool CommonData::Initialize()
 		{
 			if (!commonData)
 			{

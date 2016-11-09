@@ -7,17 +7,9 @@ This file manages mesh-related functionality
 
 #if defined( EAE6320_PLATFORM_D3D )
 #include<D3D11.h>
-#define MINIMUM_NUMBER_OF_VERTICES 3
-#define MINIMUM_NUMBER_OF_INDICES 3
-#define MAXIMUM_NUMBER_OF_VERTICES USHRT_MAX
-#define MAXIMUM_NUMBER_OF_INDICES USHRT_MAX
 #elif defined( EAE6320_PLATFORM_GL )
 #include "OpenGL\Includes.h"
 #include "Configuration.h"
-#define MINIMUM_NUMBER_OF_VERTICES 3
-#define MINIMUM_NUMBER_OF_INDICES 3
-#define MAXIMUM_NUMBER_OF_VERTICES USHRT_MAX
-#define MAXIMUM_NUMBER_OF_INDICES USHRT_MAX
 #endif	
 
 #include "MeshData.h"
@@ -32,12 +24,13 @@ namespace eae6320
 		class Mesh
 		{
 		public:
-			static Mesh* LoadMesh(const char * const relativePath);
+			static bool LoadMesh(const char * const relativePath, Mesh &o_mesh);
 			bool CleanUp();
 			void RenderMesh();		
 		private:		
-			uint16_t numberOfIndices = 0;
-			bool Initialize(MeshData&meshData);		
+			uint32_t numberOfIndices = 0;
+			bool is16bit;
+			bool Initialize(MeshData &meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
 			ID3D11Buffer* s_vertexBuffer = NULL;
@@ -56,6 +49,3 @@ namespace eae6320
 	}
 }
 #endif	// EAE6320_MESH_H
-
-
-

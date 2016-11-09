@@ -14,11 +14,11 @@ namespace eae6320
 				float x, y, z;
 				uint8_t r, g, b, a;
 			};
-
-			Vertex *vertexData = nullptr;
-			uint16_t *indexData = nullptr;
-			uint16_t numberOfVertices = 0;
-			uint16_t numberOfIndices = 0;
+			Vertex *vertexData = NULL;
+			void *indexData = NULL;
+			uint32_t numberOfVertices = 0;
+			uint32_t numberOfIndices = 0;
+			uint32_t typeOfIndexData = 0;
 		};
 	}
 }

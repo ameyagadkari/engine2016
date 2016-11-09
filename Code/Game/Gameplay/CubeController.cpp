@@ -8,7 +8,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		const char * const CubeController::classType = "newcube";
+		const char * const CubeController::classType = "CubeController";
 		CubeController* CubeController::Initialize()
 		{
 			return new CubeController();

@@ -42,18 +42,13 @@ namespace
 
 bool eae6320::cMyGame::Initialize()
 {
+	bool wereThereErrors = false;
+
 	GenerateRelativePaths();
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
-		gameObjects[fileNames[i]] = (Gameplay::GameObject::Initilaize(relativePaths[i].c_str(), fileNames[i].c_str()));
+		gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
 	}
-
-	gameObjects["newcube"]->SetIsRotating(true);
-	//gameObjects["myname"]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
-
-	gameObjects["snake"]->SetIsStatic(false);
-	//gameObjects["snake"]->SetIsRotating(true);
-	//gameObjects["snake"]->SetRotationAxis(Gameplay::RotationAxis::Y_AXIS);
 
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
@@ -70,19 +65,6 @@ bool eae6320::cMyGame::Initialize()
 	//After adding all cameras, doing this is must
 	Camera::cCamera::UpdateMaxCameras();
 
-	bool wereThereErrors = false;
-	//if (!mesh1)
-	//{
-	//	wereThereErrors = true;
-	//	EAE6320_ASSERT(false);
-	//	Logging::OutputError("Mesh was not created %s", path_mesh1);
-	//}
-	//if (!mesh2)
-	//{
-	//	wereThereErrors = true;
-	//	EAE6320_ASSERT(false);
-	//	Logging::OutputError("Mesh was not created %s", path_mesh2);
-	//}
 	return !wereThereErrors;
 }
 
@@ -140,13 +122,22 @@ void eae6320::cMyGame::UpdateGameObjectOrientation()
 
 void eae6320::cMyGame::SubmitDrawcallData()
 {
-	Graphics::SetGameObjectData(gameObjects["plane"]);
-	Graphics::SetGameObjectData(gameObjects["newcube"], Math::cVector(0.0f, 10.0f, 0.0f));
-	Graphics::SetGameObjectData(gameObjects["snake"], Math::cVector(0.0f, 1.0f, 0.0f));
+	for (auto const& gameObject : gameObjects)
+	{
+		if (gameObject.second)
+		{
+			Graphics::SetGameObject(gameObject.second);
+		}
+	}
+	/*Graphics::SetGameObject(gameObjects["plane"]);
+	Graphics::SetGameObject(gameObjects["cube"]);
+	Graphics::SetGameObject(gameObjects["snake"]);*/
 }
 
 bool eae6320::cMyGame::CleanUp()
 {
+	bool wereThereErrors = false;
+
 	for (auto const& gameObject : gameObjects)
 	{
 		if (gameObject.second)
@@ -160,27 +151,7 @@ bool eae6320::cMyGame::CleanUp()
 		EAE6320_ASSERT(false);
 		Logging::OutputError("Camera Cleanup Failed");
 	}
-	bool wereThereErrors = false;
-	/*if (mesh1 && !mesh1->CleanUp())
-	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("Mesh1 cleanup failed");
-	}
-	if (mesh2 && !mesh2->CleanUp())
-	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("Mesh2 cleanup failed");
-	}
-	if (mesh1)
-	{
-		delete mesh1;
-	}
-	if (mesh2)
-	{
-		delete mesh2;
-	}*/
+
 	return !wereThereErrors;
 }
 
@@ -191,7 +162,7 @@ namespace
 {
 	void GenerateRelativePaths()
 	{
-		std::string prefix = "data/meshes/";
+		std::string prefix = "data/gameobjects/";
 		WIN32_FIND_DATA search_data;
 		memset(&search_data, 0, sizeof(WIN32_FIND_DATA));
 		HANDLE handle = FindFirstFile((prefix + "*").c_str(), &search_data);
