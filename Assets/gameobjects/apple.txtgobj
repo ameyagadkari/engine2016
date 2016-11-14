@@ -1,6 +1,7 @@
 -- Gameobject Data for Apple
 return
 {
+	effect_filepath = "data/effects/bob_effect.bineffect",
 	mesh_filepath = "data/meshes/apple.binmesh",
 	position = {0.0,0.0,0.0},
 	eular_angles = {0.0,0.0,0.0},

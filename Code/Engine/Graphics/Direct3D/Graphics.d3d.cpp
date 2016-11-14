@@ -56,8 +56,6 @@ namespace
 	ConstantBuffer drawCallBuffer;
 
 	eae6320::Camera::cCamera* camera;
-
-	Effect effect;
 }
 // Helper Function Declarations
 //=============================
@@ -102,20 +100,14 @@ void eae6320::Graphics::RenderFrame()
 	// Draw the geometry
 	{
 		// Set the vertex and fragment shaders
-		{
-			/*ID3D11ClassInstance** const noInterfaces = NULL;
-			const unsigned int interfaceCount = 0;
-
-			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
-			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);*/
-			effect.BindEffect();
-			
+		{		
 		}
 
 		size_t numberOfMeshes = gameObjects.size();
 		ConstantBufferData::sDrawCall drawCallBufferData;
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
+			gameObjects[i]->GetEffect()->BindEffect();
 			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
 			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			gameObjects[i]->GetMesh()->RenderMesh();
@@ -163,22 +155,6 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	}
 
 	// Initialize the graphics objects
-	if (!effect.LoadEffect())
-	{
-		wereThereErrors = true;
-		goto OnExit;
-	}
-
-	/*if (!LoadVertexShader(commonData->compiledVertexShader))
-	{
-		wereThereErrors = true;
-		goto OnExit;
-	}
-	if (!LoadFragmentShader())
-	{
-		wereThereErrors = true;
-		goto OnExit;
-	}*/
 
 	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(ConstantBufferData::sFrame), &frameBufferData))
 	{
@@ -216,29 +192,6 @@ bool eae6320::Graphics::CleanUp()
 
 	if (commonData->s_direct3dDevice)
 	{
-		/*if (commonData->s_vertexLayout)
-		{
-			commonData->s_vertexLayout->Release();
-			commonData->s_vertexLayout = NULL;
-		}
-
-		if (s_vertexShader)
-		{
-			s_vertexShader->Release();
-			s_vertexShader = NULL;
-		}
-
-		if (s_fragmentShader)
-		{
-			s_fragmentShader->Release();
-			s_fragmentShader = NULL;
-		}*/
-
-		if (!effect.CleanUpEffect())
-		{
-
-		}
-
 		if (!frameBuffer.CleanUpConstantBuffer())
 		{
 

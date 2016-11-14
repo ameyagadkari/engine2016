@@ -144,6 +144,7 @@ namespace eae6320
 		inline GameObject::GameObject() 
 		{
 			mesh = new Graphics::Mesh();
+			effect = new Graphics::Effect();
 		}
 		inline GameObject::~GameObject()
 		{
@@ -155,6 +156,15 @@ namespace eae6320
 			if (mesh)
 			{
 				delete mesh;
+			}
+			if (effect && !effect->CleanUpEffect())
+			{
+				EAE6320_ASSERT(false);
+				Logging::OutputError("Effect cleanup failed");
+			}
+			if (effect)
+			{
+				delete effect;
 			}
 			if (controller)
 			{
@@ -174,6 +184,10 @@ namespace eae6320
 		RotationAxis GameObject::GetRotationAxis() const
 		{
 			return rotationAxis;
+		}
+		Graphics::Effect * GameObject::GetEffect() const
+		{
+			return effect;
 		}
 		Graphics::Mesh * GameObject::GetMesh() const
 		{
@@ -205,6 +219,10 @@ namespace eae6320
 		void GameObject::SetRotationAxis(const RotationAxis rotationAxis)
 		{
 			this->rotationAxis = rotationAxis;
+		}
+		void GameObject::SetEffect(Graphics::Effect * const effect)
+		{
+			this->effect = effect;
 		}
 		void GameObject::SetMesh(Graphics::Mesh * const mesh)
 		{
@@ -266,6 +284,43 @@ namespace eae6320
 		bool GameObject::LoadGameObjectDataTable(lua_State & io_luaState)
 		{
 			bool wereThereErrors = false;
+
+			//Loading effect
+			{
+				const char* key = "effect_filepath";
+				lua_pushstring(&io_luaState, key);
+				lua_gettable(&io_luaState, -2);
+				if (lua_isnil(&io_luaState, -1))
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("No value for key:\"%s\" was found in the table", key);
+					lua_pop(&io_luaState, 1);
+					return !wereThereErrors;
+				}
+				if (lua_type(&io_luaState, -1) == LUA_TSTRING)
+				{
+					const char * const relativePath = lua_tostring(&io_luaState, -1);
+					if (!Graphics::Effect::LoadEffect(relativePath, *effect))
+					{
+						wereThereErrors = true;
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Failed to load the binary mesh file: %s", relativePath);
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
+					lua_pop(&io_luaState, 1);
+				}
+				else
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+					lua_pop(&io_luaState, 1);
+					return !wereThereErrors;
+				}
+			}
+
 
 			//Loading mesh
 			{

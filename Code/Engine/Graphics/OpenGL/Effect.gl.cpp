@@ -5,8 +5,8 @@
 
 namespace
 {
-	bool LoadFragmentShader(const GLuint i_programId);
-	bool LoadVertexShader(const GLuint i_programId);
+	bool LoadFragmentShader(const GLuint i_programId, const char *const relativePath);
+	bool LoadVertexShader(const GLuint i_programId, const char *const relativePath);
 
 	// This helper struct exists to be able to dynamically allocate memory to get "log info"
 	// which will automatically be freed when the struct goes out of scope
@@ -22,7 +22,7 @@ namespace eae6320
 {
 	namespace Graphics
 	{
-		bool Effect::LoadEffect()
+		bool Effect::InitializeEffect(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath)
 		{
 			// Create a program
 			{
@@ -43,12 +43,12 @@ namespace eae6320
 				}
 			}
 			// Load and attach the shaders
-			if (!LoadVertexShader(s_programId))
+			if (!LoadVertexShader(s_programId, relativeVertexShaderPath))
 			{
 				EAE6320_ASSERT(false);
 				return false;
 			}
-			if (!LoadFragmentShader(s_programId))
+			if (!LoadFragmentShader(s_programId, relativeFragmentShaderPath))
 			{
 				EAE6320_ASSERT(false);
 				return false;
@@ -157,7 +157,7 @@ namespace eae6320
 
 namespace
 {
-	bool LoadFragmentShader(const GLuint i_programId)
+	bool LoadFragmentShader(const GLuint i_programId, const char *const relativePath)
 	{
 		// Verify that compiling shaders at run-time is supported
 		{
@@ -178,14 +178,13 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/shaders/fragment.txtshader";
 				std::string errorMessage;
-				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
+				if (!eae6320::Platform::LoadBinaryFile(relativePath, dataFromFile, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
 					eae6320::Logging::OutputError("Failed to load the fragment shader \"%s\": %s",
-						path_sourceCode, errorMessage.c_str());
+						relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}
@@ -340,7 +339,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool LoadVertexShader(const GLuint i_programId)
+	bool LoadVertexShader(const GLuint i_programId, const char *const relativePath)
 	{
 		// Verify that compiling shaders at run-time is supported
 		{
@@ -361,14 +360,13 @@ namespace
 		{
 			// Load the shader source code
 			{
-				const char* path_sourceCode = "data/shaders/vertex.txtshader";
 				std::string errorMessage;
-				if (!eae6320::Platform::LoadBinaryFile(path_sourceCode, dataFromFile, &errorMessage))
+				if (!eae6320::Platform::LoadBinaryFile(relativePath, dataFromFile, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
 					eae6320::Logging::OutputError("Failed to load the vertex shader \"%s\": %s",
-						path_sourceCode, errorMessage.c_str());
+						relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}

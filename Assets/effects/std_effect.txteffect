@@ -1,0 +1,9 @@
+-- Effect File for Standard Effect
+return
+{
+	shaders = 
+	{
+		vertex_shader = "shaders/std_vertex.txtshader",
+		fragment_shader = "shaders/std_fragment.txtshader",
+	},
+}

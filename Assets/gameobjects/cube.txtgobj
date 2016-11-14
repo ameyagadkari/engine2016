@@ -1,6 +1,7 @@
 -- Gameobject Data for Cube
 return
 {
+	effect_filepath = "data/effects/std_effect.bineffect",
 	mesh_filepath = "data/meshes/newcube.binmesh",
 	position = {-20.0,10.0,0.0},
 	eular_angles = {0.0,0.0,0.0},

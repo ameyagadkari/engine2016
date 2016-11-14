@@ -1,6 +1,7 @@
 -- Gameobject Data for MyNameWithSubject
 return
 {
+	effect_filepath = "data/effects/std_effect.bineffect",
 	mesh_filepath = "data/meshes/mynamewithsubject.binmesh",
 	position = {5.0,10.0,20.0},
 	eular_angles = {0.0,0.0,30.0},

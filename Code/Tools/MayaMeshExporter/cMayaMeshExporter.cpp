@@ -435,7 +435,7 @@ namespace
 
 	MStatus ProcessSingleDagNode(const MDagPath& i_dagPath,
 		std::map<std::string, sVertexInfo>& io_uniqueVertices, std::vector<sTriangle>& io_triangles,
-		std::vector<MObject>& io_shadingGroups, std::map<std::string, size_t>& io_map_shadingGroupNamesToIndices)
+		std::vector<MObject>& io_shadingGroups, std::map<std::string, size_t>& io_map_shadingGroupNamesToIndices)/*
 	{
 		MStatus status;
 
@@ -675,6 +675,334 @@ namespace
 									sVertexInfo(positions[positionIndex], normals[normalIndex],
 										tangents[tangentIndex], bitangents[tangentIndex],
 										texcoordUs[texcoordIndex], texcoordVs[texcoordIndex],
+										vertexColor,
+										shadingGroup, vertexKey)
+								));
+							}
+						}
+						else
+						{
+							MGlobal::displayError(status.errorString());
+							return status;
+						}
+					}
+					// Store information for each individual triangle in the polygon
+					{
+						int triangleCount = 0;
+						i.numTriangles(triangleCount);
+						for (int j = 0; j < triangleCount; ++j)
+						{
+							i.getTriangle(j, trianglePositions, positionIndices);
+							if (static_cast<size_t>(positionIndices.length()) == s_vertexCountPerTriangle)
+							{
+								sTriangle triangle;
+								for (unsigned int k = 0; k < static_cast<unsigned int>(s_vertexCountPerTriangle); ++k)
+								{
+									const int positionIndex = positionIndices[k];
+									std::map<int, const std::string>::iterator mapLookUp = indexToKeyMap.find(positionIndex);
+									if (mapLookUp != indexToKeyMap.end())
+									{
+										triangle.vertexKeys[k] = mapLookUp->second;
+									}
+									else
+									{
+										MGlobal::displayError("A triangle gave a different vertex index than the polygon gave");
+										return MStatus::kFailure;
+									}
+								}
+								triangle.shadingGroup = shadingGroup;
+								io_triangles.push_back(triangle);
+							}
+							else
+							{
+								MGlobal::displayError(MString("Triangle #") + j + " reports that it has " +
+									positionIndices.length() + "! According to my understanding of Maya this should never happen");
+								return MStatus::kFailure;
+							}
+						}
+					}
+				}
+				else
+				{
+					MGlobal::displayError("This mesh has an invalid triangulation");
+					return MStatus::kFailure;
+				}
+			}
+		}
+
+		return MStatus::kSuccess;
+	}*/
+	{
+		MStatus status;
+
+		// Get the mesh from the DAG path
+		MFnMesh mesh(i_dagPath);
+		if (mesh.isIntermediateObject())
+		{
+			return MStatus::kSuccess;
+		}
+
+		// Get a list of the positions
+		MPointArray positions;
+		{
+			status = mesh.getPoints(positions, MSpace::kWorld);
+			if (!status)
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// Get a list of the normals
+		MFloatVectorArray normals;
+		{
+			status = mesh.getNormals(normals, MSpace::kWorld);
+			if (!status)
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// Get a list of tangents and bitangents
+		MFloatVectorArray tangents, bitangents;
+		{
+			const MString* const useDefaultUvSet = NULL;	// If more than one UV set exists this code will use the "default" one (as chosen by Maya)
+			status = mesh.getTangents(tangents, MSpace::kWorld, useDefaultUvSet);
+			if (!status
+				// Tangents may not exist if there are no UVs
+				&& (status != MS::kInvalidParameter))
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+			status = mesh.getBinormals(bitangents, MSpace::kWorld, useDefaultUvSet);
+			if (!status
+				// Bitngents may not exist if there are no UVs
+				&& (status != MS::kInvalidParameter))
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// Get a list of the texture coordinates
+		MFloatArray texcoordUs, texcoordVs;
+		{
+			const int uvSetCount = mesh.numUVSets(&status);
+			if (status)
+			{
+				if (uvSetCount > 0)
+				{
+					const MString* const useDefaultUvSet = NULL;	// If more than one UV set exists this code will use the "default" one (as chosen by Maya)
+					status = mesh.getUVs(texcoordUs, texcoordVs, useDefaultUvSet);
+					if (!status)
+					{
+						MGlobal::displayError(status.errorString());
+						return status;
+					}
+				}
+			}
+			else
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// Get a list of the vertex colors
+		MColorArray vertexColors;
+		{
+			const int colorSetCount = mesh.numColorSets(&status);
+			if (status)
+			{
+				if (colorSetCount > 0)
+				{
+					const MString* const useDefaultColorSet = NULL;	// If more than one color set exists this code will use the "default" one (as chosen by Maya)
+					MColor defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+					status = mesh.getColors(vertexColors, useDefaultColorSet, &defaultColor);
+					if (!status)
+					{
+						MGlobal::displayError(status.errorString());
+						return status;
+					}
+				}
+			}
+			else
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// A single mesh (i.e. geometric data)
+		// can be used by multiple DAG nodes in a Maya scene.
+		// (For example, a single sphere mesh could be instanced many times
+		// but at different positions, with different orientations, scales, and materials.)
+		// An instance ID identifies the specific node that should be processed by this function.
+		unsigned int instanceId = 0;
+		if (i_dagPath.isInstanced())
+		{
+			instanceId = i_dagPath.instanceNumber(&status);
+			if (!status)
+			{
+				MGlobal::displayError(MString("Failed to get the DAG path's instance number: ") + status.errorString());
+				return MStatus::kFailure;
+			}
+		}
+
+		// Get a list of the shading groups (i.e. materials)
+		std::vector<size_t> polygonShadingGroupIndices;
+		{
+			MObjectArray shadingGroups;
+			MIntArray localIndices;
+			status = mesh.getConnectedShaders(instanceId, shadingGroups, localIndices);
+			if (status)
+			{
+				// Remap each local shading group index (i.e. that applies to the array returned by getConnectedShaders())
+				// to an index into our static list
+				std::vector<size_t> shadingGroupIndices;
+				{
+					shadingGroupIndices.resize(shadingGroups.length());
+					for (unsigned int i = 0; i < shadingGroups.length(); ++i)
+					{
+						size_t shadingGroupIndex;
+						{
+							MObject shadingGroup = shadingGroups[i];
+							std::string shadingGroupName = MFnDependencyNode(shadingGroup).name().asChar();
+							std::map<std::string, size_t>::iterator mapLookUp = io_map_shadingGroupNamesToIndices.find(shadingGroupName);
+							if (mapLookUp != io_map_shadingGroupNamesToIndices.end())
+							{
+								shadingGroupIndex = mapLookUp->second;
+							}
+							else
+							{
+								const size_t newIndex = io_shadingGroups.size();
+								io_shadingGroups.push_back(shadingGroup);
+								io_map_shadingGroupNamesToIndices.insert(std::make_pair(shadingGroupName, newIndex));
+								shadingGroupIndex = newIndex;
+							}
+						}
+						shadingGroupIndices[i] = shadingGroupIndex;
+					}
+				}
+				// Convert each polygon shading group index
+				{
+					const unsigned int polygonCount = localIndices.length();
+					if (polygonCount == mesh.numPolygons())
+					{
+						polygonShadingGroupIndices.resize(polygonCount);
+						for (unsigned int i = 0; i < polygonCount; ++i)
+						{
+							const int localIndex = localIndices[i];
+							if (localIndex >= 0)
+							{
+								polygonShadingGroupIndices[i] = shadingGroupIndices[static_cast<size_t>(localIndex)];
+							}
+							else
+							{
+								// If a polygon doesn't have a shading group the index will be -1
+								polygonShadingGroupIndices[i] = static_cast<size_t>(localIndex);
+							}
+						}
+					}
+					else
+					{
+						MGlobal::displayError(MString("mesh.numPolygons() returned ") + mesh.numPolygons()
+							+ " but mesh.getConnectedShaders() returned " + polygonCount
+							+ " indices! According to my understanding of the Maya API this should never happen");
+					}
+				}
+			}
+			else
+			{
+				MGlobal::displayError(status.errorString());
+				return status;
+			}
+		}
+
+		// Gather vertex and triangle information
+		{
+			// Use the name of the transform to ensure uniqueness
+			// (This is necessary because uniqueness is otherwise determined by indices within a given mesh.
+			// If the actual data (like the position coordinates) was used instead then this could be ignored
+			// and two identical vertices from two completely different meshes could be saved as a single one.
+			// This should happen rarely in practice, but a production-quality exporter
+			// should probably be more strict about testing equivalence to try and save as much memory as possible.)
+			const char* transformName = NULL;
+			{
+				transformName = MFnDependencyNode(mesh.parent(instanceId)).name().asChar();
+			}
+
+			MPointArray trianglePositions;
+			MIntArray positionIndices;
+			size_t polygonIndex = 0;
+			for (MItMeshPolygon i(mesh.object()); !i.isDone(); i.next(), ++polygonIndex)
+			{
+				if (i.hasValidTriangulation())
+				{
+					const size_t shadingGroup = polygonShadingGroupIndices[polygonIndex];
+
+					// Store information for each vertex in the polygon
+					std::map<int, const std::string> indexToKeyMap;
+					{
+						MIntArray vertices;
+						status = i.getVertices(vertices);
+						if (status)
+						{
+							for (unsigned int j = 0; j < vertices.length(); ++j)
+							{
+								const int positionIndex = vertices[j];
+								const int normalIndex = i.normalIndex(j);
+								int texcoordIndex = -1;
+								struct { float u, v; } texcoord = { 0.0f, 0.0f };
+								{
+									int potentialTexcoordIndex;
+									const MString* const useDefaultUvSet = NULL;
+									status = i.getUVIndex(j, potentialTexcoordIndex, useDefaultUvSet);
+									if (status && (potentialTexcoordIndex >= 0)
+										&& (static_cast<unsigned int>(potentialTexcoordIndex) < texcoordUs.length())
+										&& (static_cast<unsigned int>(potentialTexcoordIndex) < texcoordVs.length()))
+									{
+										texcoordIndex = potentialTexcoordIndex;
+										texcoord.u = texcoordUs[texcoordIndex];
+										texcoord.v = texcoordVs[texcoordIndex];
+									}
+								}
+								int tangentIndex = -1;
+								MFloatVector tangent(0.0f, 0.0f, 0.0f);
+								MFloatVector bitangent(0.0f, 0.0f, 0.0f);
+								{
+									const int potentialTangentIndex = i.tangentIndex(j, &status);
+									if (status && (potentialTangentIndex >= 0)
+										&& (static_cast<unsigned int>(potentialTangentIndex) < tangents.length())
+										&& (static_cast<unsigned int>(potentialTangentIndex) < bitangents.length()))
+									{
+										tangentIndex = potentialTangentIndex;
+										tangent = tangents[tangentIndex];
+										bitangent = bitangents[tangentIndex];
+									}
+								}
+								int vertexColorIndex = -1;
+								MColor vertexColor(1.0f, 1.0f, 1.0f, 1.0f);
+								{
+									int potentialColorIndex;
+									const MString* const useDefaultColorSet = NULL;
+									status = i.getColorIndex(j, potentialColorIndex, useDefaultColorSet);
+									if (status && (potentialColorIndex >= 0)
+										&& (static_cast<unsigned int>(potentialColorIndex) < vertexColors.length()))
+									{
+										vertexColorIndex = potentialColorIndex;
+										vertexColor = vertexColors[vertexColorIndex];
+									}
+								}
+								const std::string vertexKey = CreateUniqueVertexKey(positionIndex, normalIndex, tangentIndex,
+									texcoordIndex, vertexColorIndex, shadingGroup, transformName);
+								indexToKeyMap.insert(std::make_pair(positionIndex, vertexKey));
+								io_uniqueVertices.insert(std::make_pair(vertexKey,
+									sVertexInfo(positions[positionIndex], normals[normalIndex],
+										tangent, bitangent,
+										texcoord.u, texcoord.v,
 										vertexColor,
 										shadingGroup, vertexKey)
 								));

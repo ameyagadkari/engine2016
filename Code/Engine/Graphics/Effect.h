@@ -18,7 +18,8 @@ namespace eae6320
 		class Effect
 		{
 		public:
-			bool LoadEffect();
+			static bool LoadEffect(const char * const relativePath, Effect&effect);
+			bool InitializeEffect(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath);
 			bool CleanUpEffect();
 			void BindEffect();
 

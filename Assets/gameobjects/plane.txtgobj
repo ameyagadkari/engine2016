@@ -1,6 +1,7 @@
 -- Gameobject Data for Plane
 return
 {
+	effect_filepath = "data/effects/std_effect.bineffect",
 	mesh_filepath = "data/meshes/plane.binmesh",
 	position = {0.0,0.0,0.0},
 	eular_angles = {0.0,0.0,0.0},

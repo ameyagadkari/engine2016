@@ -58,8 +58,6 @@ namespace
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
 
-	Effect effect;
-
 	eae6320::Camera::cCamera *camera;
 }
 
@@ -111,17 +109,13 @@ void eae6320::Graphics::RenderFrame()
 	// Draw the geometry
 	{
 		// Set the vertex and fragment shaders
-		/*{
-			glUseProgram(s_programId);
-			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-		}*/
-		effect.BindEffect();
 	}
 
 	size_t numberOfMeshes = gameObjects.size();
 	ConstantBufferData::sDrawCall drawCallBufferData;
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{
+		gameObjects[i]->GetEffect()->BindEffect();
 		drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
 		drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 		gameObjects[i]->GetMesh()->RenderMesh();
@@ -184,11 +178,6 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		return false;
 	}
 
-	if (!effect.LoadEffect())
-	{
-		EAE6320_ASSERT(false);
-		return false;
-	}
 	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
@@ -217,23 +206,6 @@ bool eae6320::Graphics::CleanUp()
 
 	if (s_openGlRenderingContext != NULL)
 	{
-		if (!effect.CleanUpEffect())
-		{
-			wereThereErrors = true;
-		}
-		/*if (s_programId != 0)
-		{
-			glDeleteProgram(s_programId);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				Logging::OutputError("OpenGL failed to delete the program: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			}
-			s_programId = 0;
-		}*/
 
 		if (!frameBuffer.CleanUpConstantBuffer())
 		{
