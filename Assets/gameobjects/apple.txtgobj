@@ -5,7 +5,7 @@ return
 	mesh_filepath = "meshes/apple.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",	
-	position = {0.0,10.0,0.0},
+	position = {-10.0,10.0,0.0},
 	eular_angles = {0.0,0.0,0.0},
 	is_static = true,
 	is_rotating = false,	

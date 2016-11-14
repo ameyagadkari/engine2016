@@ -1,7 +1,7 @@
 -- Gameobject Data for MyNameWithSubject
 return
 {
-	effect_filepath = "effects/std_effect.txteffect",
+	effect_filepath = "effects/bob_effect.txteffect",
 	mesh_filepath = "meshes/mynamewithsubject.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",	
