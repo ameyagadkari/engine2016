@@ -28,6 +28,9 @@ namespace eae6320
 		// Errors can be formatted a specific way so that they show up
 		// in Visual Studio's "Error List" tab
 		void OutputErrorMessage( const char* const i_errorMessage, const char* const i_optionalFileName = NULL );
+
+
+		bool WriteCStringToFile(const char * const cString, FILE  * outputFile);
 	}
 }
 

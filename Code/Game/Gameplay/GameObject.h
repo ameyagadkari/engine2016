@@ -46,7 +46,6 @@ namespace eae6320
 			
 		private:
 			inline GameObject();
-			bool LoadGameObjectDataTable(lua_State& io_luaState);
 
 			Graphics::Mesh*mesh;
 			Graphics::Effect*effect;

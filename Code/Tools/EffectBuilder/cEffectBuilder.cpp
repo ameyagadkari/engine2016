@@ -22,9 +22,9 @@
 
 namespace
 {
-	const char * vertexShaderPath;
-	const char * fragmentShaderPath;
-	const char * const assetType = "shaders";
+	const char * vertexShaderPath = NULL;
+	const char * fragmentShaderPath = NULL;
+
 	FILE * outputFile = NULL;
 
 	bool LoadInitialTable(lua_State& io_luaState);
@@ -32,7 +32,7 @@ namespace
 	bool LoadVertexShaderPath(lua_State& io_luaState);
 	bool LoadFragmentShaderPath(lua_State& io_luaState);
 
-	bool WriteShaderPathToFile(const char * const path);
+	//bool WriteShaderPathToFile(const char * const path);
 }
 
 bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -149,14 +149,14 @@ bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& 
 	// Writing data to file 
 	{
 		// Writing the Vertex Shader Path
-		if (!WriteShaderPathToFile(vertexShaderPath))
+		if (!WriteCStringToFile(vertexShaderPath, outputFile))
 		{
 			wereThereErrors = true;
 			fprintf_s(stderr, "Failed to write vertex shader path to %s file", m_path_target);
 			goto OnExit;
 		}
 		// Writing the Fragment Shader Path
-		if (!WriteShaderPathToFile(fragmentShaderPath))
+		if (!WriteCStringToFile(fragmentShaderPath, outputFile))
 		{
 			wereThereErrors = true;
 			fprintf_s(stderr, "Failed to write fragment shader path to %s file", m_path_target);
@@ -185,6 +185,15 @@ OnExit:
 
 		lua_close(luaState);
 		luaState = NULL;
+	}
+
+	if (vertexShaderPath)
+	{
+		delete vertexShaderPath;
+	}
+	if (fragmentShaderPath)
+	{
+		delete fragmentShaderPath;
 	}
 
 	return !wereThereErrors;
@@ -262,10 +271,12 @@ namespace
 		{
 			std::string vertexShaderPathString;
 			std::string errorMessage;
-			if(!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(lua_tostring(&io_luaState, -1), assetType, vertexShaderPathString, &errorMessage))
+			const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
+			const char * const assetType = "shaders";
+			if(!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, vertexShaderPathString, &errorMessage))
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "Cannot convert Convert Source Relative Path To Built Relative Path: %s", errorMessage.c_str());
+				fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
 				goto OnExit;
 			}
 			vertexShaderPath = _strdup(vertexShaderPathString.c_str());
@@ -299,10 +310,12 @@ namespace
 		{
 			std::string fragmentShaderPathString;
 			std::string errorMessage;
-			if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(lua_tostring(&io_luaState, -1), assetType, fragmentShaderPathString, &errorMessage))
+			const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
+			const char * const assetType = "shaders";
+			if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, fragmentShaderPathString, &errorMessage))
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "Cannot convert Convert Source Relative Path To Built Relative Path: %s", errorMessage.c_str());
+				fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
 				goto OnExit;
 			}
 			fragmentShaderPath = _strdup(fragmentShaderPathString.c_str());
@@ -320,7 +333,7 @@ namespace
 		return !wereThereErrors;
 	}
 
-	bool WriteShaderPathToFile(const char * const path)
+	/*bool (const char * const path)
 	{
 		bool wereThereErrors = false;
 		const uint8_t length = static_cast<uint8_t>(std::char_traits<char>::length(path) + 1);
@@ -347,5 +360,5 @@ namespace
 			wereThereErrors = true;
 		}
 		return !wereThereErrors;
-	}
+	}*/
 }

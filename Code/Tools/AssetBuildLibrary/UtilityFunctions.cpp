@@ -10,6 +10,34 @@
 
 // Interface
 //==========
+bool eae6320::AssetBuild::WriteCStringToFile(const char * const cString, FILE * outputFile)
+{
+	bool wereThereErrors = false;
+	const uint8_t length = static_cast<uint8_t>(std::char_traits<char>::length(cString) + 1);
+	const uint8_t zero = 0;
+	// Writing length of the path 
+	fwrite(&length, sizeof(uint8_t), 1, outputFile);
+	if (ferror(outputFile))
+	{
+		fprintf_s(stderr, "Error writing length of %s to output file \n", cString);
+		wereThereErrors = true;
+	}
+	// Writing the actual path
+	fwrite(cString, sizeof(uint8_t), length - 1, outputFile);
+	if (ferror(outputFile))
+	{
+		fprintf_s(stderr, "Error writing %s to output file \n", cString);
+		wereThereErrors = true;
+	}
+	// Writing a null at the end
+	fwrite(&zero, sizeof(uint8_t), 1, outputFile);
+	if (ferror(outputFile))
+	{
+		fprintf_s(stderr, "Error null to output file \n");
+		wereThereErrors = true;
+	}
+	return !wereThereErrors;
+}
 
 bool eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath( const char* const i_sourceRelativePath, const char* const i_assetType,
 	std::string& o_builtRelativePath, std::string* const o_errorMessage )

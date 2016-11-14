@@ -1,12 +1,12 @@
 -- Gameobject Data for Snake
 return
 {
-	effect_filepath = "data/effects/std_effect.bineffect",
-	mesh_filepath = "data/meshes/snake.binmesh",
+	effect_filepath = "effects/std_effect.txteffect",
+	mesh_filepath = "meshes/snake.txtmesh",
+	controller_name = "SnakeController",
+	rotation_axis = "x_axis",	
 	position = {0.0,1.0,0.0},
 	eular_angles = {0.0,0.0,0.0},
-	controller = "SnakeController",
 	is_static = false,
 	is_rotating = false,
-	rotation_axis = "x_axis",	
 }

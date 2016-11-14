@@ -5,7 +5,6 @@
 #include "../../Engine/UserInput/UserInput.h"
 #include "../../Engine/Time/Time.h"
 #include "../../Engine/Math/Functions.h"
-#include "../../Tools/AssetBuildLibrary/UtilityFunctions.h"
 
 #include<iostream>
 
@@ -16,132 +15,146 @@ namespace eae6320
 		GameObject * GameObject::LoadGameObject(const char * const relativePath)
 		{
 			bool wereThereErrors = false;
-			std::string errorMessage;
 			GameObject *gameObject = new GameObject();
-			// Create a new Lua state
-			lua_State* luaState = NULL;
+
+			// Load the binary GameObject file
+			eae6320::Platform::sDataFromFile binaryGameObject;
 			{
-				luaState = luaL_newstate();
-				if (!luaState)
+				std::string errorMessage;
+				if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryGameObject, &errorMessage))
 				{
 					wereThereErrors = true;
-					eae6320::Logging::OutputError("Failed to create a new Lua state");
+					EAE6320_ASSERTF(false, errorMessage.c_str());
+					eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}
 
-			// Open the standard libraries
-			luaL_openlibs(luaState);
+			// Casting data to uint8_t* for pointer arithematic
+			uint8_t* data = reinterpret_cast<uint8_t*>(binaryGameObject.data);
 
-			// Load and execute it
+			uint8_t offsetToAdd = 0;
+
+			// Extracting Binary Data
 			{
-				if (Platform::DoesFileExist(relativePath, &errorMessage))
-				{
+				// Extracting Offset To Add
+				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
 
-					// Load the asset file as a "chunk",
-					// meaning there will be a callable function at the top of the stack
-					const int stackTopBeforeLoad = lua_gettop(luaState);
+				// Extracting Effect File Path
+				data += sizeof(offsetToAdd);
+				{
+					const char * const effectPath = reinterpret_cast<const char *>(data);
+					if (!Graphics::Effect::LoadEffect(effectPath, *gameObject->effect))
 					{
-						const int luaResult = luaL_loadfile(luaState, relativePath);
-						if (luaResult != LUA_OK)
-						{
-							wereThereErrors = true;
-							std::cerr << lua_tostring(luaState, -1) << std::endl;
-							// Pop the error message
-							lua_pop(luaState, 1);
-							goto OnExit;
-						}
-					}
-					// Execute the "chunk", which should load the asset
-					// into a table at the top of the stack
-					{
-						const int argumentCount = 0;
-						const int returnValueCount = LUA_MULTRET;	// Return _everything_ that the file returns
-						const int noErrorHandler = 0;
-						const int luaResult = lua_pcall(luaState, argumentCount, returnValueCount, noErrorHandler);
-						if (luaResult == LUA_OK)
-						{
-							// A well-behaved asset file will only return a single value
-							const int returnedValueCount = lua_gettop(luaState) - stackTopBeforeLoad;
-							if (returnedValueCount == 1)
-							{
-								// A correct asset file _must_ return a table
-								if (!lua_istable(luaState, -1))
-								{
-									wereThereErrors = true;
-									std::cerr << "Asset files must return a table (instead of a "
-										<< luaL_typename(luaState, -1) << ")" << std::endl;
-									// Pop the returned non-table value
-									lua_pop(luaState, 1);
-									goto OnExit;
-								}
-							}
-							else
-							{
-								wereThereErrors = true;
-								std::cerr << "Asset files must return a single table (instead of "
-									<< returnedValueCount << " values)" << std::endl;
-								// Pop every value that was returned
-								lua_pop(luaState, returnedValueCount);
-								goto OnExit;
-							}
-						}
-						else
-						{
-							wereThereErrors = true;
-							eae6320::Logging::OutputError(lua_tostring(luaState, -1));
-							// Pop the error message
-							lua_pop(luaState, 1);
-							goto OnExit;
-						}
+						wereThereErrors = true;
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Failed to load the binary effect file: %s", effectPath);
+						goto OnExit;
 					}
 				}
-				else
+
+				// Extracting Offset To Add
+				data += offsetToAdd;
+				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
+
+				// Extracting Mesh File Path
+				data += sizeof(offsetToAdd);
 				{
-					wereThereErrors = true;
-					AssetBuild::OutputErrorMessage(errorMessage.c_str(), relativePath);
-					goto OnExit;
+					const char * const meshPath = reinterpret_cast<const char *>(data);
+					if (!Graphics::Mesh::LoadMesh(meshPath, *gameObject->mesh))
+					{
+						wereThereErrors = true;
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Failed to load the binary mesh file: %s", meshPath);
+						goto OnExit;
+					}
 				}
 
-				//If this code is reached the asset file was loaded successfully,
-				//and its table is now at index -1
-				if (!gameObject->LoadGameObjectDataTable(*luaState))
+				// Extracting Offset To Add
+				data += offsetToAdd;
+				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
+
+				// Extracting Controller Name and initializing the right controller
+				data += sizeof(offsetToAdd);
 				{
-					wereThereErrors = true;
-					EAE6320_ASSERT(false);
-					Logging::OutputError("Failed to load initial table");
-					goto OnExit;
-				}
-				lua_pop(luaState, 1);
-
-			OnExit:
-
-				if (luaState)
-				{
-					// If I haven't made any mistakes
-					// there shouldn't be anything on the stack
-					// regardless of any errors
-					EAE6320_ASSERT(lua_gettop(luaState) == 0);
-
-					lua_close(luaState);
-					luaState = NULL;
+					const char * const classType = reinterpret_cast<const char *>(data);
+					if (strcmp(classType, CubeController::classType) == 0)
+					{
+						gameObject->controller = reinterpret_cast<IGameObjectController*>(CubeController::Initialize());
+					}
+					else if (strcmp(classType, SnakeController::classType) == 0)
+					{
+						gameObject->controller = reinterpret_cast<IGameObjectController*>(SnakeController::Initialize());
+					}
+					else
+					{
+						gameObject->controller = NULL;
+					}
 				}
 
+				// Extracting Offset To Add
+				data += offsetToAdd;
+				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
 
-				if (wereThereErrors)
+				// Extracting the rotation axis name and setting the right axis
+				data += sizeof(offsetToAdd);
 				{
-					EAE6320_ASSERT(false);
-					Logging::OutputError("Gameobject at %s was not loaded", relativePath);
-					return NULL;
+					const char * axis = reinterpret_cast<const char *>(data);
+					if (strcmp(axis, "x_axis") == 0)
+					{
+						gameObject->rotationAxis = eae6320::Gameplay::RotationAxis::X_AXIS;
+					}
+					else if (strcmp(axis, "y_axis") == 0)
+					{
+						gameObject->rotationAxis = eae6320::Gameplay::RotationAxis::Y_AXIS;
+					}
+					else if (strcmp(axis, "z_axis") == 0)
+					{
+						gameObject->rotationAxis = eae6320::Gameplay::RotationAxis::Z_AXIS;
+					}
+					else
+					{
+						wereThereErrors = true;
+						EAE6320_ASSERT(false);
+						eae6320::Logging::OutputError("Specify a valid axis", axis);
+						goto OnExit;
+					}
 				}
-				else
-				{
-					return gameObject;
-				}
+
+				// Extracting and setting the initial position
+				data += offsetToAdd;
+				gameObject->initialPositionOffset = *reinterpret_cast<Math::cVector*>(data);
+
+				// Extracting and setting the initial orientation
+				data += sizeof(Math::cVector);
+				gameObject->initialEularOffset = *reinterpret_cast<Math::cVector*>(data);
+
+				// Extracting and setting the isStatic
+				data += sizeof(Math::cVector);
+				gameObject->isStatic= *reinterpret_cast<bool*>(data);
+
+				// Extracting and setting the isRotating
+				data += sizeof(bool);
+				gameObject->isRotating = *reinterpret_cast<bool*>(data);
+			}
+
+		OnExit:
+
+			binaryGameObject.Free();
+
+			if (wereThereErrors)
+			{
+				EAE6320_ASSERT(false);
+				Logging::OutputError("Gameobject at %s was not loaded", relativePath);
+				return NULL;
+			}
+			else
+			{
+				return gameObject;
 			}
 		}
 
-		inline GameObject::GameObject() 
+		inline GameObject::GameObject()
 		{
 			mesh = new Graphics::Mesh();
 			effect = new Graphics::Effect();
@@ -281,7 +294,7 @@ namespace eae6320
 			orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
 		}
 
-		bool GameObject::LoadGameObjectDataTable(lua_State & io_luaState)
+		/*bool GameObject::LoadGameObjectDataTable(lua_State & io_luaState)
 		{
 			bool wereThereErrors = false;
 
@@ -642,6 +655,6 @@ namespace eae6320
 				}
 			}
 			return !wereThereErrors;
-		}
+		}*/
 	}
 }

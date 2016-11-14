@@ -201,7 +201,7 @@ NewAssetTypeInfo( "gameobjects",
 					OutputErrorMessage( "The gameobeject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
 				local path_effect = gameobject.effect_filepath
-				local path_mesh = gameobeject.mesh_filepath
+				local path_mesh = gameobject.mesh_filepath
 				RegisterAssetToBeBuilt( path_effect, "effects")
 				RegisterAssetToBeBuilt( path_mesh, "meshes" )
 			end

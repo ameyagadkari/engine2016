@@ -1,12 +1,12 @@
 -- Gameobject Data for Cube
 return
 {
-	effect_filepath = "data/effects/std_effect.bineffect",
-	mesh_filepath = "data/meshes/newcube.binmesh",
+	effect_filepath = "effects/std_effect.txteffect",
+	mesh_filepath = "meshes/newcube.txtmesh",
+	controller_name = "CubeController",
+	rotation_axis = "x_axis",
 	position = {-20.0,10.0,0.0},
-	eular_angles = {0.0,0.0,0.0},
-	controller = "CubeController",
+	eular_angles = {0.0,0.0,0.0},	
 	is_static = true,
-	is_rotating = true,
-	rotation_axis = "x_axis",	
+	is_rotating = true,	
 }

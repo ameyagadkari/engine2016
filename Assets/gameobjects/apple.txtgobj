@@ -1,12 +1,12 @@
 -- Gameobject Data for Apple
 return
 {
-	effect_filepath = "data/effects/bob_effect.bineffect",
-	mesh_filepath = "data/meshes/apple.binmesh",
-	position = {0.0,0.0,0.0},
-	eular_angles = {0.0,0.0,0.0},
-	controller = "NoController",
-	is_static = true,
-	is_rotating = false,
+	effect_filepath = "effects/bob_effect.txteffect",
+	mesh_filepath = "meshes/apple.txtmesh",
+	controller_name = "NoController",
 	rotation_axis = "x_axis",	
+	position = {0.0,10.0,0.0},
+	eular_angles = {0.0,0.0,0.0},
+	is_static = true,
+	is_rotating = false,	
 }
