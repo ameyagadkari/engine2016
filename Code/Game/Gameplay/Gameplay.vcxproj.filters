@@ -4,11 +4,13 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="SnakeController.cpp" />
     <ClCompile Include="CubeController.cpp" />
+    <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="IGameObjectController.h" />
     <ClInclude Include="SnakeController.h" />
     <ClInclude Include="CubeController.h" />
+    <ClInclude Include="StandardRotationController.h" />
   </ItemGroup>
 </Project>

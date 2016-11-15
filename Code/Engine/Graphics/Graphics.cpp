@@ -77,16 +77,16 @@ void eae6320::Graphics::RenderFrame()
 
 	// Draw Submitted Gameobjects
 	{
-		size_t numberOfMeshes = gameObjects.size();
+		size_t numberOfGameObjects = gameObjects.size();
 		ConstantBufferData::sDrawCall drawCallBufferData;
-		for (size_t i = 0; i < numberOfMeshes; i++)
+		for (size_t i = 0; i < numberOfGameObjects; i++)
 		{
 			gameObjects[i]->GetEffect()->BindEffect();
 			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
 			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			gameObjects[i]->GetMesh()->RenderMesh();
 		}
-		gameObjects._Pop_back_n(numberOfMeshes);
+		gameObjects._Pop_back_n(numberOfGameObjects);
 		gameObjects.clear();
 	}
 	SwapBuffers();

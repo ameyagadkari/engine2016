@@ -1,12 +1,12 @@
 #ifndef EAE6320_GAMEOBJECT_H
 #define EAE6320_GAMEOBJECT_H
 
+#include "IGameObjectController.h"
+
 #include "../../Engine/Graphics/Mesh.h"
 #include "../../Engine/Graphics/Effect.h"
 #include "../../Engine/Math/cVector.h"
 #include "../../Engine/Math/cQuaternion.h"
-#include "CubeController.h"
-#include "SnakeController.h"
 #include "../../External/Lua/Includes.h"
 
 namespace eae6320
@@ -57,8 +57,8 @@ namespace eae6320
 			Math::cVector initialPositionOffset;
 			Math::cVector initialEularOffset;
 
-			int isStatic;
-			int isRotating;
+			uint8_t isStatic;
+			uint8_t isRotating;
 			RotationAxis rotationAxis;
 		};
 	}

@@ -22,12 +22,14 @@
     <ClCompile Include="CubeController.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="SnakeController.cpp" />
+    <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CubeController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="IGameObjectController.h" />
     <ClInclude Include="SnakeController.h" />
+    <ClInclude Include="StandardRotationController.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F34CE434-9D44-4FCE-AED5-A4AC959E95DB}</ProjectGuid>

@@ -3,10 +3,10 @@ return
 {
 	effect_filepath = "effects/bob_effect.txteffect",
 	mesh_filepath = "meshes/mynamewithsubject.txtmesh",
-	controller_name = "NoController",
-	rotation_axis = "x_axis",	
+	controller_name = "StandardRotationController",
+	rotation_axis = "z_axis",	
 	position = {5.0,10.0,20.0},
 	eular_angles = {0.0,0.0,30.0},	
 	is_static = true,
-	is_rotating = false,	
+	is_rotating = true,	
 }

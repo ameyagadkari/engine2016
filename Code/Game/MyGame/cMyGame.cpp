@@ -43,13 +43,17 @@ namespace
 bool eae6320::cMyGame::Initialize()
 {
 	bool wereThereErrors = false;
-
 	GenerateRelativePaths();
 	for (size_t i = 0; i < numberOfGameObjects; i++)
 	{
 		gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
 	}
-
+	if (!numberOfGameObjects)
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("No Gameobjects to draw build the assets.");
+	}
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
@@ -145,6 +149,7 @@ bool eae6320::cMyGame::CleanUp()
 	gameObjects.clear();
 	if (!Camera::cCamera::CleanUp())
 	{
+		wereThereErrors = true;
 		EAE6320_ASSERT(false);
 		Logging::OutputError("Camera Cleanup Failed");
 	}

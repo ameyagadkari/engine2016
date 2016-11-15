@@ -8,7 +8,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		uint32_t const CubeController::classTypeHash = StringHandler::HashedString("CubeController").GetHash();
+		uint32_t const CubeController::classUUID = StringHandler::HashedString("CubeController").GetHash();
 		CubeController* CubeController::Initialize()
 		{
 			return new CubeController();

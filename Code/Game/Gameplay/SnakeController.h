@@ -10,7 +10,7 @@ namespace eae6320
 		class SnakeController final : public IGameObjectController
 		{
 		public:
-			static const uint32_t classTypeHash;
+			static const uint32_t classUUID;
 			static SnakeController* Initialize();
 		private:
 			SnakeController();

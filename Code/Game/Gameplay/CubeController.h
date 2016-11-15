@@ -10,7 +10,7 @@ namespace eae6320
 		class CubeController final : private IGameObjectController
 		{	
 		public:
-			static const uint32_t classTypeHash;
+			static const uint32_t classUUID;
 			static CubeController* Initialize();
 		private:
 			CubeController();

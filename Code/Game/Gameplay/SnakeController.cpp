@@ -8,7 +8,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		uint32_t const SnakeController::classTypeHash = StringHandler::HashedString("SnakeController").GetHash();
+		uint32_t const SnakeController::classUUID = StringHandler::HashedString("SnakeController").GetHash();
 		SnakeController* SnakeController::Initialize()
 		{
 			return new SnakeController();
