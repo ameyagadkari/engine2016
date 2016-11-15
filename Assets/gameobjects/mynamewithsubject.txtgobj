@@ -1,11 +1,12 @@
 -- Gameobject Data for MyNameWithSubject
 return
 {
-	mesh_filepath = "data/meshes/mynamewithsubject.binmesh",
+	effect_filepath = "effects/bob_effect.txteffect",
+	mesh_filepath = "meshes/mynamewithsubject.txtmesh",
+	controller_name = "StandardRotationController",
+	rotation_axis = "z_axis",	
 	position = {5.0,10.0,20.0},
-	eular_angles = {0.0,0.0,30.0},
-	controller = "NoController",
+	eular_angles = {0.0,0.0,30.0},	
 	is_static = true,
-	is_rotating = false,
-	rotation_axis = "x_axis",	
+	is_rotating = true,	
 }

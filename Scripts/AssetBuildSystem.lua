@@ -9,35 +9,33 @@ do
 	-- AuthoredAssetDir
 	do
 		local key = "AuthoredAssetDir"
-		local errorMessage
-		s_AuthoredAssetDir, errorMessage = GetEnvironmentVariable( key )
+		s_AuthoredAssetDir = os.getenv( key )
 		if not s_AuthoredAssetDir then
-			error( errorMessage )
+			error( "The environment variable \"" .. key .. "\" doesn't exist" )
 		end
 	end
 	-- BinDir
 	do
 		local key = "BinDir"
-		local errorMessage
-		s_BinDir, errorMessage = GetEnvironmentVariable( key )
+		s_BinDir = os.getenv( key )
 		if not s_BinDir then
-			error( errorMessage )
+			error( "The environment variable \"" .. key .. "\" doesn't exist" )
 		end
 	end
 	-- BuiltAssetDir
 	do
 		local key = "BuiltAssetDir"
-		local errorMessage
-		s_BuiltAssetDir, errorMessage = GetEnvironmentVariable( key )
+		s_BuiltAssetDir = os.getenv( key )
 		if not s_BuiltAssetDir then
-			error( errorMessage )
+			error( "The environment variable \"" .. key .. "\" doesn't exist" )
 		end
 	end
+	-- Platform Type
 	do
-		local errorMessage
-		s_Platform, errorMessage = GetPlatformType()
+		local key = "GraphicsAPI"
+		s_Platform = os.getenv( key )
 		if not s_Platform then
-			error( errorMessage )
+			error( "The environment variable \"" .. key .. "\" doesn't exist" )
 		end
 	end
 end
@@ -161,10 +159,11 @@ end
 
 -- If you want to change the relative path (including file extension) of built assets from their source assets
 -- then you will need to override the following function
-function cbAssetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath )
+function cbAssetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath, i_assetTypeInfo )
 	local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
 	local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
 	-- By default the relative paths are the same
+	extensionWithPeriod = extensionWithPeriod:gsub("txt","bin")
 	return relativeDirectory .. fileName .. extensionWithPeriod
 end
 
@@ -193,13 +192,48 @@ NewAssetTypeInfo( "gameobjects",
 		-- This function is required for all asset types
 		GetBuilderRelativePath = function()
 			return "GameobjectBuilder.exe"
-		end,		
-		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			-- By default the relative paths are the same
-			return i_sourceRelativePath
+		end,	
+		RegisterReferencedAssets = function( i_sourceRelativePath )
+		local sourceAbsolutePath = s_AuthoredAssetDir .. i_sourceRelativePath
+			if DoesFileExist( sourceAbsolutePath ) then
+				local gameobject = dofile( sourceAbsolutePath )
+				if type( gameobject ) ~= "table" then
+					OutputErrorMessage( "The gameobeject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+				end				
+				local path_effect = gameobject.effect_filepath
+				local path_mesh = gameobject.mesh_filepath
+				RegisterAssetToBeBuilt( path_effect, "effects")
+				RegisterAssetToBeBuilt( path_mesh, "meshes" )
+			end
+		end,	
+	}
+)
+
+-- Effect Asset Type
+--------------------
+
+NewAssetTypeInfo( "effects",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "EffectBuilder.exe"
+		end,
+		RegisterReferencedAssets = function( i_sourceRelativePath )
+		local sourceAbsolutePath = s_AuthoredAssetDir .. i_sourceRelativePath
+			if DoesFileExist( sourceAbsolutePath ) then
+				local effect = dofile( sourceAbsolutePath )
+				if type( effect ) ~= "table" then
+					OutputErrorMessage( "The effect file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+				end				
+				local path_vertexShader = effect.shaders.vertex_shader
+				local path_fragmentShader = effect.shaders.fragment_shader
+				RegisterAssetToBeBuilt( path_vertexShader, "shaders", { "vertex" } )
+				RegisterAssetToBeBuilt( path_fragmentShader, "shaders", { "fragment" } )
+			end
 		end,
 	}
 )
+
 -- Mesh Asset Type
 --------------------
 
@@ -208,11 +242,6 @@ NewAssetTypeInfo( "meshes",
 		-- This function is required for all asset types
 		GetBuilderRelativePath = function()
 			return "MeshBuilder.exe"
-		end,
-		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
-			-- By default the relative paths are the same
-			return i_sourceRelativePath
 		end,
 	}
 )
@@ -225,14 +254,15 @@ NewAssetTypeInfo( "shaders",
 		-- This function is required for all asset types
 		GetBuilderRelativePath = function()
 			return "ShaderBuilder.exe"
-		end,		
-		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath )
-			if s_Platform == "EAE6320_PLATFORM_D3D" then
-				i_sourceRelativePath = i_sourceRelativePath:gsub("txt","bin")
-			end
-			-- By default the relative paths are the same
-			return i_sourceRelativePath
-		end,
+		end,	
+		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath, i_assetTypeInfo )
+			local baseClass = getmetatable( i_assetTypeInfo )
+			local returnValue = baseClass.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath, i_assetTypeInfo )
+				if s_Platform == "OpenGL" then			
+					returnValue = returnValue:gsub("bin","txt")
+				end		
+			return returnValue	
+		end,	
 	}
 )
 
@@ -245,9 +275,7 @@ local function BuildAsset( i_assetInfo )
 	-- (The "source" is the authored asset,
 	-- and the "target" is the built asset that is ready to be used in-game)
 	local path_source = s_AuthoredAssetDir .. i_assetInfo.path
-	local base_class = getmetatable( assetTypeInfo )
-	local path_intermediate = base_class.ConvertSourceRelativePathToBuiltRelativePath( i_assetInfo.path )
-	local path_target = s_BuiltAssetDir .. assetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( path_intermediate )
+	local path_target = s_BuiltAssetDir .. assetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath( i_assetInfo.path, assetTypeInfo )
 	if not DoesFileExist( path_source ) then
 		OutputErrorMessage( "The source asset doesn't exist", path_source )
 		return false
@@ -416,5 +444,34 @@ do
 		-- If this file is being executed without arguments
 		-- the global functions will be added to the Lua environment
 		-- but no code will actually be executed
+	end
+end
+
+-- External Interface
+--===================
+
+-- This returns success/failure and then either the successfully converted path or an error message
+function ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath, i_assetType )
+	-- Get the asset type info
+	local assetTypeInfo
+	do
+		if type( i_assetType ) == "string" then
+			assetTypeInfo = assetTypeInfos[i_assetType]
+			if not assetTypeInfo then
+				return false, "\"" .. i_assetType .. "\" isn't a valid registered asset type"
+			end
+		elseif getmetatable( i_assetType ) == cbAssetTypeInfo then
+			assetTypeInfo = i_assetType
+		else
+			return false, "The source relative path can't be converted with an invalid asset type that is a " .. type( i_assetType )
+		end
+	end
+	-- Return the converted path
+	local data = "data/"
+	local result, returnValue = pcall( assetTypeInfo.ConvertSourceRelativePathToBuiltRelativePath, i_sourceRelativePath, assetTypeInfo )
+	if result then
+		return true, data .. returnValue
+	else
+		return false, data .. returnValue
 	end
 end

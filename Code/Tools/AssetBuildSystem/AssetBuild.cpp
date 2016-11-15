@@ -47,15 +47,10 @@ bool eae6320::AssetBuild::BuildAssets(const char* const i_path_assetsToBuild)
 		// Get the path
 		std::string path;
 		{
-			std::string scriptDir;
 			std::string errorMessage;
-			if (Platform::GetEnvironmentVariable("ScriptDir", scriptDir, &errorMessage))
+			if ( !GetAssetBuildSystemPath( path, &errorMessage ) )
 			{
-				path = scriptDir + "AssetBuildSystem.lua";
-			}
-			else
-			{
-				OutputErrorMessage(errorMessage.c_str(), __FILE__);
+				OutputErrorMessage( errorMessage.c_str(), __FILE__ );
 				return false;
 			}
 		}
@@ -80,7 +75,6 @@ bool eae6320::AssetBuild::BuildAssets(const char* const i_path_assetsToBuild)
 					if (luaResult != LUA_OK)
 					{
 						std::cerr << lua_tostring(s_luaState, -1) << "\n";
-						std::string a = lua_tostring(s_luaState, -1);
 						// Pop the error message
 						lua_pop(s_luaState, 1);
 						return false;

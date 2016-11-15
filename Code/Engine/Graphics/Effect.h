@@ -11,6 +11,7 @@ This file manages effect-related functionality
 #include "OpenGL\Includes.h"
 #endif	
 
+#include <cstdint>
 namespace eae6320
 {
 	namespace Graphics
@@ -18,11 +19,16 @@ namespace eae6320
 		class Effect
 		{
 		public:
-			bool LoadEffect();
+			static bool LoadEffect(const char * const relativePath, Effect&effect);
+			
 			bool CleanUpEffect();
 			void BindEffect();
 
+			uint32_t GetEffectUUID()const;
+
 		private:
+			uint32_t effectUUID = 0;
+			bool LoadShaders(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath);
 #if defined( EAE6320_PLATFORM_D3D )
 			ID3D11VertexShader* s_vertexShader = NULL;
 			ID3D11PixelShader* s_fragmentShader = NULL;

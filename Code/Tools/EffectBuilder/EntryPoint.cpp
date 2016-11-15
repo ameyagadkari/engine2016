@@ -5,7 +5,7 @@
 // Header Files
 //=============
 
-#include "cMeshBuilder.h"
+#include "cEffectBuilder.h"
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -18,5 +18,5 @@
 int main( int i_argumentCount, char** i_arguments )
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	return eae6320::AssetBuild::Build<eae6320::AssetBuild::cMeshBuilder>( i_arguments, i_argumentCount );
+	return eae6320::AssetBuild::Build<eae6320::AssetBuild::cEffectBuilder>( i_arguments, i_argumentCount );
 }

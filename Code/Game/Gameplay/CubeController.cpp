@@ -2,13 +2,13 @@
 
 #include"../../Engine/Time/Time.h"
 #include "../../Engine/UserInput/UserInput.h"
-
+#include "../../Engine/StringHandler/HashedString.h"
 #define START_SPEED 100.0f
 namespace eae6320
 {
 	namespace Gameplay
 	{
-		const char * const CubeController::classType = "CubeController";
+		uint32_t const CubeController::classUUID = StringHandler::HashedString("CubeController").GetHash();
 		CubeController* CubeController::Initialize()
 		{
 			return new CubeController();

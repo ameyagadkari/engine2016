@@ -1,0 +1,9 @@
+-- Effect File for Bob Effect
+return
+{
+	shaders = 
+	{
+		vertex_shader = "shaders/bob_vertex.txtshader",
+		fragment_shader = "shaders/bob_fragment.txtshader",
+	},
+}

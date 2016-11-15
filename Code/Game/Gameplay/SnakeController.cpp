@@ -2,13 +2,13 @@
 
 #include"../../Engine/Time/Time.h"
 #include "../../Engine/UserInput/UserInput.h"
-
+#include "../../Engine/StringHandler/HashedString.h"
 #define START_SPEED 10.0f
 namespace eae6320
 {
 	namespace Gameplay
 	{
-		const char * const SnakeController::classType = "SnakeController";
+		uint32_t const SnakeController::classUUID = StringHandler::HashedString("SnakeController").GetHash();
 		SnakeController* SnakeController::Initialize()
 		{
 			return new SnakeController();

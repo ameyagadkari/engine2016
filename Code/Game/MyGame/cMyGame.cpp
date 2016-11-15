@@ -30,7 +30,7 @@ namespace
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
-	size_t numberOfMeshes;
+	size_t numberOfGameObjects;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
 }
@@ -43,13 +43,17 @@ namespace
 bool eae6320::cMyGame::Initialize()
 {
 	bool wereThereErrors = false;
-
 	GenerateRelativePaths();
-	for (size_t i = 0; i < numberOfMeshes; i++)
+	for (size_t i = 0; i < numberOfGameObjects; i++)
 	{
 		gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
 	}
-
+	if (!numberOfGameObjects)
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("No Gameobjects to draw build the assets.");
+	}
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
@@ -129,9 +133,6 @@ void eae6320::cMyGame::SubmitDrawcallData()
 			Graphics::SetGameObject(gameObject.second);
 		}
 	}
-	/*Graphics::SetGameObject(gameObjects["plane"]);
-	Graphics::SetGameObject(gameObjects["cube"]);
-	Graphics::SetGameObject(gameObjects["snake"]);*/
 }
 
 bool eae6320::cMyGame::CleanUp()
@@ -148,6 +149,7 @@ bool eae6320::cMyGame::CleanUp()
 	gameObjects.clear();
 	if (!Camera::cCamera::CleanUp())
 	{
+		wereThereErrors = true;
 		EAE6320_ASSERT(false);
 		Logging::OutputError("Camera Cleanup Failed");
 	}
@@ -180,6 +182,6 @@ namespace
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);
-		numberOfMeshes = relativePaths.size();
+		numberOfGameObjects = relativePaths.size();
 	}
 }

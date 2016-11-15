@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <climits>
-#include <chrono>
+//#include <chrono>
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../AssetBuildLibrary/UtilityFunctions.h"
@@ -41,7 +41,7 @@ namespace
 
 bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_arguments)
 {
-	auto begin = std::chrono::high_resolution_clock::now();
+	//auto begin = std::chrono::high_resolution_clock::now();
 
 	bool wereThereErrors = false;
 	std::string errorMessage;
@@ -246,9 +246,9 @@ OnExit:
 		lua_close(luaState);
 		luaState = NULL;
 	}
-	auto end = std::chrono::high_resolution_clock::now();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-	std::cerr << ms << std::endl;
+	//auto end = std::chrono::high_resolution_clock::now();
+	//auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+	//std::cerr << ms << std::endl;
 	return !wereThereErrors;
 }
 

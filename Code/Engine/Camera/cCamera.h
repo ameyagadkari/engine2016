@@ -1,5 +1,5 @@
-#ifndef EAE6320_CCAMERA_DATA_H
-#define EAE6320_CCAMERA_DATA_H
+#ifndef EAE6320_CCAMERA_H
+#define EAE6320_CCAMERA_H
 
 #include "../Math/cVector.h"
 #include "../Math/cQuaternion.h"
@@ -65,4 +65,4 @@ namespace eae6320
 		};
 	}
 }
-#endif // !EAE6320_CCAMERA_DATA_H
+#endif // !EAE6320_CCAMERA_H

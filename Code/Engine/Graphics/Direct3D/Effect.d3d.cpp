@@ -16,10 +16,8 @@ namespace eae6320
 {
 	namespace Graphics
 	{
-		bool Effect::LoadEffect()
+		bool Effect::LoadShaders(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath)
 		{
-			//CommonData *commonData = CommonData::GetCommonData();
-
 			Platform::sDataFromFile compiledFragmentShader;
 			Platform::sDataFromFile compiledVertexShader;
 
@@ -27,13 +25,12 @@ namespace eae6320
 
 			// Load the compiled fragment shader and create the shader object
 			{
-				const char* const path = "data/shaders/fragment.binshader";
 				std::string errorMessage;
-				if (!Platform::LoadBinaryFile(path, compiledFragmentShader, &errorMessage))
+				if (!Platform::LoadBinaryFile(relativeFragmentShaderPath, compiledFragmentShader, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
-					Logging::OutputError("Failed to load the shader file \"%s\": %s", path, errorMessage.c_str());
+					Logging::OutputError("Failed to load the shader file \"%s\": %s", relativeFragmentShaderPath, errorMessage.c_str());
 					goto OnExit;
 				}
 
@@ -44,7 +41,7 @@ namespace eae6320
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERT(false);
-					Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", path, result);
+					Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", relativeFragmentShaderPath, result);
 					goto OnExit;
 
 				}
@@ -53,13 +50,12 @@ namespace eae6320
 
 			// Load the compiled vertex shader and create the shader object	
 			{
-				const char* const path = "data/shaders/vertex.binshader";
 				std::string errorMessage;
-				if (!Platform::LoadBinaryFile(path, compiledVertexShader, &errorMessage))
+				if (!Platform::LoadBinaryFile(relativeVertexShaderPath, compiledVertexShader, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
-					Logging::OutputError("Failed to load the shader file \"%s\": %s", path, errorMessage.c_str());
+					Logging::OutputError("Failed to load the shader file \"%s\": %s", relativeVertexShaderPath, errorMessage.c_str());
 					goto OnExit;
 				}
 
@@ -69,7 +65,7 @@ namespace eae6320
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERT(false);
-					Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", path, result);
+					Logging::OutputError("Direct3D failed to create the shader %s with HRESULT %#010x", relativeVertexShaderPath, result);
 					goto OnExit;
 				}
 			}

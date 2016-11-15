@@ -1,11 +1,12 @@
 -- Gameobject Data for Plane
 return
 {
-	mesh_filepath = "data/meshes/plane.binmesh",
+	effect_filepath = "effects/std_effect.txteffect",
+	mesh_filepath = "meshes/plane.txtmesh",
+	controller_name = "NoController",
+	rotation_axis = "x_axis",
 	position = {0.0,0.0,0.0},
-	eular_angles = {0.0,0.0,0.0},
-	controller = "NoController",
+	eular_angles = {0.0,0.0,0.0},	
 	is_static = true,
-	is_rotating = false,
-	rotation_axis = "x_axis",	
+	is_rotating = false,		
 }

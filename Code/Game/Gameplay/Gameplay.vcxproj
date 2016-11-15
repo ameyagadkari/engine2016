@@ -22,12 +22,14 @@
     <ClCompile Include="CubeController.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="SnakeController.cpp" />
+    <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CubeController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="IGameObjectController.h" />
     <ClInclude Include="SnakeController.h" />
+    <ClInclude Include="StandardRotationController.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F34CE434-9D44-4FCE-AED5-A4AC959E95DB}</ProjectGuid>
@@ -105,7 +107,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>UserInput.lib;Math.lib</AdditionalDependencies>
+      <AdditionalDependencies>UserInput.lib;Math.lib;StringHandler.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,7 +122,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>UserInput.lib;Math.lib</AdditionalDependencies>
+      <AdditionalDependencies>UserInput.lib;Math.lib;StringHandler.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,7 +141,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>UserInput.lib;Math.lib</AdditionalDependencies>
+      <AdditionalDependencies>UserInput.lib;Math.lib;StringHandler.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,7 +160,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>UserInput.lib;Math.lib</AdditionalDependencies>
+      <AdditionalDependencies>UserInput.lib;Math.lib;StringHandler.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
