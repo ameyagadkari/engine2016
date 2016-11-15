@@ -47,9 +47,9 @@ namespace eae6320
 		private:
 			inline GameObject();
 
-			Graphics::Mesh*mesh;
-			Graphics::Effect*effect;
-			IGameObjectController* controller;
+			Graphics::Mesh*mesh = NULL;
+			Graphics::Effect*effect = NULL;
+			IGameObjectController* controller = NULL;
 			Math::cVector position;
 			Math::cQuaternion orientation;
 			Math::cVector eularAngles;

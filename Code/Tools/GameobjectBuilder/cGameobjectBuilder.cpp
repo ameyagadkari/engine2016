@@ -10,6 +10,7 @@
 #include "../../Engine/Platform/Platform.h"
 #include "../../External/Lua/Includes.h"
 #include "../../Engine/Math/cVector.h"
+#include "../../Engine/StringHandler/HashedString.h"
 
 // Inherited Implementation
 //=========================
@@ -160,11 +161,13 @@ bool eae6320::AssetBuild::cGameobjectBuilder::Build(const std::vector<std::strin
 			fprintf_s(stderr, "Failed to write mesh file path to %s file", m_path_target);
 			goto OnExit;
 		}
-		// Writing the Controller Name
-		if (!WriteCStringToFile(controllerName, outputFile))
+		// Writing the Controller Name Hash
+		uint32_t controllerHash = StringHandler::HashedString(controllerName).GetHash();
+		fwrite(&controllerHash, sizeof(uint32_t), 1, outputFile);
+		if (ferror(outputFile))
 		{
+			fprintf_s(stderr, "Error writing controller name hash to %s \n", m_path_target);
 			wereThereErrors = true;
-			fprintf_s(stderr, "Failed to write controller name to %s file", m_path_target);
 			goto OnExit;
 		}
 		// Writing the RotationAxis
@@ -229,6 +232,23 @@ OnExit:
 
 		lua_close(luaState);
 		luaState = NULL;
+	}
+
+	if (effectPath)
+	{
+		delete effectPath;
+	}
+	if (meshPath)
+	{
+		delete meshPath;
+	}
+	if (controllerName)
+	{
+		delete controllerName;
+	}
+	if (rotationAxis)
+	{
+		delete rotationAxis;
 	}
 
 	return !wereThereErrors;

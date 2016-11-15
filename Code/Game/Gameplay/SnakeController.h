@@ -2,6 +2,7 @@
 #define EAE6320_SNAKECONTROLLER_H
 
 #include "IGameObjectController.h"
+#include <cstdint>
 namespace eae6320
 {
 	namespace Gameplay
@@ -9,7 +10,7 @@ namespace eae6320
 		class SnakeController final : public IGameObjectController
 		{
 		public:
-			static const char * const classType;
+			static const uint32_t classTypeHash;
 			static SnakeController* Initialize();
 		private:
 			SnakeController();

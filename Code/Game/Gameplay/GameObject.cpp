@@ -69,20 +69,16 @@ namespace eae6320
 						goto OnExit;
 					}
 				}
-
-				// Extracting Offset To Add
+		
+				// Extracting Controller Name Hash and initializing the right controller
 				data += offsetToAdd;
-				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
-
-				// Extracting Controller Name and initializing the right controller
-				data += sizeof(offsetToAdd);
 				{
-					const char * const classType = reinterpret_cast<const char *>(data);
-					if (strcmp(classType, CubeController::classType) == 0)
+					const uint32_t classTypeHash = *reinterpret_cast<uint32_t *>(data);
+					if (classTypeHash == CubeController::classTypeHash)
 					{
 						gameObject->controller = reinterpret_cast<IGameObjectController*>(CubeController::Initialize());
 					}
-					else if (strcmp(classType, SnakeController::classType) == 0)
+					else if (classTypeHash == SnakeController::classTypeHash)
 					{
 						gameObject->controller = reinterpret_cast<IGameObjectController*>(SnakeController::Initialize());
 					}
@@ -93,7 +89,7 @@ namespace eae6320
 				}
 
 				// Extracting Offset To Add
-				data += offsetToAdd;
+				data += sizeof(uint32_t);
 				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
 
 				// Extracting the rotation axis name and setting the right axis

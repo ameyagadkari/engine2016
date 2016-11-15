@@ -30,7 +30,7 @@ namespace
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
-	size_t numberOfMeshes;
+	size_t numberOfGameObjects;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
 }
@@ -45,7 +45,7 @@ bool eae6320::cMyGame::Initialize()
 	bool wereThereErrors = false;
 
 	GenerateRelativePaths();
-	for (size_t i = 0; i < numberOfMeshes; i++)
+	for (size_t i = 0; i < numberOfGameObjects; i++)
 	{
 		gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
 	}
@@ -129,9 +129,6 @@ void eae6320::cMyGame::SubmitDrawcallData()
 			Graphics::SetGameObject(gameObject.second);
 		}
 	}
-	/*Graphics::SetGameObject(gameObjects["plane"]);
-	Graphics::SetGameObject(gameObjects["cube"]);
-	Graphics::SetGameObject(gameObjects["snake"]);*/
 }
 
 bool eae6320::cMyGame::CleanUp()
@@ -180,6 +177,6 @@ namespace
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);
-		numberOfMeshes = relativePaths.size();
+		numberOfGameObjects = relativePaths.size();
 	}
 }
