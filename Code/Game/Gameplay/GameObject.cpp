@@ -10,7 +10,7 @@
 #include "../../Engine/Time/Time.h"
 #include "../../Engine/Math/Functions.h"
 
-#include<iostream>
+#include <iostream>
 
 namespace eae6320
 {

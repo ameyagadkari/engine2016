@@ -12,12 +12,15 @@
 #include <sstream>
 #endif
 
+#include <map>
 #include <vector>
 namespace
 {
 	using namespace eae6320::Graphics;
 	CommonData *commonData = CommonData::GetCommonData();
-	std::vector < eae6320::Gameplay::GameObject* > gameObjects;
+	std::map<uint32_t, std::vector < eae6320::Gameplay::GameObject* >>gameObjects;
+	uint32_t currentEffectUUID = 0;
+	//std::vector < eae6320::Gameplay::GameObject* > gameObjects;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
@@ -55,7 +58,7 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 {
 	if (gameObject)
 	{
-		gameObjects.push_back(gameObject);
+		gameObjects[gameObject->GetEffect()->GetEffectUUID()].push_back(gameObject);
 	}
 	else
 	{
@@ -77,16 +80,25 @@ void eae6320::Graphics::RenderFrame()
 
 	// Draw Submitted Gameobjects
 	{
-		size_t numberOfGameObjects = gameObjects.size();
+		
 		ConstantBufferData::sDrawCall drawCallBufferData;
-		for (size_t i = 0; i < numberOfGameObjects; i++)
+		for (auto & gameObject : gameObjects)
 		{
-			gameObjects[i]->GetEffect()->BindEffect();
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObjects[i]->GetOrientation(), gameObjects[i]->GetPosition());
-			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
-			gameObjects[i]->GetMesh()->RenderMesh();
+			size_t numberOfGameObjects = gameObject.second.size();
+			for (size_t i = 0; i < numberOfGameObjects; i++)
+			{
+				Effect*effect = gameObject.second[i]->GetEffect();
+				if(currentEffectUUID != effect->GetEffectUUID())
+				{
+					effect->BindEffect();
+					currentEffectUUID = effect->GetEffectUUID();
+				}
+				drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObject.second[i]->GetOrientation(), gameObject.second[i]->GetPosition());
+				drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+				gameObject.second[i]->GetMesh()->RenderMesh();
+			}
+			gameObject.second._Pop_back_n(numberOfGameObjects);
 		}
-		gameObjects._Pop_back_n(numberOfGameObjects);
 		gameObjects.clear();
 	}
 	SwapBuffers();

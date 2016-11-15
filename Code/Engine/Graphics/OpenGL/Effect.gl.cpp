@@ -22,7 +22,7 @@ namespace eae6320
 {
 	namespace Graphics
 	{
-		bool Effect::InitializeEffect(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath)
+		bool Effect::LoadShaders(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath)
 		{
 			// Create a program
 			{
