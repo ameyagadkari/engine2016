@@ -1,0 +1,12 @@
+-- Gameobject Data for Orange Bear
+return
+{
+	material_filepath = "materials/orangebear_material_std_effect.txtmaterial",
+	mesh_filepath = "meshes/bear.txtmesh",
+	controller_name = "NoController",
+	rotation_axis = "x_axis",	
+	position = {5.0,2.5,20.0},
+	eular_angles = {0.0,0.0,0.0},
+	is_static = true,
+	is_rotating = false,	
+}

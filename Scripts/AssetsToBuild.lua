@@ -15,5 +15,7 @@ return
 		"gameobjects/cube.txtgobj",
 		"gameobjects/apple.txtgobj",
 		"gameobjects/mynamewithsubject.txtgobj",
+		"gameobjects/brownbear.txtgobj",
+		"gameobjects/orangebear.txtgobj",
 	},
 }
