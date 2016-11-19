@@ -9,10 +9,8 @@ namespace eae6320
 	namespace Graphics
 	{
 		// Create a uniform buffer object and make it active
-		bool ConstantBuffer::CreateConstantBuffer(ConstantBufferType constantBufferType, size_t sizeOfConstantBuffer, void* initialBufferData)
+		bool ConstantBuffer::CreateConstantBuffer(void* initialBufferData)
 		{
-			this->constantBufferType = constantBufferType;
-			this->sizeOfConstantBuffer = sizeOfConstantBuffer;
 			bool wereThereErrors = false;
 
 			// Create a uniform buffer object and make it active

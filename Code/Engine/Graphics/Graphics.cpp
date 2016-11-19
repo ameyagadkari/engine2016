@@ -2,10 +2,15 @@
 
 #include "ConstantBuffer.h"
 #include "ConstantBufferData.h"
+#include "Material.h"
+#include "Mesh.h"
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "../Platform/Platform.h"
 #include "../Time/Time.h"
+#include "../../Game/Gameplay/GameObject.h"
+#include "../Camera/cCamera.h"
+#include "../Graphics/CommonData.h"
 
 #if defined( EAE6320_PLATFORM_GL )
 #include "../Windows/Functions.h"
@@ -19,8 +24,7 @@ namespace
 	using namespace eae6320::Graphics;
 	CommonData *commonData = CommonData::GetCommonData();
 	std::map<uint32_t, std::vector < eae6320::Gameplay::GameObject* >>gameObjects;
-	uint32_t currentEffectUUID = 0;
-	//std::vector < eae6320::Gameplay::GameObject* > gameObjects;
+	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
@@ -58,7 +62,7 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 {
 	if (gameObject)
 	{
-		gameObjects[gameObject->GetEffect()->GetEffectUUID()].push_back(gameObject);
+		gameObjects[gameObject->GetMaterial()->GetMaterialUUID()].push_back(gameObject);
 	}
 	else
 	{
@@ -87,11 +91,11 @@ void eae6320::Graphics::RenderFrame()
 			size_t numberOfGameObjects = gameObject.second.size();
 			for (size_t i = 0; i < numberOfGameObjects; i++)
 			{
-				Effect*effect = gameObject.second[i]->GetEffect();
-				if(currentEffectUUID != effect->GetEffectUUID())
+				Material*material = gameObject.second[i]->GetMaterial();
+				if(currentMaterialUUID != material->GetMaterialUUID())
 				{
-					effect->BindEffect();
-					currentEffectUUID = effect->GetEffectUUID();
+					material->BindMaterial();
+					currentMaterialUUID = material->GetMaterialUUID();
 				}
 				drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObject.second[i]->GetOrientation(), gameObject.second[i]->GetPosition());
 				drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
@@ -112,7 +116,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
+	if (!frameBuffer.InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
@@ -122,18 +126,14 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		frameBuffer.BindingConstantBuffer();
 	}
 
-	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	if (!drawCallBuffer.InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-#if defined( EAE6320_PLATFORM_D3D )
 		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
-#elif defined( EAE6320_PLATFORM_GL )
-		drawCallBuffer.BindingConstantBuffer();
-#endif
 	}
 	return true;
 }

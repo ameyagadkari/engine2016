@@ -200,12 +200,35 @@ NewAssetTypeInfo( "gameobjects",
 				if type( gameobject ) ~= "table" then
 					OutputErrorMessage( "The gameobeject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
-				local path_effect = gameobject.effect_filepath
+				local path_material = gameobject.material_filepath
 				local path_mesh = gameobject.mesh_filepath
-				RegisterAssetToBeBuilt( path_effect, "effects")
+				RegisterAssetToBeBuilt( path_material, "materials")
 				RegisterAssetToBeBuilt( path_mesh, "meshes" )
 			end
 		end,	
+	}
+)
+
+-- Material Asset Type
+--------------------
+
+NewAssetTypeInfo( "materials",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "MaterialBuilder.exe"
+		end,
+		RegisterReferencedAssets = function( i_sourceRelativePath )
+		local sourceAbsolutePath = s_AuthoredAssetDir .. i_sourceRelativePath
+			if DoesFileExist( sourceAbsolutePath ) then
+				local material = dofile( sourceAbsolutePath )
+				if type( material ) ~= "table" then
+					OutputErrorMessage( "The material file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+				end				
+				local path_effect = material.effect_filepath
+				RegisterAssetToBeBuilt( path_effect, "effects")
+			end
+		end,
 	}
 )
 

@@ -15,12 +15,13 @@ namespace eae6320
 		class ConstantBuffer
 		{
 		public:
-			bool CreateConstantBuffer(ConstantBufferType constantBufferType, size_t sizeOfConstantBuffer, void* initialBufferData = NULL);
+			bool InitializeConstantBuffer(ConstantBufferType constantBufferType, size_t sizeOfConstantBuffer, void* initialBufferData = NULL);
 			void BindingConstantBuffer(BindMode bindMode = BindMode::VS_PS_BOTH);
 			void UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer);
 			bool CleanUpConstantBuffer();
 
 		private:
+			bool CreateConstantBuffer(void* initialBufferData);
 #if defined( EAE6320_PLATFORM_D3D )
 			ID3D11Buffer* s_constantBuffer;
 #elif defined( EAE6320_PLATFORM_GL ) 

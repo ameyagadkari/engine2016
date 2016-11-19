@@ -12,8 +12,19 @@ This file manages mesh-related functionality
 #include "Configuration.h"
 #endif	
 
-#include "MeshData.h"
-#include "CommonData.h"
+#include <cstdint>
+
+
+// Forward Declarations
+//=====================
+namespace eae6320
+{
+	namespace Graphics
+	{
+		struct MeshData;
+	}
+}
+
 // Interface
 //==========
 

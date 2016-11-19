@@ -5,6 +5,7 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "../Platform/Platform.h"
+#include "MeshData.h"
 
 //#include <chrono>
 

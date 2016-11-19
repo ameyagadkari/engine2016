@@ -56,7 +56,7 @@ bool eae6320::Graphics::Effect::LoadEffect(const char * const relativePath, Effe
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERT(false);
-			Logging::OutputError("Failed to initialize effect: %s", relativePath);
+			Logging::OutputError("Failed to load shaders in: %s", relativePath);
 			goto OnExit;
 		}
 	}

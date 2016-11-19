@@ -2,17 +2,27 @@
 #define EAE6320_GAMEOBJECT_H
 
 #include "IGameObjectController.h"
-
-#include "../../Engine/Graphics/Mesh.h"
-#include "../../Engine/Graphics/Effect.h"
 #include "../../Engine/Math/cVector.h"
 #include "../../Engine/Math/cQuaternion.h"
-#include "../../External/Lua/Includes.h"
+
+#include <cstdint>
+
+// Forward Declarations
+//=====================
+namespace eae6320
+{
+	namespace Graphics
+	{
+		class Material;
+		class Mesh;
+	}
+}
 
 namespace eae6320
 {
 	namespace Gameplay
 	{		
+		class IGameObjectController;
 		class GameObject
 		{
 		public:
@@ -27,7 +37,7 @@ namespace eae6320
 			int GetIsStatic()const;
 			int GetIsRotating()const;
 			RotationAxis GetRotationAxis()const;
-			Graphics::Effect* GetEffect()const;
+			Graphics::Material* GetMaterial()const;
 			Graphics::Mesh* GetMesh()const;
 			Math::cVector GetPosition()const;
 			Math::cVector GetOrientationEular()const;
@@ -38,7 +48,7 @@ namespace eae6320
 			void SetIsStatic(const int isStatic);
 			void SetIsRotating(const int isRotating);
 			void SetRotationAxis(const RotationAxis rotationAxis);
-			void SetEffect(Graphics::Effect* const effect);
+			void SetMaterial(Graphics::Material* const effect);
 			void SetMesh(Graphics::Mesh* const mesh);
 			void SetPosition(const Math::cVector position);
 			void SetOrientationEular(const Math::cVector eularAngles);
@@ -48,8 +58,9 @@ namespace eae6320
 			inline GameObject();
 
 			Graphics::Mesh*mesh = NULL;
-			Graphics::Effect*effect = NULL;
+			Graphics::Material*material = NULL;
 			IGameObjectController* controller = NULL;
+
 			Math::cVector position;
 			Math::cQuaternion orientation;
 			Math::cVector eularAngles;

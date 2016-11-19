@@ -14,6 +14,11 @@ cbuffer constantBuffer_frame : register( b0 )
 	float g_elapsedSecondCount_total;
 }
 
+cbuffer constantBuffer_material : register( b2 )
+{
+	float4 g_color;
+}
+
 // Entry Point
 //============
 
@@ -39,7 +44,7 @@ void main(
 	)
 {
 	// For now set the fragment as the interpolated color
-	o_color = i_color;
+	o_color = i_color * g_color;
 }
 
 #elif defined( EAE6320_PLATFORM_GL )
@@ -55,6 +60,11 @@ layout( std140, binding = 0 ) uniform constantBuffer_frame
 	mat4 g_transform_worldToCamera;
 	mat4 g_transform_cameraToScreen;
 	float g_elapsedSecondCount_total;
+};
+
+layout( std140, binding = 2 ) uniform constantBuffer_material
+{
+	vec4 g_color;
 };
 
 // Input
@@ -78,7 +88,7 @@ out vec4 o_color;
 void main()
 {
 	// For now set the fragment as the interpolated color
-	o_color = i_color;
+	o_color = i_color * g_color;
 }
 
 #endif

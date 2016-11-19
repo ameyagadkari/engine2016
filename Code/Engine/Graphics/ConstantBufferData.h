@@ -23,7 +23,18 @@ namespace eae6320
 			{
 				Math::cMatrix_transformation g_transform_localToWorld;
 			};
-		};		
+			struct sMaterial
+			{
+				struct
+				{
+					float r, g, b, a;
+				} g_color;
+				sMaterial() 
+				{
+					g_color.r = g_color.g = g_color.b = g_color.a = 1.0f;
+				}
+			};
+		};
 	}
 }
 

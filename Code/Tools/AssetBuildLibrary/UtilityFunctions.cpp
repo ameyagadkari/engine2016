@@ -10,6 +10,19 @@
 
 // Interface
 //==========
+
+bool eae6320::AssetBuild::CheckIfColorIsInCorrectFormat(float *rgba)
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		if (rgba[i]<0.0f || rgba[i]>1.0f)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool eae6320::AssetBuild::WriteCStringToFile(const char * const cString, FILE * outputFile)
 {
 	bool wereThereErrors = false;

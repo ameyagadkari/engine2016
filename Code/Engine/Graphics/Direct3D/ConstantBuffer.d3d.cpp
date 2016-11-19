@@ -9,10 +9,8 @@ namespace eae6320
 {
 	namespace Graphics
 	{
-		bool ConstantBuffer::CreateConstantBuffer(ConstantBufferType constantBufferType, size_t sizeOfConstantBuffer, void* initialBufferData)
+		bool ConstantBuffer::CreateConstantBuffer(void* initialBufferData)
 		{
-			this->constantBufferType = constantBufferType;
-			this->sizeOfConstantBuffer = sizeOfConstantBuffer;
 			D3D11_BUFFER_DESC bufferDescription = { 0 };
 			{
 				// The byte width must be rounded up to a multiple of 16
@@ -35,6 +33,11 @@ namespace eae6320
 
 					// (The other data members are ignored for non-texture buffers)
 				}
+			}
+			else if (constantBufferType == ConstantBufferType::MATERIAL)
+			{
+				initialData = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(malloc(sizeof(D3D11_SUBRESOURCE_DATA)));
+				initialData->pSysMem = initialBufferData;
 			}
 			const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateBuffer(&bufferDescription, initialData, &this->s_constantBuffer);
 			if (SUCCEEDED(result))

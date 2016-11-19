@@ -25,7 +25,7 @@ namespace
 	uint8_t rotationAxis = 0;
 	uint8_t isStatic = 0;
 	uint8_t isRotating = 0;
-	const char * effectPath = NULL;
+	const char * materialPath = NULL;
 	const char * meshPath = NULL;
 
 	FILE * outputFile = NULL;
@@ -197,10 +197,10 @@ bool eae6320::AssetBuild::cGameobjectBuilder::Build(const std::vector<std::strin
 			goto OnExit;
 		}
 		// Writing the Effect File Path
-		if (!WriteCStringToFile(effectPath, outputFile))
+		if (!WriteCStringToFile(materialPath, outputFile))
 		{
 			wereThereErrors = true;
-			fprintf_s(stderr, "Failed to write effect file path to %s file", m_path_target);
+			fprintf_s(stderr, "Failed to write material file path to %s file", m_path_target);
 			goto OnExit;
 		}
 		// Writing the Mesh File Path
@@ -234,9 +234,9 @@ OnExit:
 		luaState = NULL;
 	}
 
-	if (effectPath)
+	if (materialPath)
 	{
-		delete effectPath;
+		delete materialPath;
 	}
 	if (meshPath)
 	{
@@ -261,7 +261,7 @@ namespace
 
 		//Loading effect path
 		{
-			const char* key = "effect_filepath";
+			const char* key = "material_filepath";
 			lua_pushstring(&io_luaState, key);
 			lua_gettable(&io_luaState, -2);
 			if (lua_isnil(&io_luaState, -1))
@@ -273,18 +273,18 @@ namespace
 			}
 			if (lua_type(&io_luaState, -1) == LUA_TSTRING)
 			{
-				std::string effectFilePathString;
+				std::string materialFilePathString;
 				std::string errorMessage;
 				const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
-				const char * const assetType = "effects";
-				if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, effectFilePathString, &errorMessage))
+				const char * const assetType = "materials";
+				if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, materialFilePathString, &errorMessage))
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				effectPath = _strdup(effectFilePathString.c_str());
+				materialPath = _strdup(materialFilePathString.c_str());
 				lua_pop(&io_luaState, 1);
 			}
 			else

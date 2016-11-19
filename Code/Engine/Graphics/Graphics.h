@@ -10,14 +10,24 @@
 
 
 #include "Configuration.h"
-#include "../../Game/Gameplay/GameObject.h"
-#include "../Camera/cCamera.h"
-
 
 #if defined( EAE6320_PLATFORM_WINDOWS )
 	#include "../Windows/Includes.h"
 #endif
 
+// Forward Declarations
+//=====================
+namespace eae6320
+{
+	namespace Camera
+	{
+		class cCamera;
+	}
+	namespace Gameplay
+	{
+		class GameObject;
+	}
+}
 
 // Interface
 //==========
@@ -28,7 +38,6 @@ namespace eae6320
 	{	
 		// Render
 		//-------
-
 		void SetGameObject(Gameplay::GameObject*gameObject);
 		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();

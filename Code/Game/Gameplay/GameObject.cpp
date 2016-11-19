@@ -9,6 +9,8 @@
 #include "../../Engine/UserInput/UserInput.h"
 #include "../../Engine/Time/Time.h"
 #include "../../Engine/Math/Functions.h"
+#include "../../Engine/Graphics/Mesh.h"
+#include "../../Engine/Graphics/Material.h"
 
 #include <iostream>
 
@@ -88,15 +90,15 @@ namespace eae6320
 				data += sizeof(uint8_t);
 				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
 
-				// Extracting Effect File Path and loading effect
+				// Extracting Material File Path and loading material
 				data += sizeof(offsetToAdd);
 				{
-					const char * const effectPath = reinterpret_cast<const char *>(data);
-					if (!Graphics::Effect::LoadEffect(effectPath, *gameObject->effect))
+					const char * const materialPath = reinterpret_cast<const char *>(data);
+					if (!Graphics::Material::LoadMaterial(materialPath, *gameObject->material))
 					{
 						wereThereErrors = true;
 						EAE6320_ASSERT(false);
-						eae6320::Logging::OutputError("Failed to load the binary effect file: %s", effectPath);
+						eae6320::Logging::OutputError("Failed to load the binary effect file: %s", materialPath);
 						goto OnExit;
 					}
 				}
@@ -138,7 +140,7 @@ namespace eae6320
 		inline GameObject::GameObject()
 		{
 			mesh = new Graphics::Mesh();
-			effect = new Graphics::Effect();
+			material = new Graphics::Material();
 		}
 		inline GameObject::~GameObject()
 		{
@@ -151,14 +153,14 @@ namespace eae6320
 			{
 				delete mesh;
 			}
-			if (effect && !effect->CleanUpEffect())
+			if (material && !material->CleanUpMaterial())
 			{
 				EAE6320_ASSERT(false);
-				Logging::OutputError("Effect cleanup failed");
+				Logging::OutputError("Material cleanup failed");
 			}
-			if (effect)
+			if (material)
 			{
-				delete effect;
+				delete material;
 			}
 			if (controller)
 			{
@@ -179,9 +181,9 @@ namespace eae6320
 		{
 			return rotationAxis;
 		}
-		Graphics::Effect * GameObject::GetEffect() const
+		Graphics::Material * GameObject::GetMaterial() const
 		{
-			return effect;
+			return material;
 		}
 		Graphics::Mesh * GameObject::GetMesh() const
 		{
@@ -214,9 +216,9 @@ namespace eae6320
 		{
 			this->rotationAxis = rotationAxis;
 		}
-		void GameObject::SetEffect(Graphics::Effect * const effect)
+		void GameObject::SetMaterial(Graphics::Material * const material)
 		{
-			this->effect = effect;
+			this->material = material;
 		}
 		void GameObject::SetMesh(Graphics::Mesh * const mesh)
 		{
