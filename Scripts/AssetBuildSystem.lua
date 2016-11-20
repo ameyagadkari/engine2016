@@ -286,6 +286,10 @@ NewAssetTypeInfo( "shaders",
 				end		
 			return returnValue	
 		end,	
+		ShouldTargetBeBuilt = function( i_lastWriteTime_builtAsset )
+			local lastWriteTime_includeFile = GetLastWriteTime( s_AuthoredAssetDir .. "shaders/shaders.inc" )
+			return lastWriteTime_includeFile > i_lastWriteTime_builtAsset
+		end,
 	}
 )
 

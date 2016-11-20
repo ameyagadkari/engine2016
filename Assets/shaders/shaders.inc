@@ -48,9 +48,27 @@
 
 #endif
 
+// Operators
+//=================
+#if defined( EAE6320_PLATFORM_GL )
+
+#	define mul(a, b) a * b 
+
+#endif
+
 DeclareConstantBuffer( constantBuffer_frame, 0 )
 {
 	float4x4 g_transform_worldToCamera;
 	float4x4 g_transform_cameraToScreen;
 	float g_elapsedSecondCount_total;
+};
+
+DeclareConstantBuffer( constantBuffer_drawCall, 1 )
+{
+	float4x4 g_transform_localToWorld;
+};
+
+DeclareConstantBuffer( constantBuffer_material, 2 )
+{
+	float4 g_color;
 };

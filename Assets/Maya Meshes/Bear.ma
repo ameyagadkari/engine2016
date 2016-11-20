@@ -1,6 +1,6 @@
 //Maya ASCII 2017 scene
 //Name: Bear.ma
-//Last modified: Sat, Nov 19, 2016 03:45:37 PM
+//Last modified: Sat, Nov 19, 2016 04:16:48 PM
 //Codeset: 1252
 requires maya "2017";
 currentUnit -l centimeter -a degree -t film;
@@ -13,13 +13,13 @@ fileInfo "license" "student";
 createNode transform -s -n "persp";
 	rename -uid "C7282D83-4C44-2245-AE99-999150FFDD78";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" 17.101488022867624 12.82611601715069 17.101488022867638 ;
+	setAttr ".t" -type "double3" 14.38240098673065 10.786800740047962 14.382400986730683 ;
 	setAttr ".r" -type "double3" -27.938352729602379 44.999999999999972 -5.172681101354183e-014 ;
 createNode camera -s -n "perspShape" -p "persp";
 	rename -uid "7DE07BEC-4D3C-448E-6902-F8B8840B7B37";
 	setAttr -k off ".v" no;
 	setAttr ".fl" 34.999999999999993;
-	setAttr ".coi" 27.375738113847596;
+	setAttr ".coi" 23.023075087653112;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
@@ -3752,151 +3752,13 @@ createNode mesh -n "bearShapeOrig" -p "bear";
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".ai_translator" -type "string" "polymesh";
-createNode transform -n "teethFBXASC032lower" -p "Fbx_Root";
-	rename -uid "EEE163EF-48FC-6C99-4A66-EBAE75AB9D95";
-	setAttr ".t" -type "double3" 0.43937495350837708 -7.4049763679504395 14.778831481933594 ;
-createNode mesh -n "teethFBXASC032lowerShape" -p "teethFBXASC032lower";
-	rename -uid "12580538-4D7F-3022-26D5-F79EDE1DED74";
-	setAttr -k off ".v";
-	setAttr -s 4 ".iog[0].og";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "UVSet0";
-	setAttr ".cuvs" -type "string" "UVSet0";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".ai_translator" -type "string" "polymesh";
-createNode mesh -n "teethFBXASC032lowerShapeOrig" -p "teethFBXASC032lower";
-	rename -uid "15519B12-464A-D0C2-DBE0-18A9E122C911";
-	setAttr -k off ".v";
-	setAttr ".io" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "UVSet0";
-	setAttr -s 14 ".uvst[0].uvsp[0:13]" -type "float2" 0.5117746 0.058212459
-		 0.59983015 0.057393938 0.73627973 0.068168491 0.82556033 0.057576448 0.5117746 0.98954403
-		 0.59983021 0.98872536 0.73627973 0.99949992 0.82556033 0.98890793 0.41906178 0.053882092
-		 0.31993398 0.1076946 0.16093732 0.053293645 0.41906181 0.98521352 0.31993398 1.039026022
-		 0.16093732 0.9846251;
-	setAttr ".cuvs" -type "string" "UVSet0";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr -s 14 ".vt[0:13]"  1.6557757e-007 -0.58383048 -0.39214444 -0.43969709 -0.39197987 -0.35263696
-		 -0.74110454 0.22175525 -0.21863472 -1.1163348 0.8862949 -0.086198941 1.6557757e-007 -0.68959934 0.11549467
-		 -0.43969709 -0.49774867 0.15500209 -0.74110454 0.11598644 0.28900433 -1.1163348 0.7805261 0.42144012
-		 0.44490436 -0.3732954 -0.35074145 0.63601977 0.02337647 -0.23748837 1.070853591 0.90779442 -0.084155627
-		 0.44490436 -0.47906423 0.15689762 0.63601977 -0.082392342 0.27015069 1.070853591 0.80202562 0.42348343;
-	setAttr -s 25 ".ed[0:24]"  1 0 0 0 5 1 5 1 1 4 5 0 0 4 1 2 1 0 1 6 1
-		 6 2 1 5 6 0 3 2 0 2 7 1 7 3 0 6 7 0 0 11 1 11 4 0 8 11 1 0 8 0 8 12 1 12 11 0 9 12 1
-		 8 9 0 9 13 1 13 12 0 10 13 0 9 10 0;
-	setAttr -s 14 ".n[0:13]" -type "float3"  1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020;
-	setAttr -s 12 -ch 36 ".fc[0:11]" -type "polyFaces" 
-		f 3 0 1 2
-		mu 0 3 1 0 5
-		f 3 3 -2 4
-		mu 0 3 4 5 0
-		f 3 5 6 7
-		mu 0 3 2 1 6
-		f 3 8 -7 -3
-		mu 0 3 5 6 1
-		f 3 9 10 11
-		mu 0 3 3 2 7
-		f 3 12 -11 -8
-		mu 0 3 6 7 2
-		f 3 -5 13 14
-		mu 0 3 4 0 11
-		f 3 15 -14 16
-		mu 0 3 8 11 0
-		f 3 -16 17 18
-		mu 0 3 11 8 12
-		f 3 19 -18 20
-		mu 0 3 9 12 8
-		f 3 -20 21 22
-		mu 0 3 12 9 13
-		f 3 23 -22 24
-		mu 0 3 10 13 9;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
-	setAttr ".ai_translator" -type "string" "polymesh";
-createNode transform -n "teethFBXASC032upper" -p "Fbx_Root";
-	rename -uid "0B8C08AD-4229-B3B3-046E-CCA4CFE9B7B9";
-	setAttr ".t" -type "double3" 0.43937495350837708 -7.4817543029785156 14.7869873046875 ;
-createNode mesh -n "teethFBXASC032upperShape" -p "teethFBXASC032upper";
-	rename -uid "184C850D-4552-C8F1-C8BA-539949199D55";
-	setAttr -k off ".v";
-	setAttr -s 4 ".iog[0].og";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "UVSet0";
-	setAttr ".cuvs" -type "string" "UVSet0";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".ai_translator" -type "string" "polymesh";
-createNode mesh -n "teethFBXASC032upperShapeOrig" -p "teethFBXASC032upper";
-	rename -uid "B1F024C7-4912-D8C0-385C-279617B5BEA2";
-	setAttr -k off ".v";
-	setAttr ".io" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "UVSet0";
-	setAttr -s 14 ".uvst[0].uvsp[0:13]" -type "float2" 0.51111728 0.049359083
-		 0.59677184 0.048231333 0.7371217 0.068168461 0.82495332 0.057576448 0.51111728 0.9806906
-		 0.59677184 0.97956276 0.72251868 0.98559767 0.82494575 0.98363519 0.40583327 0.053882122
-		 0.3112092 0.10769463 0.1580064 0.053293616 0.40583327 0.98521358 0.3112092 1.039026022
-		 0.1580064 0.9846251;
-	setAttr ".cuvs" -type "string" "UVSet0";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr -s 14 ".vt[0:13]"  1.7189178e-007 -0.7225976 0.21689603 -0.46323183 -0.537054 0.23128545
-		 -0.79414183 0.15285009 0.27131766 -1.12751186 0.8281405 0.32731062 1.7524442e-007 -0.68424803 -0.30022472
-		 -0.46323183 -0.49870443 -0.28583521 -0.81129938 0.10757738 -0.2442428 -1.06561029 0.83477426 -0.18921833
-		 0.52269065 -0.45555612 0.23417468 0.72796518 -0.04303392 0.23472367 1.030900478 0.84936947 0.33127651
-		 0.52269065 -0.4172065 -0.28294602 0.72796518 -0.0046843179 -0.28239703 1.030900478 0.88771904 -0.18584421;
-	setAttr -s 25 ".ed[0:24]"  0 1 0 1 5 1 5 0 1 5 4 0 4 0 1 1 2 0 2 6 1
-		 6 1 1 6 5 0 2 3 0 3 7 0 7 2 1 7 6 0 4 11 0 11 0 1 11 8 1 8 0 0 11 12 0 12 8 1 12 9 1
-		 9 8 0 12 13 0 13 9 1 13 10 0 10 9 0;
-	setAttr -s 14 ".n[0:13]" -type "float3"  1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020 1e+020
-		 1e+020 1e+020;
-	setAttr -s 12 -ch 36 ".fc[0:11]" -type "polyFaces" 
-		f 3 0 1 2
-		mu 0 3 0 1 5
-		f 3 3 4 -3
-		mu 0 3 5 4 0
-		f 3 5 6 7
-		mu 0 3 1 2 6
-		f 3 8 -2 -8
-		mu 0 3 6 5 1
-		f 3 9 10 11
-		mu 0 3 2 3 7
-		f 3 12 -7 -12
-		mu 0 3 7 6 2
-		f 3 -5 13 14
-		mu 0 3 0 4 11
-		f 3 15 16 -15
-		mu 0 3 11 8 0
-		f 3 -16 17 18
-		mu 0 3 8 11 12
-		f 3 19 20 -19
-		mu 0 3 12 9 8
-		f 3 -20 21 22
-		mu 0 3 9 12 13
-		f 3 23 24 -23
-		mu 0 3 13 10 9;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
-	setAttr ".ai_translator" -type "string" "polymesh";
 createNode lightLinker -s -n "lightLinker1";
 	rename -uid "465F5C7A-41C0-027E-E813-FE9119697F6D";
 	setAttr -s 5 ".lnk";
 	setAttr -s 5 ".slnk";
 createNode shapeEditorManager -n "shapeEditorManager";
 	rename -uid "F9EBC1C8-423B-6174-FE89-94A4B726FD7E";
-	setAttr ".bsdt[0].bscd" -type "Int32Array" 3 0 1 2 ;
-	setAttr -s 3 ".bspr";
-	setAttr -s 3 ".obsv";
+	setAttr ".bsdt[0].bscd" -type "Int32Array" 1 0 ;
 createNode poseInterpolatorManager -n "poseInterpolatorManager";
 	rename -uid "F01FB4BE-44DB-C6B1-D048-63B9C36DA995";
 createNode displayLayerManager -n "layerManager";
@@ -3989,64 +3851,6 @@ createNode groupId -n "groupId2";
 	setAttr ".ihi" 0;
 createNode groupParts -n "groupParts2";
 	rename -uid "E6D453AA-4B8A-FEB8-9664-E181E5E66B30";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode blendShape -n "_ncl1_5";
-	rename -uid "3189FD3C-4BF0-DF09-CC56-F5A18B5DEB94";
-	setAttr ".tc" no;
-	setAttr ".mlid" 1;
-	setAttr ".mlpr" 0;
-createNode tweak -n "tweak2";
-	rename -uid "B15F07A1-43B2-C5C6-838B-C88115FDB848";
-createNode objectSet -n "blendShape2Set";
-	rename -uid "FE65BA60-40B2-58B2-034F-A1A7EB838BF5";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "blendShape2GroupId";
-	rename -uid "C4104CA3-4EDA-B47D-F5BF-89B82F43DCE7";
-	setAttr ".ihi" 0;
-createNode groupParts -n "blendShape2GroupParts";
-	rename -uid "572F4600-44DB-9B52-832F-DB896D6F9C8D";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode objectSet -n "tweakSet2";
-	rename -uid "4A83BE76-4C9D-7108-25E1-FF8985EC6114";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "groupId4";
-	rename -uid "A409A138-4EAE-73B5-5DC2-45BB339AC304";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts4";
-	rename -uid "D78D659D-41B8-9D8A-B530-41BFFCE85E6B";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode blendShape -n "_ncl1_6";
-	rename -uid "FA17F67A-4FCD-2B59-2CAB-3BA799C190C3";
-	setAttr ".tc" no;
-	setAttr ".mlid" 2;
-	setAttr ".mlpr" 0;
-createNode tweak -n "tweak3";
-	rename -uid "DE8BEE15-4D70-4C44-4788-4AA704A73491";
-createNode objectSet -n "blendShape3Set";
-	rename -uid "A60D535C-477A-744D-EDD1-7388466E40F8";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "blendShape3GroupId";
-	rename -uid "3C914361-411B-9F69-3ECC-02B22CFF4295";
-	setAttr ".ihi" 0;
-createNode groupParts -n "blendShape3GroupParts";
-	rename -uid "BE85CF56-44CC-FDC7-873D-A6AF54482CAD";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode objectSet -n "tweakSet3";
-	rename -uid "CA8262E0-4AD9-95D3-9347-ABA560D37C6F";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "groupId6";
-	rename -uid "50F58BF7-49A8-92B2-CCBF-37BF1ECCAD15";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts6";
-	rename -uid "88EAD075-40BC-BAC3-7FB1-508393341B27";
 	setAttr ".ihi" 0;
 	setAttr ".ic" -type "componentList" 1 "vtx[*]";
 createNode script -n "uiConfigurationScriptNode";
@@ -4165,18 +3969,6 @@ connectAttr "groupId2.id" "bearShape.iog.og[1].gid";
 connectAttr "tweakSet1.mwc" "bearShape.iog.og[1].gco";
 connectAttr "_ncl1_4.og[0]" "bearShape.i";
 connectAttr "tweak1.vl[0].vt[0]" "bearShape.twl";
-connectAttr "blendShape2GroupId.id" "teethFBXASC032lowerShape.iog.og[0].gid";
-connectAttr "blendShape2Set.mwc" "teethFBXASC032lowerShape.iog.og[0].gco";
-connectAttr "groupId4.id" "teethFBXASC032lowerShape.iog.og[1].gid";
-connectAttr "tweakSet2.mwc" "teethFBXASC032lowerShape.iog.og[1].gco";
-connectAttr "_ncl1_5.og[0]" "teethFBXASC032lowerShape.i";
-connectAttr "tweak2.vl[0].vt[0]" "teethFBXASC032lowerShape.twl";
-connectAttr "blendShape3GroupId.id" "teethFBXASC032upperShape.iog.og[0].gid";
-connectAttr "blendShape3Set.mwc" "teethFBXASC032upperShape.iog.og[0].gco";
-connectAttr "groupId6.id" "teethFBXASC032upperShape.iog.og[1].gid";
-connectAttr "tweakSet3.mwc" "teethFBXASC032upperShape.iog.og[1].gco";
-connectAttr "_ncl1_6.og[0]" "teethFBXASC032upperShape.i";
-connectAttr "tweak3.vl[0].vt[0]" "teethFBXASC032upperShape.twl";
 relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "bearSG.message" ":defaultLightSet.message";
@@ -4188,8 +3980,6 @@ relationship "shadowLink" ":lightLinker1" "bearSG.message" ":defaultLightSet.mes
 relationship "shadowLink" ":lightLinker1" "teethFBXASC032lowerSG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "teethFBXASC032upperSG.message" ":defaultLightSet.message";
 connectAttr "_ncl1_4.mlpr" "shapeEditorManager.bspr[0]";
-connectAttr "_ncl1_5.mlpr" "shapeEditorManager.bspr[1]";
-connectAttr "_ncl1_6.mlpr" "shapeEditorManager.bspr[2]";
 connectAttr "layerManager.dli[0]" "defaultLayer.id";
 connectAttr "renderLayerManager.rlmi[0]" "defaultRenderLayer.rlid";
 connectAttr "MapFBXASC032FBXASC0352.oc" "bearFBXASC032FBXASC032FBXASC040FBXASC032StandardFBXASC032FBXASC041.c"
@@ -4220,7 +4010,6 @@ connectAttr "MapFBXASC032FBXASC0353.oc" "teethsFBXASC032FBXASC032FBXASC040FBXASC
 		;
 connectAttr "teethsFBXASC032FBXASC032FBXASC040FBXASC032StandardFBXASC032FBXASC041.oc" "teethFBXASC032lowerSG.ss"
 		;
-connectAttr "teethFBXASC032lowerShape.iog" "teethFBXASC032lowerSG.dsm" -na;
 connectAttr "teethFBXASC032lowerSG.msg" "materialInfo2.sg";
 connectAttr "teethsFBXASC032FBXASC032FBXASC040FBXASC032StandardFBXASC032FBXASC041.msg" "materialInfo2.m"
 		;
@@ -4244,7 +4033,6 @@ connectAttr "MapFBXASC032FBXASC0353.oc" "teethsFBXASC032FBXASC032FBXASC040FBXASC
 		;
 connectAttr "teethsFBXASC032FBXASC032FBXASC040FBXASC032StandardFBXASC032FBXASC041_ncl1_1.oc" "teethFBXASC032upperSG.ss"
 		;
-connectAttr "teethFBXASC032upperShape.iog" "teethFBXASC032upperSG.dsm" -na;
 connectAttr "teethFBXASC032upperSG.msg" "materialInfo3.sg";
 connectAttr "teethsFBXASC032FBXASC032FBXASC040FBXASC032StandardFBXASC032FBXASC041_ncl1_1.msg" "materialInfo3.m"
 		;
@@ -4264,36 +4052,6 @@ connectAttr "bearShape.iog.og[1]" "tweakSet1.dsm" -na;
 connectAttr "tweak1.msg" "tweakSet1.ub[0]";
 connectAttr "bearShapeOrig.w" "groupParts2.ig";
 connectAttr "groupId2.id" "groupParts2.gi";
-connectAttr "blendShape2GroupParts.og" "_ncl1_5.ip[0].ig";
-connectAttr "blendShape2GroupId.id" "_ncl1_5.ip[0].gi";
-connectAttr "shapeEditorManager.obsv[1]" "_ncl1_5.tgdt[0].dpvs";
-connectAttr "groupParts4.og" "tweak2.ip[0].ig";
-connectAttr "groupId4.id" "tweak2.ip[0].gi";
-connectAttr "blendShape2GroupId.msg" "blendShape2Set.gn" -na;
-connectAttr "teethFBXASC032lowerShape.iog.og[0]" "blendShape2Set.dsm" -na;
-connectAttr "_ncl1_5.msg" "blendShape2Set.ub[0]";
-connectAttr "tweak2.og[0]" "blendShape2GroupParts.ig";
-connectAttr "blendShape2GroupId.id" "blendShape2GroupParts.gi";
-connectAttr "groupId4.msg" "tweakSet2.gn" -na;
-connectAttr "teethFBXASC032lowerShape.iog.og[1]" "tweakSet2.dsm" -na;
-connectAttr "tweak2.msg" "tweakSet2.ub[0]";
-connectAttr "teethFBXASC032lowerShapeOrig.w" "groupParts4.ig";
-connectAttr "groupId4.id" "groupParts4.gi";
-connectAttr "blendShape3GroupParts.og" "_ncl1_6.ip[0].ig";
-connectAttr "blendShape3GroupId.id" "_ncl1_6.ip[0].gi";
-connectAttr "shapeEditorManager.obsv[2]" "_ncl1_6.tgdt[0].dpvs";
-connectAttr "groupParts6.og" "tweak3.ip[0].ig";
-connectAttr "groupId6.id" "tweak3.ip[0].gi";
-connectAttr "blendShape3GroupId.msg" "blendShape3Set.gn" -na;
-connectAttr "teethFBXASC032upperShape.iog.og[0]" "blendShape3Set.dsm" -na;
-connectAttr "_ncl1_6.msg" "blendShape3Set.ub[0]";
-connectAttr "tweak3.og[0]" "blendShape3GroupParts.ig";
-connectAttr "blendShape3GroupId.id" "blendShape3GroupParts.gi";
-connectAttr "groupId6.msg" "tweakSet3.gn" -na;
-connectAttr "teethFBXASC032upperShape.iog.og[1]" "tweakSet3.dsm" -na;
-connectAttr "tweak3.msg" "tweakSet3.ub[0]";
-connectAttr "teethFBXASC032upperShapeOrig.w" "groupParts6.ig";
-connectAttr "groupId6.id" "groupParts6.gi";
 connectAttr "bearSG.pa" ":renderPartition.st" -na;
 connectAttr "teethFBXASC032lowerSG.pa" ":renderPartition.st" -na;
 connectAttr "teethFBXASC032upperSG.pa" ":renderPartition.st" -na;
