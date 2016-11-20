@@ -9,6 +9,8 @@
 
 #include <regex>
 
+uint32_t eae6320::Graphics::Material::previousEffectUUID = 0;
+
 namespace
 {
 	std::cmatch match;
@@ -120,5 +122,10 @@ bool eae6320::Graphics::Material::CleanUpMaterial()
 void eae6320::Graphics::Material::BindMaterial()
 {
 	materialBuffer->BindingConstantBuffer(BindMode::PS_ONLY);
-	effect->BindEffect();
+	uint32_t currentEffectUUID = effect->GetEffectUUID();
+	if (currentEffectUUID != previousEffectUUID)
+	{
+		previousEffectUUID = currentEffectUUID;
+		effect->BindEffect();
+	}
 }

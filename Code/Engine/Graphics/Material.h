@@ -32,6 +32,7 @@ namespace eae6320
 			uint32_t GetMaterialUUID()const;
 
 		private:
+			static uint32_t previousEffectUUID;
 			uint32_t materialUUID = 0;
 			ConstantBuffer *materialBuffer;
 			Effect *effect;
