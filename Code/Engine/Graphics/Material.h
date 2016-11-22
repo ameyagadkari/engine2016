@@ -30,6 +30,7 @@ namespace eae6320
 			void BindMaterial();
 
 			uint32_t GetMaterialUUID()const;
+			Effect * GetEffect()const;
 
 		private:
 			static uint32_t previousEffectUUID;

@@ -100,6 +100,11 @@ uint32_t eae6320::Graphics::Material::GetMaterialUUID() const
 	return materialUUID;
 }
 
+eae6320::Graphics::Effect * eae6320::Graphics::Material::GetEffect() const
+{
+	return effect;
+}
+
 bool eae6320::Graphics::Material::CleanUpMaterial()
 {
 	bool wereThereErrors = false;
