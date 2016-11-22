@@ -35,8 +35,6 @@ namespace
 	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, size_t index);
 	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
-
-	bool CheckIfColorIsInCorrectFormat(float *rgba);
 }
 
 bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -508,7 +506,7 @@ namespace
 					}
 				}
 
-				if (CheckIfColorIsInCorrectFormat(rgba))
+				if (eae6320::AssetBuild::CheckIfColorIsInCorrectFormat(rgba))
 				{
 					meshData.vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
 					meshData.vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
@@ -633,17 +631,5 @@ namespace
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;
-	}
-
-	bool CheckIfColorIsInCorrectFormat(float *rgba)
-	{
-		for (size_t i = 0; i < 4; i++)
-		{
-			if (rgba[i]<0.0f || rgba[i]>1.0f)
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 }

@@ -31,6 +31,8 @@
     </ClCompile>
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -44,5 +46,6 @@
     <ClInclude Include="ConstantBufferData.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Effect.h" />
+    <ClInclude Include="Material.h" />
   </ItemGroup>
 </Project>

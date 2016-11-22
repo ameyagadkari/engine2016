@@ -4,6 +4,7 @@
 #include "../Mesh.h"
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
+#include "../MeshData.h"
 
 
 bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)

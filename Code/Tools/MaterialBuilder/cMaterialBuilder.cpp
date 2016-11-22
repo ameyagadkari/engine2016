@@ -1,7 +1,7 @@
 // Header Files
 //=============
 
-#include "cEffectBuilder.h"
+#include "cMaterialBuilder.h"
 
 #include <sstream>
 #include <iostream>
@@ -10,6 +10,7 @@
 #include "../AssetBuildLibrary/UtilityFunctions.h"
 #include "../../Engine/Platform/Platform.h"
 #include "../../External/Lua/Includes.h"
+#include "../../Engine/Graphics/ConstantBufferData.h"
 
 // Inherited Implementation
 //=========================
@@ -22,18 +23,18 @@
 
 namespace
 {
-	const char * vertexShaderPath = NULL;
-	const char * fragmentShaderPath = NULL;
+	eae6320::Graphics::ConstantBufferData::sMaterial material;
+	const char * effectPath = NULL;
 
 	FILE * outputFile = NULL;
 
 	bool LoadInitialTable(lua_State& io_luaState);
-	bool LoadShadersTable(lua_State& io_luaState);
-	bool LoadVertexShaderPath(lua_State& io_luaState);
-	bool LoadFragmentShaderPath(lua_State& io_luaState);
+	bool LoadConstantBufferDataTable(lua_State& io_luaState);
+	bool LoadColorsTable(lua_State& io_luaState);
+	bool LoadEffectPath(lua_State& io_luaState);
 }
 
-bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& i_arguments)
+bool eae6320::AssetBuild::cMaterialBuilder::Build(const std::vector<std::string>& i_arguments)
 {
 	bool wereThereErrors = false;
 	std::string errorMessage;
@@ -146,18 +147,19 @@ bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& 
 
 	// Writing data to file 
 	{
-		// Writing the Vertex Shader Path
-		if (!WriteCStringToFile(vertexShaderPath, outputFile))
+		// Writing the constant buffer data
+		fwrite(&material, sizeof(Graphics::ConstantBufferData::sMaterial), 1, outputFile);
+		if (ferror(outputFile))
 		{
+			fprintf_s(stderr, "Error writing constant buffer data to %s \n", m_path_target);
 			wereThereErrors = true;
-			fprintf_s(stderr, "Failed to write vertex shader path to %s file", m_path_target);
 			goto OnExit;
 		}
-		// Writing the Fragment Shader Path
-		if (!WriteCStringToFile(fragmentShaderPath, outputFile))
+		// Writing the Effect Path
+		if (!WriteCStringToFile(effectPath, outputFile))
 		{
 			wereThereErrors = true;
-			fprintf_s(stderr, "Failed to write fragment shader path to %s file", m_path_target);
+			fprintf_s(stderr, "Failed to write effect path to %s file", m_path_target);
 			goto OnExit;
 		}
 
@@ -185,13 +187,9 @@ OnExit:
 		luaState = NULL;
 	}
 
-	if (vertexShaderPath)
+	if (effectPath)
 	{
-		delete vertexShaderPath;
-	}
-	if (fragmentShaderPath)
-	{
-		delete fragmentShaderPath;
+		delete effectPath;
 	}
 
 	return !wereThereErrors;
@@ -204,17 +202,21 @@ namespace
 {
 	bool LoadInitialTable(lua_State& io_luaState)
 	{
-		if (!LoadShadersTable(io_luaState))
+		if (!LoadConstantBufferDataTable(io_luaState))
+		{
+			return false;
+		}
+		if (!LoadEffectPath(io_luaState))
 		{
 			return false;
 		}
 
 		return true;
 	}
-	bool LoadShadersTable(lua_State& io_luaState)
+	bool LoadConstantBufferDataTable(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
-		const char* const key = "shaders";
+		const char* const key = "constant_buffer_data";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
 		if (lua_isnil(&io_luaState, -1))
@@ -225,13 +227,7 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
-			if (!LoadVertexShaderPath(io_luaState))
-			{
-				wereThereErrors = true;
-				goto OnExit;
-			}
-
-			if (!LoadFragmentShaderPath(io_luaState))
+			if (!LoadColorsTable(io_luaState))
 			{
 				wereThereErrors = true;
 				goto OnExit;
@@ -246,56 +242,96 @@ namespace
 
 	OnExit:
 
-		// Pop the Shaders table
+		// Pop the constant buffer data table
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;
 
 	}
 
-	bool LoadVertexShaderPath(lua_State & io_luaState)
+	bool LoadColorsTable(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
-		const char* const key = "vertex_shader";
+		const char* const key = "g_color";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
 		if (lua_isnil(&io_luaState, -1))
 		{
-			wereThereErrors = true;
-			fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+			fprintf_s(stderr, "Writing default g_color to file");
 			goto OnExit;
-		}
-		if (lua_type(&io_luaState, -1) == LUA_TSTRING)
-		{
-			std::string vertexShaderPathString;
-			std::string errorMessage;
-			const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
-			const char * const assetType = "shaders";
-			if(!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, vertexShaderPathString, &errorMessage))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
-				goto OnExit;
-			}
-			vertexShaderPath = _strdup(vertexShaderPathString.c_str());
 		}
 		else
 		{
-			wereThereErrors = true;
-			fprintf_s(stderr, "The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-			goto OnExit;
+			if (lua_type(&io_luaState, -1) == LUA_TTABLE)
+			{
+				const int arrayLength = luaL_len(&io_luaState, -1);
+				float rgba[4] = { 0.0f,0.0f,0.0f,0.0f };
+				if (arrayLength == 4)
+				{
+					// Remember that Lua arrays are 1-based and not 0-based!
+					for (int i = 1; i <= arrayLength; ++i)
+					{
+						lua_pushinteger(&io_luaState, i);
+						lua_gettable(&io_luaState, -2);
+						if (lua_isnil(&io_luaState, -1))
+						{
+							wereThereErrors = true;
+							fprintf_s(stderr, "No value for key:%d was found in the table", i);
+							lua_pop(&io_luaState, 1);
+							goto OnExit;
+						}
+						if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+						{
+							rgba[i - 1] = static_cast<float>(lua_tonumber(&io_luaState, -1));
+							lua_pop(&io_luaState, 1);
+						}
+						else
+						{
+							wereThereErrors = true;
+							fprintf_s(stderr, "The value isn't a number!");
+							lua_pop(&io_luaState, 1);
+							goto OnExit;
+						}
+					}
+					if (eae6320::AssetBuild::CheckIfColorIsInCorrectFormat(rgba))
+					{
+						material.g_color.r = rgba[0];
+						material.g_color.g = rgba[1];
+						material.g_color.b = rgba[2];
+						material.g_color.a = rgba[3];
+					}
+					else
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "The color values were not normalized in range [0,1]");
+						goto OnExit;
+					}
+				}
+				else
+				{
+					wereThereErrors = true;
+					fprintf_s(stderr, "There are %d channels instead of 4", arrayLength);
+					goto OnExit;
+				}
+			}
+			else
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "The value at \"%s\" must be a table (instead of a %s)", key, luaL_typename(&io_luaState, -1));
+				goto OnExit;
+			}
 		}
-
 	OnExit:
+		// Pop the Colors table
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;
 	}
 
-	bool LoadFragmentShaderPath(lua_State & io_luaState)
+	bool LoadEffectPath(lua_State & io_luaState)
 	{
 		bool wereThereErrors = false;
-		const char* const key = "fragment_shader";
+		const char* const key = "effect_filepath";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
 		if (lua_isnil(&io_luaState, -1))
@@ -306,17 +342,17 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TSTRING)
 		{
-			std::string fragmentShaderPathString;
+			std::string effectPathString;
 			std::string errorMessage;
 			const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
-			const char * const assetType = "shaders";
-			if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, fragmentShaderPathString, &errorMessage))
+			const char * const assetType = "effects";
+			if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, effectPathString, &errorMessage))
 			{
 				wereThereErrors = true;
 				fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
 				goto OnExit;
 			}
-			fragmentShaderPath = _strdup(fragmentShaderPathString.c_str());
+			effectPath = _strdup(effectPathString.c_str());
 		}
 		else
 		{

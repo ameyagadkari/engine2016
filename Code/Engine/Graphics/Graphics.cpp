@@ -2,31 +2,39 @@
 
 #include "ConstantBuffer.h"
 #include "ConstantBufferData.h"
+#include "Material.h"
+#include "Mesh.h"
+#include "Effect.h"
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "../Platform/Platform.h"
 #include "../Time/Time.h"
+#include "../../Game/Gameplay/GameObject.h"
+#include "../Camera/cCamera.h"
+#include "../Graphics/CommonData.h"
 
 #if defined( EAE6320_PLATFORM_GL )
 #include "../Windows/Functions.h"
 #include <sstream>
 #endif
 
-#include <map>
+#include <list>
 #include <vector>
 namespace
 {
 	using namespace eae6320::Graphics;
 	CommonData *commonData = CommonData::GetCommonData();
-	std::map<uint32_t, std::vector < eae6320::Gameplay::GameObject* >>gameObjects;
-	uint32_t currentEffectUUID = 0;
-	//std::vector < eae6320::Gameplay::GameObject* > gameObjects;
+	//std::map<uint32_t, std::vector < eae6320::Gameplay::GameObject* >>gameObjects;
+	std::vector<eae6320::Gameplay::GameObject*>unsortedGameObjects;
+	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
+	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer frameBuffer;
 	ConstantBuffer drawCallBuffer;
 	eae6320::Camera::cCamera* camera;
 	HWND s_renderingWindow = NULL;
 
+	void SortGameObjects();
 	void ClearScreen();
 	void SwapBuffers();
 	bool InitializeInternal(const sInitializationParameters& i_initializationParameters);
@@ -58,7 +66,7 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 {
 	if (gameObject)
 	{
-		gameObjects[gameObject->GetEffect()->GetEffectUUID()].push_back(gameObject);
+		unsortedGameObjects.push_back(gameObject);
 	}
 	else
 	{
@@ -80,26 +88,21 @@ void eae6320::Graphics::RenderFrame()
 
 	// Draw Submitted Gameobjects
 	{
-		
+		SortGameObjects();
 		ConstantBufferData::sDrawCall drawCallBufferData;
-		for (auto & gameObject : gameObjects)
+		for (auto it = sortedGameObjects.begin(); it != sortedGameObjects.end(); it++)
 		{
-			size_t numberOfGameObjects = gameObject.second.size();
-			for (size_t i = 0; i < numberOfGameObjects; i++)
+			Material*material = (*it)->GetMaterial();
+			if (currentMaterialUUID != material->GetMaterialUUID())
 			{
-				Effect*effect = gameObject.second[i]->GetEffect();
-				if(currentEffectUUID != effect->GetEffectUUID())
-				{
-					effect->BindEffect();
-					currentEffectUUID = effect->GetEffectUUID();
-				}
-				drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(gameObject.second[i]->GetOrientation(), gameObject.second[i]->GetPosition());
-				drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
-				gameObject.second[i]->GetMesh()->RenderMesh();
+				material->BindMaterial();
+				currentMaterialUUID = material->GetMaterialUUID();
 			}
-			gameObject.second._Pop_back_n(numberOfGameObjects);
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetOrientation(), (*it)->GetPosition());
+			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+			(*it)->GetMesh()->RenderMesh();
 		}
-		gameObjects.clear();
+		sortedGameObjects.clear();
 	}
 	SwapBuffers();
 }
@@ -112,7 +115,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!frameBuffer.CreateConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
+	if (!frameBuffer.InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
@@ -122,18 +125,14 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		frameBuffer.BindingConstantBuffer();
 	}
 
-	if (!drawCallBuffer.CreateConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	if (!drawCallBuffer.InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-#if defined( EAE6320_PLATFORM_D3D )
 		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
-#elif defined( EAE6320_PLATFORM_GL )
-		drawCallBuffer.BindingConstantBuffer();
-#endif
 	}
 	return true;
 }
@@ -156,6 +155,72 @@ bool eae6320::Graphics::CleanUp()
 
 namespace
 {
+	void SortGameObjects()
+	{
+		const size_t lengthcheck = unsortedGameObjects.size();
+		sortedGameObjects.push_front(unsortedGameObjects[lengthcheck - 1]);
+		unsortedGameObjects.pop_back();
+		while (lengthcheck != sortedGameObjects.size())
+		{
+			std::list<eae6320::Gameplay::GameObject*>::iterator itList = sortedGameObjects.begin();
+			uint32_t currentMaterialUUID = (*itList)->GetMaterial()->GetMaterialUUID();
+			uint32_t currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();	
+			std::vector<eae6320::Gameplay::GameObject*>::iterator itVector = unsortedGameObjects.begin();
+			uint32_t materialUUIDToBeChecked = (*itVector)->GetMaterial()->GetMaterialUUID();
+			uint32_t effectUUIDToBeChecked = (*itVector)->GetMaterial()->GetEffect()->GetEffectUUID();
+			while (itList != sortedGameObjects.end() && currentMaterialUUID != materialUUIDToBeChecked && currentEffectUUID != effectUUIDToBeChecked)
+			{
+				itList++;
+				if (itList != sortedGameObjects.end())
+				{
+					currentMaterialUUID = (*itList)->GetMaterial()->GetMaterialUUID();
+					currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();
+				}
+			}
+			if (itList == sortedGameObjects.end())
+			{
+				sortedGameObjects.push_back((*itVector));
+				unsortedGameObjects.erase(itVector);
+			}
+			else
+			{
+				if (currentMaterialUUID == materialUUIDToBeChecked && currentEffectUUID == effectUUIDToBeChecked)
+				{
+					sortedGameObjects.insert(itList, (*itVector));
+					unsortedGameObjects.erase(itVector);
+				}
+				else
+				{
+					bool itemNotAdded = true;
+					while (itList != sortedGameObjects.end())
+					{
+						itList++;
+						if (itList != sortedGameObjects.end())
+						{
+							currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();
+							if (currentEffectUUID == effectUUIDToBeChecked)
+							{
+								continue;
+							}
+							else
+							{
+								itemNotAdded = false;
+								sortedGameObjects.insert(itList, (*itVector));
+								unsortedGameObjects.erase(itVector);
+								break;
+							}
+						}
+					}
+					if (itemNotAdded)
+					{
+						sortedGameObjects.insert(itList, (*itVector));
+						unsortedGameObjects.erase(itVector);
+					}
+				}
+			}
+		}
+		unsortedGameObjects.clear();
+	}
 	void ClearScreen()
 	{
 #if defined( EAE6320_PLATFORM_D3D )
@@ -298,10 +363,10 @@ namespace
 			// The documentation says that this call isn't necessary when CS_OWNDC is used
 			ReleaseDC(s_renderingWindow, s_deviceContext);
 			s_deviceContext = NULL;
-		}
+	}
 #endif
 		return !wereThereErrors;
-	}
+}
 
 #if defined( EAE6320_PLATFORM_D3D )
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)

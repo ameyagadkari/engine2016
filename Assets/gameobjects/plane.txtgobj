@@ -1,7 +1,7 @@
 -- Gameobject Data for Plane
 return
 {
-	effect_filepath = "effects/std_effect.txteffect",
+	material_filepath = "materials/default_material_std_effect.txtmaterial",
 	mesh_filepath = "meshes/plane.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",

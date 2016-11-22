@@ -1,7 +1,7 @@
 -- Gameobject Data for Snake
 return
 {
-	effect_filepath = "effects/std_effect.txteffect",
+	material_filepath = "materials/default_material_std_effect.txtmaterial",
 	mesh_filepath = "meshes/snake.txtmesh",
 	controller_name = "SnakeController",
 	rotation_axis = "x_axis",	
