@@ -141,7 +141,7 @@ bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 		{
 			const GLuint vertexElementLocation = 1;
 			const GLint elementCount = 4;
-			const GLboolean isNormalized = GL_TRUE;	// The given floats should be used as-is
+			const GLboolean isNormalized = GL_TRUE;	// The given floats should be normalized
 
 			glVertexAttribPointer(vertexElementLocation, elementCount, GL_UNSIGNED_BYTE, isNormalized, stride,
 				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, r)));
@@ -165,6 +165,38 @@ bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 				wereThereErrors = true;
 				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				eae6320::Logging::OutputError("OpenGL failed to set the COLOR vertex attribute at location %u: %s",
+					vertexElementLocation, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				goto OnExit;
+			}
+		}
+
+		{
+			const GLuint vertexElementLocation = 2;
+			const GLint elementCount = 2;
+			const GLboolean isNormalized = GL_FALSE;	// The given floats should be used as-is
+
+			glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
+				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, u)));
+
+			const GLenum errorCode = glGetError();
+			if (errorCode == GL_NO_ERROR)
+			{
+				glEnableVertexAttribArray(vertexElementLocation);
+				const GLenum errorCode = glGetError();
+				if (errorCode != GL_NO_ERROR)
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+					eae6320::Logging::OutputError("OpenGL failed to enable the TEXCOORD vertex attribute at location %u: %s",
+						vertexElementLocation, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+					goto OnExit;
+				}
+			}
+			else
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to set the TEXCOORD vertex attribute at location %u: %s",
 					vertexElementLocation, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				goto OnExit;
 			}

@@ -35,6 +35,8 @@ namespace
 	bool LoadColorsTable(lua_State& io_luaState, MeshData&meshData);
 	bool LoadRGBATable(lua_State& io_luaState, MeshData&meshData, size_t index);
 	bool LoadIndicesTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadTextureCoordinatesTable(lua_State& io_luaState, MeshData&meshData);
+	bool LoadUVTable(lua_State& io_luaState, MeshData&meshData, size_t index);
 }
 
 bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -265,7 +267,6 @@ namespace
 		{
 			return false;
 		}
-
 		return true;
 	}
 	bool LoadVerticesTable(lua_State& io_luaState, MeshData&meshData)
@@ -288,6 +289,11 @@ namespace
 				goto OnExit;
 			}
 			if (!LoadColorsTable(io_luaState, meshData))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+			if (!LoadTextureCoordinatesTable(io_luaState, meshData))
 			{
 				wereThereErrors = true;
 				goto OnExit;
@@ -367,18 +373,18 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
-			const int arrayLength = luaL_len(&io_luaState, -1);
+			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 			float xyz[3] = { 0.0f,0.0f,0.0f };
 			if (arrayLength == 3)
 			{
-				for (int i = 1; i <= arrayLength; ++i)
+				for (size_t i = 1; i <= arrayLength; ++i)
 				{
 					lua_pushinteger(&io_luaState, i);
 					lua_gettable(&io_luaState, -2);
 					if (lua_isnil(&io_luaState, -1))
 					{
 						wereThereErrors = true;
-						fprintf_s(stderr, "No value for key:%d was found in the table", i);
+						fprintf_s(stderr, "No value for key:%zu was found in the table", i);
 						lua_pop(&io_luaState, 1);
 						goto OnExit;
 					}
@@ -477,18 +483,18 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
-			const int arrayLength = luaL_len(&io_luaState, -1);
+			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 			float rgba[4] = { 0.0f,0.0f,0.0f,1.0f };
 			if ((arrayLength == 3) || (arrayLength == 4))
 			{
-				for (int i = 1; i <= arrayLength; ++i)
+				for (size_t i = 1; i <= arrayLength; ++i)
 				{
 					lua_pushinteger(&io_luaState, i);
 					lua_gettable(&io_luaState, -2);
 					if (lua_isnil(&io_luaState, -1))
 					{
 						wereThereErrors = true;
-						fprintf_s(stderr, "No value for key:%d was found in the table", i);
+						fprintf_s(stderr, "No value for key:%zu was found in the table", i);
 						lua_pop(&io_luaState, 1);
 						goto OnExit;
 					}
@@ -506,7 +512,7 @@ namespace
 					}
 				}
 
-				if (eae6320::AssetBuild::CheckIfColorIsInCorrectFormat(rgba))
+				if (eae6320::AssetBuild::CheckIfNumberIsNormalized(rgba, 4))
 				{
 					meshData.vertexData[index].r = static_cast<uint8_t>(roundf(rgba[0] * 255.0f));
 					meshData.vertexData[index].g = static_cast<uint8_t>(roundf(rgba[1] * 255.0f));
@@ -555,7 +561,7 @@ namespace
 		}
 		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 		{
-			const int arrayLength = luaL_len(&io_luaState, -1);
+			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 			if (arrayLength % 3 == 0)
 			{
 				meshData.numberOfIndices = arrayLength;
@@ -570,14 +576,14 @@ namespace
 					meshData.indexData = malloc(meshData.numberOfIndices * sizeof(uint16_t));
 				}
 				// Remember that Lua arrays are 1-based and not 0-based!
-				for (int i = 1; i <= arrayLength; ++i)
+				for (size_t i = 1; i <= arrayLength; ++i)
 				{
 					lua_pushinteger(&io_luaState, i);
 					lua_gettable(&io_luaState, -2);
 					if (lua_isnil(&io_luaState, -1))
 					{
 						wereThereErrors = true;
-						fprintf_s(stderr, "No value for key:%d was found in the table", i);
+						fprintf_s(stderr, "No value for key:%zu was found in the table", i);
 						lua_pop(&io_luaState, 1);
 						goto OnExit;
 					}
@@ -627,7 +633,133 @@ namespace
 			goto OnExit;
 		}
 	OnExit:
-		// Pop the RGBA table
+		// Pop the Indices table
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+
+	bool LoadTextureCoordinatesTable(lua_State & io_luaState, MeshData & meshData)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "texture_coordinates";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
+		{
+			const int UVs = luaL_len(&io_luaState, -1);
+			if (UVs != meshData.numberOfVertices)
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "The number of texture coordinates(UVs) do not match number of vertices");
+				goto OnExit;
+			}
+			else
+			{
+				for (size_t i = 1; i <= meshData.numberOfVertices; ++i)
+				{
+					if (!LoadUVTable(io_luaState, meshData, (i - 1)))
+					{
+						wereThereErrors = true;
+						goto OnExit;
+					}
+				}
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a table (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+
+		// Pop the Texture Coordinates table
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+	bool LoadUVTable(lua_State & io_luaState, MeshData & meshData, size_t index)
+	{
+		bool wereThereErrors = false;
+		lua_pushinteger(&io_luaState, index + 1);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "No value for key:%zu was found in the table", (index + 1));
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
+		{
+			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
+			float uv[2] = { 0.0f,0.0f };
+			if (arrayLength == 2)
+			{
+				for (size_t i = 1; i <= arrayLength; ++i)
+				{
+					lua_pushinteger(&io_luaState, i);
+					lua_gettable(&io_luaState, -2);
+					if (lua_isnil(&io_luaState, -1))
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "No value for key:%zu was found in the table", i);
+						lua_pop(&io_luaState, 1);
+						goto OnExit;
+					}
+					if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+					{
+						uv[i - 1] = static_cast<float>(lua_tonumber(&io_luaState, -1));
+						lua_pop(&io_luaState, 1);
+					}
+					else
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "The value isn't a number!");
+						lua_pop(&io_luaState, 1);
+						goto OnExit;
+					}
+				}
+
+				if (eae6320::AssetBuild::CheckIfNumberIsNormalized(uv, 2))
+				{
+					meshData.vertexData[index].u = uv[0];
+#if defined( EAE6320_PLATFORM_D3D )
+					meshData.vertexData[index].v = uv[1];
+#elif defined( EAE6320_PLATFORM_GL )
+					meshData.vertexData[index].v = 1.0f - uv[1];
+#endif
+				}
+				else
+				{
+					wereThereErrors = true;
+					fprintf_s(stderr, "The UVs were not normalized in range [0,1]");
+					goto OnExit;
+				}
+
+			}
+			else
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "here are %d coordinates instead of 2", arrayLength);
+				goto OnExit;
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%zu\" must be a table (instead of a %s)", (index + 1), luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+	OnExit:
+		// Pop the UV table
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;

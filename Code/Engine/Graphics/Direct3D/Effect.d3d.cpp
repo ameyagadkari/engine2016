@@ -78,8 +78,8 @@ namespace eae6320
 				// (by using so-called "semantic" names so that, for example,
 				// "POSITION" here matches with "POSITION" in shader code).
 				// Note that OpenGL uses arbitrarily assignable number IDs to do the same thing.
-				const unsigned int vertexElementCount = 2;
-				D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount] = { 0 , 0 };
+				const unsigned int vertexElementCount = 3;
+				D3D11_INPUT_ELEMENT_DESC layoutDescription[vertexElementCount];
 				{
 					// Slot 0
 
@@ -106,6 +106,18 @@ namespace eae6320
 						colorElement.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 						colorElement.InputSlot = 0;
 						colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, r);
+						colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+						colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
+					}
+
+					{
+						D3D11_INPUT_ELEMENT_DESC& colorElement = layoutDescription[2];
+
+						colorElement.SemanticName = "TEXCOORD";
+						colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
+						colorElement.Format = DXGI_FORMAT_R32G32_FLOAT;
+						colorElement.InputSlot = 0;
+						colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, u);
 						colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 						colorElement.InstanceDataStepRate = 0;	// (Must be zero for per-vertex data)
 					}

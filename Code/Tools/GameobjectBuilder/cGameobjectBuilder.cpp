@@ -418,19 +418,19 @@ namespace
 			}
 			if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 			{
-				const int arrayLength = luaL_len(&io_luaState, -1);
+				const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 				float xyz[3] = { 0.0f,0.0f,0.0f };
 				if (arrayLength == 3)
 				{
 					// Remember that Lua arrays are 1-based and not 0-based!
-					for (int i = 1; i <= arrayLength; ++i)
+					for (size_t i = 1; i <= arrayLength; ++i)
 					{
 						lua_pushinteger(&io_luaState, i);
 						lua_gettable(&io_luaState, -2);
 						if (lua_isnil(&io_luaState, -1))
 						{
 							wereThereErrors = true;
-							fprintf_s(stderr, "No value for key:%d was found in the table", i);
+							fprintf_s(stderr, "No value for key:%zu was found in the table", i);
 							lua_pop(&io_luaState, 1);
 							return !wereThereErrors;
 						}
@@ -483,19 +483,19 @@ namespace
 			}
 			if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 			{
-				const int arrayLength = luaL_len(&io_luaState, -1);
+				const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 				float xyz[3] = { 0.0f,0.0f,0.0f };
 				if (arrayLength == 3)
 				{
 					// Remember that Lua arrays are 1-based and not 0-based!
-					for (int i = 1; i <= arrayLength; ++i)
+					for (size_t i = 1; i <= arrayLength; ++i)
 					{
 						lua_pushinteger(&io_luaState, i);
 						lua_gettable(&io_luaState, -2);
 						if (lua_isnil(&io_luaState, -1))
 						{
 							wereThereErrors = true;
-							fprintf_s(stderr, "No value for key:%d was found in the table", i);
+							fprintf_s(stderr, "No value for key:%zu was found in the table", i);
 							lua_pop(&io_luaState, 1);
 							return !wereThereErrors;
 						}

@@ -25,8 +25,8 @@ namespace
 eae6320::Graphics::Material::Material() :
 	m_materialUUID(0),
 	m_materialBuffer(new ConstantBuffer()),
-	m_effect(new Effect())
-	//m_texture(new cTexture())
+	m_effect(new Effect()),
+	m_texture(new cTexture())
 {}
 
 eae6320::Graphics::Material::~Material()
@@ -92,13 +92,13 @@ bool eae6320::Graphics::Material::LoadMaterial(const char * const i_relativePath
 		}
 
 		// Loading Texture
-		/*if (!Graphics::cTexture::Load(relativeTexturePath, *o_material.m_effect))
+		if (!Graphics::cTexture::Load(relativeTexturePath, *o_material.m_texture))
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERT(false);
 			Logging::OutputError("Failed to load effect in: %s", i_relativePath);
 			goto OnExit;
-		}*/
+		}
 	}
 
 	std::regex_match(i_relativePath, match, pattern_match);
@@ -132,6 +132,10 @@ bool eae6320::Graphics::Material::CleanUpMaterial()
 	{
 		delete m_effect;
 	}
+	if (m_texture)
+	{
+		delete m_texture;
+	}
 	return !wereThereErrors;
 }
 
@@ -144,4 +148,5 @@ void eae6320::Graphics::Material::BindMaterial()const
 		s_previousEffectUUID = currentEffectUUID;
 		m_effect->BindEffect();
 	}
+	m_texture->Bind(0);
 }
