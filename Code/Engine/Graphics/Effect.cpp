@@ -14,7 +14,27 @@ namespace
 	const std::string pattern_replace("");
 }
 
-bool eae6320::Graphics::Effect::LoadEffect(const char * const relativePath, Effect &o_effect)
+eae6320::Graphics::Effect::Effect() :
+	effectUUID(0),
+#if defined( EAE6320_PLATFORM_D3D )
+	m_vertexShader(NULL),
+	m_fragmentShader(NULL),
+	m_vertexLayout(NULL)
+#elif defined( EAE6320_PLATFORM_GL )
+	m_programId(0)
+#endif
+{}
+
+eae6320::Graphics::Effect::~Effect()
+{
+	if (!CleanUpEffect())
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Effect cleanup failed");
+	}
+}
+
+bool eae6320::Graphics::Effect::LoadEffect(const char * const i_relativePath, Effect & o_effect)
 {
 	bool wereThereErrors = false;
 	std::string fileName;
@@ -22,11 +42,11 @@ bool eae6320::Graphics::Effect::LoadEffect(const char * const relativePath, Effe
 	eae6320::Platform::sDataFromFile binaryEffect;
 	{
 		std::string errorMessage;
-		if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryEffect, &errorMessage))
+		if (!eae6320::Platform::LoadBinaryFile(i_relativePath, binaryEffect, &errorMessage))
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERTF(false, errorMessage.c_str());
-			eae6320::Logging::OutputError("Failed to load the binary effect file \"%s\": %s", relativePath, errorMessage.c_str());
+			eae6320::Logging::OutputError("Failed to load the binary effect file \"%s\": %s", i_relativePath, errorMessage.c_str());
 			goto OnExit;
 		}
 	}
@@ -56,12 +76,12 @@ bool eae6320::Graphics::Effect::LoadEffect(const char * const relativePath, Effe
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERT(false);
-			Logging::OutputError("Failed to load shaders in: %s", relativePath);
+			Logging::OutputError("Failed to load shaders in: %s", i_relativePath);
 			goto OnExit;
 		}
 	}
 
-	std::regex_match(relativePath, match, pattern_match);
+	std::regex_match(i_relativePath, match, pattern_match);
 	fileName = std::regex_replace(match.str(2), pattern_match1, pattern_replace);
 	o_effect.effectUUID = StringHandler::HashedString(fileName.c_str()).GetHash();
 

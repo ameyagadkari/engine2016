@@ -7,6 +7,9 @@
     <Filter Include="OpenGL">
       <UniqueIdentifier>{84ebcfe0-fce7-426e-abfe-f8b8c89c55c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cTexture">
+      <UniqueIdentifier>{076cd5ed-05b5-490b-b0e5-60c00a9628d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpenGL\Mesh.gl.cpp">
@@ -33,6 +36,15 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="cTexture\cTexture.cpp">
+      <Filter>cTexture</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D\cTexture.d3d.cpp">
+      <Filter>Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\cTexture.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -47,5 +59,9 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="cTexture\Internal.h">
+      <Filter>cTexture</Filter>
+    </ClInclude>
+    <ClInclude Include="cTexture.h" />
   </ItemGroup>
 </Project>

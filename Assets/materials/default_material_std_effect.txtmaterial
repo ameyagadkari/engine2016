@@ -1,9 +1,0 @@
--- Default Material File for Standard Effect
-return
-{
-	constant_buffer_data = 
-	{
-	
-	},
-	effect_filepath = "effects/std_effect.txteffect",
-}

@@ -2,6 +2,7 @@
 #include "ConstantBuffer.h"
 #include "ConstantBufferData.h"
 #include "Effect.h"
+#include "cTexture.h"
 #include "../Logging/Logging.h"
 #include "../Asserts/Asserts.h"
 #include "../Platform/Platform.h"
@@ -9,7 +10,7 @@
 
 #include <regex>
 
-uint32_t eae6320::Graphics::Material::previousEffectUUID = 0;
+uint32_t eae6320::Graphics::Material::s_previousEffectUUID = 0;
 
 namespace
 {
@@ -21,25 +22,23 @@ namespace
 	eae6320::Graphics::ConstantBufferData::sMaterial materialBufferData;
 }
 
-eae6320::Graphics::Material::Material()
-{
-	materialBuffer = new ConstantBuffer();
-	effect = new Effect();
-}
+eae6320::Graphics::Material::Material() :
+	m_materialUUID(0),
+	m_materialBuffer(new ConstantBuffer()),
+	m_effect(new Effect())
+	//m_texture(new cTexture())
+{}
 
 eae6320::Graphics::Material::~Material()
 {
-	if (materialBuffer)
+	if (!CleanUpMaterial())
 	{
-		delete materialBuffer;
-	}
-	if (effect)
-	{
-		delete effect;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Material cleanup failed");
 	}
 }
 
-bool eae6320::Graphics::Material::LoadMaterial(const char * const relativePath, Material & o_material)
+bool eae6320::Graphics::Material::LoadMaterial(const char * const i_relativePath, Material & o_material)
 {
 	bool wereThereErrors = false;
 	std::string fileName;
@@ -47,11 +46,11 @@ bool eae6320::Graphics::Material::LoadMaterial(const char * const relativePath, 
 	eae6320::Platform::sDataFromFile binaryMaterial;
 	{
 		std::string errorMessage;
-		if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryMaterial, &errorMessage))
+		if (!eae6320::Platform::LoadBinaryFile(i_relativePath, binaryMaterial, &errorMessage))
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERTF(false, errorMessage.c_str());
-			eae6320::Logging::OutputError("Failed to load the binary effect file \"%s\": %s", relativePath, errorMessage.c_str());
+			eae6320::Logging::OutputError("Failed to load the binary effect file \"%s\": %s", i_relativePath, errorMessage.c_str());
 			goto OnExit;
 		}
 	}
@@ -72,22 +71,39 @@ bool eae6320::Graphics::Material::LoadMaterial(const char * const relativePath, 
 		data += sizeof(offsetToAdd);
 		const char * const relativeEffectPath = reinterpret_cast<const char * const>(data);
 
+		// Extracting Offset To Add
+		data += offsetToAdd;
+		offsetToAdd = *reinterpret_cast<uint8_t*>(data);
+
+		// Extracting Texture Path
+		data += sizeof(offsetToAdd);
+		const char * const relativeTexturePath = reinterpret_cast<const char * const>(data);
+
 		//Initilaizing Constant Buffer
-		o_material.materialBuffer->InitializeConstantBuffer(ConstantBufferType::MATERIAL, sizeof(materialBufferData), &materialBufferData);
+		o_material.m_materialBuffer->InitializeConstantBuffer(ConstantBufferType::MATERIAL, sizeof(materialBufferData), &materialBufferData);
 
 		// Loading Effect
-		if (!Graphics::Effect::LoadEffect(relativeEffectPath, *o_material.effect))
+		if (!Graphics::Effect::LoadEffect(relativeEffectPath, *o_material.m_effect))
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERT(false);
-			Logging::OutputError("Failed to load effect in: %s", relativePath);
+			Logging::OutputError("Failed to load effect in: %s", i_relativePath);
 			goto OnExit;
 		}
+
+		// Loading Texture
+		/*if (!Graphics::cTexture::Load(relativeTexturePath, *o_material.m_effect))
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			Logging::OutputError("Failed to load effect in: %s", i_relativePath);
+			goto OnExit;
+		}*/
 	}
 
-	std::regex_match(relativePath, match, pattern_match);
+	std::regex_match(i_relativePath, match, pattern_match);
 	fileName = std::regex_replace(match.str(2), pattern_match1, pattern_replace);
-	o_material.materialUUID = StringHandler::HashedString(fileName.c_str()).GetHash();
+	o_material.m_materialUUID = StringHandler::HashedString(fileName.c_str()).GetHash();
 
 OnExit:
 	binaryMaterial.Free();
@@ -97,40 +113,35 @@ OnExit:
 
 uint32_t eae6320::Graphics::Material::GetMaterialUUID() const
 {
-	return materialUUID;
+	return m_materialUUID;
 }
 
 eae6320::Graphics::Effect * eae6320::Graphics::Material::GetEffect() const
 {
-	return effect;
+	return m_effect;
 }
 
 bool eae6320::Graphics::Material::CleanUpMaterial()
 {
 	bool wereThereErrors = false;
-	if (!materialBuffer->CleanUpConstantBuffer())
+	if (m_materialBuffer)
 	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("Material constant buffer cleanup failed");
+		delete m_materialBuffer;
 	}
-
-	if (!effect->CleanUpEffect())
+	if (m_effect)
 	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("Effect cleanup failed");
+		delete m_effect;
 	}
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::Material::BindMaterial()
+void eae6320::Graphics::Material::BindMaterial()const
 {
-	materialBuffer->BindingConstantBuffer(BindMode::PS_ONLY);
-	uint32_t currentEffectUUID = effect->GetEffectUUID();
-	if (currentEffectUUID != previousEffectUUID)
+	m_materialBuffer->BindingConstantBuffer(BindMode::PS_ONLY);
+	uint32_t currentEffectUUID = m_effect->GetEffectUUID();
+	if (currentEffectUUID != s_previousEffectUUID)
 	{
-		previousEffectUUID = currentEffectUUID;
-		effect->BindEffect();
+		s_previousEffectUUID = currentEffectUUID;
+		m_effect->BindEffect();
 	}
 }

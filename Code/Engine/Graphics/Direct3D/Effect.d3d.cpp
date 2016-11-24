@@ -36,7 +36,7 @@ namespace eae6320
 
 				ID3D11ClassLinkage* const noInterfaces = NULL;
 				const HRESULT result = commonData->s_direct3dDevice->CreatePixelShader(
-					compiledFragmentShader.data, compiledFragmentShader.size, noInterfaces, &s_fragmentShader);
+					compiledFragmentShader.data, compiledFragmentShader.size, noInterfaces, &m_fragmentShader);
 				if (FAILED(result))
 				{
 					wereThereErrors = true;
@@ -60,7 +60,7 @@ namespace eae6320
 				}
 
 				ID3D11ClassLinkage* const noInterfaces = NULL;
-				const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(compiledVertexShader.data, compiledVertexShader.size, noInterfaces, &s_vertexShader);
+				const HRESULT result = commonData->s_direct3dDevice->CreateVertexShader(compiledVertexShader.data, compiledVertexShader.size, noInterfaces, &m_vertexShader);
 				if (FAILED(result))
 				{
 					wereThereErrors = true;
@@ -111,7 +111,7 @@ namespace eae6320
 					}
 				}
 				const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
-					compiledVertexShader.data, compiledVertexShader.size, &s_vertexLayout);
+					compiledVertexShader.data, compiledVertexShader.size, &m_vertexLayout);
 				if (FAILED(result))
 				{
 					wereThereErrors = true;
@@ -129,36 +129,36 @@ namespace eae6320
 		{
 			bool wereThereErrors = false;
 
-			if (s_vertexLayout)
+			if (m_vertexLayout)
 			{
-				s_vertexLayout->Release();
-				s_vertexLayout = NULL;
+				m_vertexLayout->Release();
+				m_vertexLayout = NULL;
 			}
 
-			if (s_vertexShader)
+			if (m_vertexShader)
 			{
-				s_vertexShader->Release();
-				s_vertexShader = NULL;
+				m_vertexShader->Release();
+				m_vertexShader = NULL;
 			}
 
-			if (s_fragmentShader)
+			if (m_fragmentShader)
 			{
-				s_fragmentShader->Release();
-				s_fragmentShader = NULL;
+				m_fragmentShader->Release();
+				m_fragmentShader = NULL;
 			}
 
 			return !wereThereErrors;
 		}
 
-		void Effect::BindEffect()
+		void Effect::BindEffect()const
 		{
 			ID3D11ClassInstance** const noInterfaces = NULL;
 			const unsigned int interfaceCount = 0;
 
-			commonData->s_direct3dImmediateContext->VSSetShader(s_vertexShader, noInterfaces, interfaceCount);
-			commonData->s_direct3dImmediateContext->PSSetShader(s_fragmentShader, noInterfaces, interfaceCount);
+			commonData->s_direct3dImmediateContext->VSSetShader(m_vertexShader, noInterfaces, interfaceCount);
+			commonData->s_direct3dImmediateContext->PSSetShader(m_fragmentShader, noInterfaces, interfaceCount);
 
-			commonData->s_direct3dImmediateContext->IASetInputLayout(s_vertexLayout);
+			commonData->s_direct3dImmediateContext->IASetInputLayout(m_vertexLayout);
 			commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		}
 	}

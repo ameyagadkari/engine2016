@@ -25,6 +25,7 @@ namespace
 {
 	eae6320::Graphics::ConstantBufferData::sMaterial material;
 	const char * effectPath = NULL;
+	const char * texturePath = _strdup("data/textures/default.dds");
 
 	FILE * outputFile = NULL;
 
@@ -32,6 +33,7 @@ namespace
 	bool LoadConstantBufferDataTable(lua_State& io_luaState);
 	bool LoadColorsTable(lua_State& io_luaState);
 	bool LoadEffectPath(lua_State& io_luaState);
+	bool LoadTexturePath(lua_State& io_luaState);
 }
 
 bool eae6320::AssetBuild::cMaterialBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -162,6 +164,13 @@ bool eae6320::AssetBuild::cMaterialBuilder::Build(const std::vector<std::string>
 			fprintf_s(stderr, "Failed to write effect path to %s file", m_path_target);
 			goto OnExit;
 		}
+		// Writing the Texture Path
+		if (!WriteCStringToFile(texturePath, outputFile))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "Failed to write texture path to %s file", m_path_target);
+			goto OnExit;
+		}
 
 	}
 
@@ -191,7 +200,6 @@ OnExit:
 	{
 		delete effectPath;
 	}
-
 	return !wereThereErrors;
 }
 
@@ -207,6 +215,10 @@ namespace
 			return false;
 		}
 		if (!LoadEffectPath(io_luaState))
+		{
+			return false;
+		}
+		if (!LoadTexturePath(io_luaState))
 		{
 			return false;
 		}
@@ -257,7 +269,6 @@ namespace
 		lua_gettable(&io_luaState, -2);
 		if (lua_isnil(&io_luaState, -1))
 		{
-			fprintf_s(stderr, "Writing default g_color to file");
 			goto OnExit;
 		}
 		else
@@ -353,6 +364,43 @@ namespace
 				goto OnExit;
 			}
 			effectPath = _strdup(effectPathString.c_str());
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+
+	bool LoadTexturePath(lua_State & io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "texture_filepath";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{			
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TSTRING)
+		{
+			std::string texturePathString;
+			std::string errorMessage;
+			const char * const sourceRelativePath = lua_tostring(&io_luaState, -1);
+			const char * const assetType = "textures";
+			if (!eae6320::AssetBuild::ConvertSourceRelativePathToBuiltRelativePath(sourceRelativePath, assetType, texturePathString, &errorMessage))
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "Cannot convert Convert Source Relative Path %s To Built Relative Path for Asset Type %s....Error: %s", sourceRelativePath, assetType, errorMessage.c_str());
+				goto OnExit;
+			}
+			texturePath = _strdup(texturePathString.c_str());
 		}
 		else
 		{

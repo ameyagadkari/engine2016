@@ -9,7 +9,31 @@
 
 //#include <chrono>
 
-bool eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath, Mesh &o_mesh)
+eae6320::Graphics::Mesh::Mesh() :
+	m_numberOfIndices(0),
+	m_is16bit(true),
+#if defined( EAE6320_PLATFORM_D3D )
+	m_vertexBuffer(NULL),
+	m_indexBuffer(NULL)
+#elif defined( EAE6320_PLATFORM_GL )
+	m_vertexArrayId(0)
+#ifdef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
+	,m_vertexBufferId(0),
+	m_indexBufferId(0)
+#endif
+#endif
+{}
+
+eae6320::Graphics::Mesh::~Mesh()
+{
+	if (!CleanUp())
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Mesh cleanup failed");
+	}
+}
+
+bool eae6320::Graphics::Mesh::LoadMesh(const char * const i_relativePath, Mesh &o_mesh)
 {
 	//auto begin = std::chrono::high_resolution_clock::now();
 	//std::chrono::time_point<std::chrono::steady_clock> end;
@@ -22,11 +46,11 @@ bool eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath, Mesh &o_
 	eae6320::Platform::sDataFromFile binaryMesh;
 	{
 		std::string errorMessage;
-		if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryMesh, &errorMessage))
+		if (!eae6320::Platform::LoadBinaryFile(i_relativePath, binaryMesh, &errorMessage))
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERTF(false, errorMessage.c_str());
-			eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", relativePath, errorMessage.c_str());
+			eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", i_relativePath, errorMessage.c_str());
 			goto OnExit;
 		}
 	}
@@ -55,7 +79,7 @@ bool eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath, Mesh &o_
 
 		// Extracting Index Array
 		data += meshData->numberOfVertices * sizeof(MeshData::Vertex);
-		meshData->indexData = data;	
+		meshData->indexData = data;
 	}
 
 	//end = std::chrono::high_resolution_clock::now();
@@ -66,7 +90,7 @@ bool eae6320::Graphics::Mesh::LoadMesh(const char * const relativePath, Mesh &o_
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
-		Logging::OutputError("Failed to initialize mesh: %s", relativePath);
+		Logging::OutputError("Failed to initialize mesh: %s", i_relativePath);
 		goto OnExit;
 	}
 

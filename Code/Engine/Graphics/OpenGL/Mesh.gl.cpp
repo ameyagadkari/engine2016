@@ -7,22 +7,22 @@
 #include "../MeshData.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
+bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 {
 	bool wereThereErrors = false;
 	GLuint vertexBufferId = 0;
 	GLuint indexBufferId = 0;
 
-	numberOfIndices = meshData.numberOfIndices;
+	m_numberOfIndices = i_meshData.numberOfIndices;
 
 	// Create a vertex array object and make it active
 	{
 		const GLsizei arrayCount = 1;
-		glGenVertexArrays(arrayCount, &s_vertexArrayId);
+		glGenVertexArrays(arrayCount, &m_vertexArrayId);
 		const GLenum errorCode = glGetError();
 		if (errorCode == GL_NO_ERROR)
 		{
-			glBindVertexArray(s_vertexArrayId);
+			glBindVertexArray(m_vertexArrayId);
 			const GLenum errorCode = glGetError();
 			if (errorCode != GL_NO_ERROR)
 			{
@@ -74,10 +74,10 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 	// Assign the data to the buffer
 	{
 		//Vextex Buffer init
-		const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
-		if (meshData.vertexData)
+		const unsigned int vertexBufferSize = i_meshData.numberOfVertices * sizeof(MeshData::Vertex);
+		if (i_meshData.vertexData)
 		{
-			glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, reinterpret_cast<GLvoid*>(meshData.vertexData),
+			glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, reinterpret_cast<GLvoid*>(i_meshData.vertexData),
 				// In our class we won't ever read from the buffer
 				GL_STATIC_DRAW);
 			const GLenum errorCode = glGetError();
@@ -202,19 +202,19 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 	{
 		//Index Buffer init
 		unsigned int indexBufferSize = 0;
-		if (meshData.typeOfIndexData == 16)
+		if (i_meshData.typeOfIndexData == 16)
 		{
-			indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
-			is16bit = true;
+			indexBufferSize = i_meshData.numberOfIndices * sizeof(uint16_t);
+			m_is16bit = true;
 		}
 		else
 		{
-			indexBufferSize = meshData.numberOfIndices * sizeof(uint32_t);
-			is16bit = false;
+			indexBufferSize = i_meshData.numberOfIndices * sizeof(uint32_t);
+			m_is16bit = false;
 		}
-		if (meshData.indexData)
+		if (i_meshData.indexData)
 		{
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(meshData.indexData),
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(i_meshData.indexData),
 				// In our class we won't ever read from the buffer
 				GL_STATIC_DRAW);
 			const GLenum errorCode = glGetError();
@@ -238,7 +238,7 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 
 OnExit:
 
-	if (s_vertexArrayId != 0)
+	if (m_vertexArrayId != 0)
 	{
 		// Unbind the vertex array
 		// (this must be done before deleting the vertex buffer)
@@ -268,7 +268,7 @@ OnExit:
 				}
 				vertexBufferId = 0;
 #else
-				s_vertexBufferId = vertexBufferId;
+				m_vertexBufferId = vertexBufferId;
 #endif
 			}
 
@@ -288,7 +288,7 @@ OnExit:
 				}
 				indexBufferId = 0;
 #else
-				s_indexBufferId = indexBufferId;
+				m_indexBufferId = indexBufferId;
 #endif
 			}
 		}
@@ -310,10 +310,10 @@ bool eae6320::Graphics::Mesh::CleanUp()
 {
 	bool wereThereErrors = false;
 #ifdef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
-	if (s_vertexBufferId != 0)
+	if (m_vertexBufferId != 0)
 	{
 		const GLsizei bufferCount = 1;
-		glDeleteBuffers(bufferCount, &s_vertexBufferId);
+		glDeleteBuffers(bufferCount, &m_vertexBufferId);
 		const GLenum errorCode = glGetError();
 		if (errorCode != GL_NO_ERROR)
 		{
@@ -322,13 +322,13 @@ bool eae6320::Graphics::Mesh::CleanUp()
 			eae6320::Logging::OutputError("OpenGL failed to delete the vertex buffer: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
-		s_vertexBufferId = 0;
+		m_vertexBufferId = 0;
 		}
 
-	if (s_indexBufferId != 0)
+	if (m_indexBufferId != 0)
 	{
 		const GLsizei bufferCount = 1;
-		glDeleteBuffers(bufferCount, &s_indexBufferId);
+		glDeleteBuffers(bufferCount, &m_indexBufferId);
 		const GLenum errorCode = glGetError();
 		if (errorCode != GL_NO_ERROR)
 		{
@@ -337,13 +337,13 @@ bool eae6320::Graphics::Mesh::CleanUp()
 			eae6320::Logging::OutputError("OpenGL failed to delete the index buffer: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
-		s_indexBufferId = 0;
+		m_indexBufferId = 0;
 	}
 #endif
-	if (s_vertexArrayId != 0)
+	if (m_vertexArrayId != 0)
 	{
 		const GLsizei arrayCount = 1;
-		glDeleteVertexArrays(arrayCount, &s_vertexArrayId);
+		glDeleteVertexArrays(arrayCount, &m_vertexArrayId);
 		const GLenum errorCode = glGetError();
 		if (errorCode != GL_NO_ERROR)
 		{
@@ -352,16 +352,16 @@ bool eae6320::Graphics::Mesh::CleanUp()
 			eae6320::Logging::OutputError("OpenGL failed to delete the vertex array: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
-		s_vertexArrayId = 0;
+		m_vertexArrayId = 0;
 	}
 	return !wereThereErrors;
 	}
 
-void eae6320::Graphics::Mesh::RenderMesh()
+void eae6320::Graphics::Mesh::RenderMesh()const
 {
 	// Bind a specific vertex buffer to the device as a data source
 	{
-		glBindVertexArray(s_vertexArrayId);
+		glBindVertexArray(m_vertexArrayId);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 	}
 	// Render triangles from the currently-bound vertex buffer
@@ -372,7 +372,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		const GLenum mode = GL_TRIANGLES;
 		// Every index is a 16 bit unsigned integer
 		GLenum indexType;
-		if (is16bit)
+		if (m_is16bit)
 		{
 			indexType = GL_UNSIGNED_SHORT;
 		}
@@ -382,7 +382,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		}
 		// It's possible to start rendering primitives in the middle of the stream
 		const GLvoid* const offset = 0;
-		glDrawElements(mode, numberOfIndices, indexType, offset);
+		glDrawElements(mode, m_numberOfIndices, indexType, offset);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 	}
 }

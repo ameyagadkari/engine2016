@@ -201,9 +201,20 @@ NewAssetTypeInfo( "gameobjects",
 					OutputErrorMessage( "The gameobeject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
 				local path_material = gameobject.material_filepath
+				local path_material_type = type( path_material )
+				if path_material_type ~= "string" then
+					OutputErrorMessage( "The material path must be a string instead of a " .. path_material_type .. " in gameobject file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_material, "materials")
+				end
+
 				local path_mesh = gameobject.mesh_filepath
-				RegisterAssetToBeBuilt( path_material, "materials")
-				RegisterAssetToBeBuilt( path_mesh, "meshes" )
+				local path_mesh_type = type( path_mesh )
+				if path_mesh_type ~= "string" then
+					OutputErrorMessage( "The mesh path must be a string instead of a " .. path_mesh_type .. " in gameobject file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_mesh, "meshes" )
+				end				
 			end
 		end,	
 	}
@@ -226,7 +237,21 @@ NewAssetTypeInfo( "materials",
 					OutputErrorMessage( "The material file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
 				local path_effect = material.effect_filepath
-				RegisterAssetToBeBuilt( path_effect, "effects")
+				local path_effect_type = type( path_effect )
+				if path_effect_type ~= "string" then
+					OutputErrorMessage( "The effect path must be a string instead of a " .. path_effect_type .. " in material file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_effect, "effects")
+				end
+				local path_texture = material.texture_filepath
+				local path_texture_type = type( path_texture )
+				if path_texture_type == "nil" then
+					RegisterAssetToBeBuilt( "textures/default.tga", "textures")
+				elseif path_texture_type == "string" then
+					RegisterAssetToBeBuilt( path_texture, "textures")
+				else
+					OutputErrorMessage( "The texture path must be a string instead of a " .. path_texture_type .. " in material file " .. i_sourceRelativePath)
+				end					
 			end
 		end,
 	}
@@ -249,11 +274,39 @@ NewAssetTypeInfo( "effects",
 					OutputErrorMessage( "The effect file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
 				local path_vertexShader = effect.shaders.vertex_shader
+				local path_vertexShader_type = type( path_vertexShader )
+				if path_vertexShader_type ~= "string" then
+					OutputErrorMessage( "The vertex shader path must be a string instead of a " .. path_vertexShader_type .. " in effect file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_vertexShader, "shaders", { "vertex" } )
+				end
 				local path_fragmentShader = effect.shaders.fragment_shader
-				RegisterAssetToBeBuilt( path_vertexShader, "shaders", { "vertex" } )
-				RegisterAssetToBeBuilt( path_fragmentShader, "shaders", { "fragment" } )
+				local path_fragmentShader_type = type( path_fragmentShader )
+				if path_fragmentShader_type ~= "string" then
+					OutputErrorMessage( "The fragment shader path must be a string instead of a " .. path_fragmentShader_type .. " in effect file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_fragmentShader, "shaders", { "fragment" } )
+				end						
 			end
 		end,
+	}
+)
+
+-- Texture Asset Type
+--------------------
+
+NewAssetTypeInfo( "textures",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "TextureBuilder.exe"
+		end,	
+		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath, i_assetTypeInfo )
+			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
+			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
+			extensionWithPeriod = ".dds"
+			return relativeDirectory .. fileName .. extensionWithPeriod
+		end,	
 	}
 )
 

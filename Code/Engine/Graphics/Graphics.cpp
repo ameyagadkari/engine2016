@@ -29,8 +29,8 @@ namespace
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
-	ConstantBuffer frameBuffer;
-	ConstantBuffer drawCallBuffer;
+	ConstantBuffer *frameBuffer = NULL;
+	ConstantBuffer *drawCallBuffer = NULL;
 	eae6320::Camera::cCamera* camera;
 	HWND s_renderingWindow = NULL;
 
@@ -83,7 +83,7 @@ void eae6320::Graphics::RenderFrame()
 		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
 		frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 		frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-		frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
+		frameBuffer->UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
 	}
 
 	// Draw Submitted Gameobjects
@@ -99,7 +99,7 @@ void eae6320::Graphics::RenderFrame()
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
 			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetOrientation(), (*it)->GetPosition());
-			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			(*it)->GetMesh()->RenderMesh();
 		}
 		sortedGameObjects.clear();
@@ -115,32 +115,34 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!frameBuffer.InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
+	frameBuffer = new ConstantBuffer();
+	if (!frameBuffer->InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-		frameBuffer.BindingConstantBuffer();
+		frameBuffer->BindingConstantBuffer();
 	}
 
-	if (!drawCallBuffer.InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	drawCallBuffer = new ConstantBuffer();
+	if (!drawCallBuffer->InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
+		drawCallBuffer->BindingConstantBuffer(BindMode::VS_ONLY);
 	}
 	return true;
 }
 
 bool eae6320::Graphics::CleanUp()
 {
-	frameBuffer.CleanUpConstantBuffer();
-	drawCallBuffer.CleanUpConstantBuffer();
+	delete frameBuffer;
+	delete drawCallBuffer;
 
 	bool wereThereErrors = false;
 
@@ -180,14 +182,16 @@ namespace
 			if (itList == sortedGameObjects.end())
 			{
 				sortedGameObjects.push_back((*itVector));
-				unsortedGameObjects.erase(itVector);
+				std::swap(*itVector, unsortedGameObjects.back());
+				unsortedGameObjects.pop_back();
 			}
 			else
 			{
 				if (currentMaterialUUID == materialUUIDToBeChecked && currentEffectUUID == effectUUIDToBeChecked)
 				{
 					sortedGameObjects.insert(itList, (*itVector));
-					unsortedGameObjects.erase(itVector);
+					std::swap(*itVector, unsortedGameObjects.back());
+					unsortedGameObjects.pop_back();
 				}
 				else
 				{
@@ -206,7 +210,8 @@ namespace
 							{
 								itemNotAdded = false;
 								sortedGameObjects.insert(itList, (*itVector));
-								unsortedGameObjects.erase(itVector);
+								std::swap(*itVector, unsortedGameObjects.back());
+								unsortedGameObjects.pop_back();
 								break;
 							}
 						}

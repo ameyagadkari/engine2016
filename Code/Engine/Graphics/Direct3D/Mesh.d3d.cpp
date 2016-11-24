@@ -10,13 +10,13 @@
 #include "../MeshData.h"
 
 
-bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
+bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 {
 	CommonData *commonData = CommonData::GetCommonData();
-	numberOfIndices = meshData.numberOfIndices;
+	m_numberOfIndices = i_meshData.numberOfIndices;
 
 	//Vertex Buffer Init
-	const unsigned int vertexBufferSize = meshData.numberOfVertices * sizeof(MeshData::Vertex);
+	const unsigned int vertexBufferSize = i_meshData.numberOfVertices * sizeof(MeshData::Vertex);
 
 	D3D11_BUFFER_DESC bufferDescriptionVertexBuffer = { 0 };
 	{
@@ -29,9 +29,9 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataVertexBuffer = { 0 };
 	{
-		if (meshData.vertexData)
+		if (i_meshData.vertexData)
 		{
-			initialDataVertexBuffer.pSysMem = meshData.vertexData;
+			initialDataVertexBuffer.pSysMem = i_meshData.vertexData;
 		}
 		else
 		{
@@ -43,7 +43,7 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 		// (The other data members are ignored for non-texture buffers)
 	}
 
-	const HRESULT resultVertexBuffer = commonData->s_direct3dDevice->CreateBuffer(&bufferDescriptionVertexBuffer, &initialDataVertexBuffer, &s_vertexBuffer);
+	const HRESULT resultVertexBuffer = commonData->s_direct3dDevice->CreateBuffer(&bufferDescriptionVertexBuffer, &initialDataVertexBuffer, &m_vertexBuffer);
 	if (FAILED(resultVertexBuffer))
 	{
 		EAE6320_ASSERT(false);
@@ -53,15 +53,15 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 
 	//Index Buffer Init
 	unsigned int indexBufferSize = 0;
-	if (meshData.typeOfIndexData == 16)
+	if (i_meshData.typeOfIndexData == 16)
 	{
-		indexBufferSize = meshData.numberOfIndices * sizeof(uint16_t);
-		is16bit = true;
+		indexBufferSize = i_meshData.numberOfIndices * sizeof(uint16_t);
+		m_is16bit = true;
 	}
 	else
 	{
-		indexBufferSize = meshData.numberOfIndices * sizeof(uint32_t);
-		is16bit = false;
+		indexBufferSize = i_meshData.numberOfIndices * sizeof(uint32_t);
+		m_is16bit = false;
 	}
 	D3D11_BUFFER_DESC bufferDescriptionIndexBuffer = { 0 };
 	{
@@ -74,9 +74,9 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 	}
 	D3D11_SUBRESOURCE_DATA initialDataIndexBuffer = { 0 };
 	{
-		if (meshData.indexData)
+		if (i_meshData.indexData)
 		{
-			initialDataIndexBuffer.pSysMem = meshData.indexData;
+			initialDataIndexBuffer.pSysMem = i_meshData.indexData;
 		}
 		else
 		{
@@ -88,7 +88,7 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 	// (The other data members are ignored for non-texture buffers)
 
 
-	const HRESULT resultIndexBuffer = commonData->s_direct3dDevice->CreateBuffer(&bufferDescriptionIndexBuffer, &initialDataIndexBuffer, &s_indexBuffer);
+	const HRESULT resultIndexBuffer = commonData->s_direct3dDevice->CreateBuffer(&bufferDescriptionIndexBuffer, &initialDataIndexBuffer, &m_indexBuffer);
 	if (FAILED(resultIndexBuffer))
 	{
 		EAE6320_ASSERT(false);
@@ -103,20 +103,20 @@ bool eae6320::Graphics::Mesh::Initialize(MeshData& meshData)
 bool eae6320::Graphics::Mesh::CleanUp()
 {
 	bool wereThereErrors = false;
-	if (s_vertexBuffer)
+	if (m_vertexBuffer)
 	{
-		s_vertexBuffer->Release();
-		s_vertexBuffer = NULL;
+		m_vertexBuffer->Release();
+		m_vertexBuffer = NULL;
 	}
-	if (s_indexBuffer)
+	if (m_indexBuffer)
 	{
-		s_indexBuffer->Release();
-		s_indexBuffer = NULL;
+		m_indexBuffer->Release();
+		m_indexBuffer = NULL;
 	}
 	return !wereThereErrors;
 }
 
-void eae6320::Graphics::Mesh::RenderMesh()
+void eae6320::Graphics::Mesh::RenderMesh()const
 {
 	CommonData *commonData = CommonData::GetCommonData();
 	// Bind a specific vertex buffer to the device as a data source
@@ -128,7 +128,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 
 		// It's possible to start streaming data in the middle of a vertex buffer
 		const unsigned int bufferOffset = 0;
-		commonData->s_direct3dImmediateContext->IASetVertexBuffers(startingSlot, vertexBufferCount, &s_vertexBuffer, &bufferStride, &bufferOffset);
+		commonData->s_direct3dImmediateContext->IASetVertexBuffers(startingSlot, vertexBufferCount, &m_vertexBuffer, &bufferStride, &bufferOffset);
 	}
 	// Specify what kind of data the vertex buffer holds
 	{
@@ -140,10 +140,10 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		//commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	{
-		EAE6320_ASSERT(s_indexBuffer != NULL);
+		EAE6320_ASSERT(m_indexBuffer != NULL);
 		// Every index is a 16 bit unsigned integer
 		DXGI_FORMAT format;
-		if (is16bit)
+		if (m_is16bit)
 		{
 			format = DXGI_FORMAT_R16_UINT;
 		}
@@ -154,7 +154,7 @@ void eae6320::Graphics::Mesh::RenderMesh()
 
 		// The indices start at the beginning of the buffer
 		const unsigned int offset = 0;
-		commonData->s_direct3dImmediateContext->IASetIndexBuffer(s_indexBuffer, format, offset);
+		commonData->s_direct3dImmediateContext->IASetIndexBuffer(m_indexBuffer, format, offset);
 	}
 	// Render triangles from the currently-bound vertex buffer
 	{
@@ -162,6 +162,6 @@ void eae6320::Graphics::Mesh::RenderMesh()
 		// It's possible to start rendering primitives in the middle of the stream
 		const unsigned int indexOfFirstIndexToUse = 0;
 		const unsigned int offsetToAddToEachIndex = 0;
-		commonData->s_direct3dImmediateContext->DrawIndexed(numberOfIndices, indexOfFirstIndexToUse, offsetToAddToEachIndex);
+		commonData->s_direct3dImmediateContext->DrawIndexed(m_numberOfIndices, indexOfFirstIndexToUse, offsetToAddToEachIndex);
 	}
 }
