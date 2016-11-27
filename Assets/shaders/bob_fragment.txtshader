@@ -9,16 +9,19 @@
 void main(
 	in float4 i_position : SV_POSITION,
 	in float4 i_color : COLOR,
+	in float2 i_UV : TEXCOORD,
 	out float4 o_color : SV_TARGET
 	)	
 #elif defined( EAE6320_PLATFORM_GL )
 	
 	layout( location = 0 ) in float4 i_color;
+	layout( location = 1 ) in float2 i_UV;
 	out float4 o_color;
 void main()	
 #endif
 {
-	o_color = i_color * g_color;
-	float t = sin( g_elapsedSecondCount_total );
-	o_color.g = (t<0)?(t*-1):t;
+	float4 sampledColor = DeclareSampledColor( primaryTexture, samplerStateHLSL, i_UV )
+	o_color = i_color * g_color * sampledColor;
+	//float t = sin( g_elapsedSecondCount_total );
+	//o_color.g = (t<0)?(t*-1):t;
 }

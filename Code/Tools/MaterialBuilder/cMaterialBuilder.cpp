@@ -321,7 +321,7 @@ namespace
 				else
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "There are %d channels instead of 4", arrayLength);
+					fprintf_s(stderr, "There are %zu channels instead of 4", arrayLength);
 					goto OnExit;
 				}
 			}

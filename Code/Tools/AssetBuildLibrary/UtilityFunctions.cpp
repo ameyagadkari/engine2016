@@ -11,7 +11,7 @@
 // Interface
 //==========
 
-bool eae6320::AssetBuild::CheckIfNumberIsNormalized(float *array, size_t length)
+bool eae6320::AssetBuild::CheckIfNumberIsNormalized(const float * const array, size_t length)
 {
 	for (size_t i = 0; i < length; i++)
 	{

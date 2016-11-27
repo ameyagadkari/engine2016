@@ -5,6 +5,6 @@ return
 	{
 		
 	},
-	effect_filepath = "effects/std_effect.txteffect",
+	effect_filepath = "effects/bob_effect.txteffect",
 	texture_filepath = "textures/apple.jpg",
 }

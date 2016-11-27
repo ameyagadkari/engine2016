@@ -9,14 +9,18 @@
 void main(
 	in const vec3 i_vertexPosition_local : POSITION,
 	in const vec4 i_color : COLOR,
+	in const vec2 i_UV : TEXCOORD,
 	out vec4 gl_Position : SV_POSITION,
-	out vec4 o_color : COLOR
+	out vec4 o_color : COLOR,
+	out vec2 o_UV : TEXCOORD
 	)
 #elif defined( EAE6320_PLATFORM_GL )
 
 	layout( location = 0 ) in vec3 i_vertexPosition_local;
 	layout( location = 1 ) in vec4 i_color;
+	layout( location = 2 ) in vec2 i_UV;
 	layout( location = 0 ) out vec4 o_color;
+	layout( location = 1 ) out vec2 o_UV;
 void main()
 #endif
 {
@@ -29,8 +33,9 @@ void main()
 		vec4 vertexPosition_camera = mul(vertexPosition_world, g_transform_worldToCamera);
 		gl_Position = mul(vertexPosition_camera, g_transform_cameraToScreen);
 	}
-	// Pass the input color to the fragment shader unchanged
+	// Pass the input color and the texture coordinates to the fragment shader unchanged
 	{
 		o_color = i_color;
+		o_UV = i_UV;
 	}
 }

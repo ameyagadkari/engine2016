@@ -408,7 +408,7 @@ namespace
 			else
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "There are %d coordinates instead of 3", arrayLength);
+				fprintf_s(stderr, "There are %zu coordinates instead of 3", arrayLength);
 				goto OnExit;
 			}
 		}
@@ -530,7 +530,7 @@ namespace
 			else
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "There are %d channels instead of 3 or 4", arrayLength);
+				fprintf_s(stderr, "There are %zu channels instead of 3 or 4", arrayLength);
 				goto OnExit;
 			}
 		}
@@ -564,7 +564,7 @@ namespace
 			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
 			if (arrayLength % 3 == 0)
 			{
-				meshData.numberOfIndices = arrayLength;
+				meshData.numberOfIndices = static_cast<uint32_t>(arrayLength);
 				if (meshData.numberOfIndices > USHRT_MAX)
 				{
 					meshData.typeOfIndexData = 32;
@@ -622,7 +622,7 @@ namespace
 			else
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "There are %d indices which is incorrect as we are drawing triangles", arrayLength);
+				fprintf_s(stderr, "There are %zu indices which is incorrect as we are drawing triangles", arrayLength);
 				goto OnExit;
 			}
 		}
@@ -732,9 +732,9 @@ namespace
 				{
 					meshData.vertexData[index].u = uv[0];
 #if defined( EAE6320_PLATFORM_D3D )
-					meshData.vertexData[index].v = uv[1];
-#elif defined( EAE6320_PLATFORM_GL )
 					meshData.vertexData[index].v = 1.0f - uv[1];
+#elif defined( EAE6320_PLATFORM_GL )
+					meshData.vertexData[index].v = uv[1];
 #endif
 				}
 				else
@@ -748,7 +748,7 @@ namespace
 			else
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "here are %d coordinates instead of 2", arrayLength);
+				fprintf_s(stderr, "here are %zu coordinates instead of 2", arrayLength);
 				goto OnExit;
 			}
 		}

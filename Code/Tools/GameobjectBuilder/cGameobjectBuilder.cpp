@@ -454,7 +454,7 @@ namespace
 				else
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "There are %d coordinates instead of 3", arrayLength);
+					fprintf_s(stderr, "There are %zu coordinates instead of 3", arrayLength);
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
@@ -519,7 +519,7 @@ namespace
 				else
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "There are %d eular angle values instead of 3", arrayLength);
+					fprintf_s(stderr, "There are %zu eular angle values instead of 3", arrayLength);
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
