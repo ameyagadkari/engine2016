@@ -302,10 +302,10 @@ NewAssetTypeInfo( "textures",
 			return "TextureBuilder.exe"
 		end,	
 		ConvertSourceRelativePathToBuiltRelativePath = function( i_sourceRelativePath, i_assetTypeInfo )
-			local relativeDirectory, file = i_sourceRelativePath:match( "(.-)([^/\\]+)$" )
-			local fileName, extensionWithPeriod = file:match( "([^%.]+)(.*)" )
-			extensionWithPeriod = ".dds"
-			return relativeDirectory .. fileName .. extensionWithPeriod
+			local baseClass = getmetatable( i_assetTypeInfo )
+			local returnValue = baseClass.ConvertSourceRelativePathToBuiltRelativePath( i_sourceRelativePath, i_assetTypeInfo )
+			returnValue = returnValue:gsub("[^.]+$","dds")
+			return returnValue
 		end,	
 	}
 )
