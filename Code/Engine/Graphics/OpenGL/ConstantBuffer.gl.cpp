@@ -16,18 +16,18 @@ namespace eae6320
 			// Create a uniform buffer object and make it active
 			{
 				const GLsizei bufferCount = 1;
-				glGenBuffers(bufferCount, &s_constantBufferId);
+				glGenBuffers(bufferCount, &m_constantBufferId);
 				const GLenum errorCode = glGetError();
 				if (errorCode == GL_NO_ERROR)
 				{
-					glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
+					glBindBuffer(GL_UNIFORM_BUFFER, m_constantBufferId);
 					const GLenum errorCode = glGetError();
 					if (errorCode != GL_NO_ERROR)
 					{
 						wereThereErrors = true;
 						EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 						eae6320::Logging::OutputError("OpenGL failed to bind the new uniform buffer %u: %s",
-							s_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+							m_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 						goto OnExit;
 					}
 				}
@@ -41,21 +41,21 @@ namespace eae6320
 				}
 			}
 			// Fill in the constant buffer
-			if (constantBufferType == ConstantBufferType::FRAME)
+			if (m_constantBufferType == ConstantBufferType::FRAME)
 			{
 				reinterpret_cast<ConstantBufferData::sFrame*>(initialBufferData)->g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
 			}
 			// Allocate space and copy the constant data into the uniform buffer
 			{
 				const GLenum usage = GL_DYNAMIC_DRAW;	// The buffer will be modified frequently and used to draw
-				glBufferData(GL_UNIFORM_BUFFER, sizeOfConstantBuffer, reinterpret_cast<const GLvoid*>(initialBufferData), usage);
+				glBufferData(GL_UNIFORM_BUFFER, m_sizeOfConstantBuffer, reinterpret_cast<const GLvoid*>(initialBufferData), usage);
 				const GLenum errorCode = glGetError();
 				if (errorCode != GL_NO_ERROR)
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 					eae6320::Logging::OutputError("OpenGL failed to allocate the new uniform buffer %u: %s",
-						s_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+						m_constantBufferId, reinterpret_cast<const char*>(gluErrorString(errorCode)));
 					goto OnExit;
 				}
 			}
@@ -65,10 +65,10 @@ namespace eae6320
 			return !wereThereErrors;
 		}
 
-		void ConstantBuffer::BindingConstantBuffer(BindMode bindMode)
+		void ConstantBuffer::BindingConstantBuffer(BindMode bindMode)const
 		{
-			const GLuint bindingPointAssignedInShader = static_cast<int>(constantBufferType);
-			glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, s_constantBufferId);
+			const GLuint bindingPointAssignedInShader = static_cast<int>(m_constantBufferType);
+			glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointAssignedInShader, m_constantBufferId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		}
 
@@ -80,14 +80,14 @@ namespace eae6320
 			}*/
 			// Make the uniform buffer active
 			{
-				glBindBuffer(GL_UNIFORM_BUFFER, s_constantBufferId);
+				glBindBuffer(GL_UNIFORM_BUFFER, m_constantBufferId);
 				EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 			}
 			// Copy the updated memory to the GPU
 			{
 				GLintptr updateAtTheBeginning = 0;
 				GLsizeiptr updateTheEntireBuffer = 0;
-				if (sizeOfConstantBuffer <= this->sizeOfConstantBuffer)
+				if (sizeOfConstantBuffer <= this->m_sizeOfConstantBuffer)
 				{
 					updateTheEntireBuffer = static_cast<GLsizeiptr>(sizeOfConstantBuffer);
 				}
@@ -104,10 +104,10 @@ namespace eae6320
 		bool ConstantBuffer::CleanUpConstantBuffer()
 		{
 			bool wereThereErrors = false;
-			if (s_constantBufferId != 0)
+			if (m_constantBufferId != 0)
 			{
 				const GLsizei bufferCount = 1;
-				glDeleteBuffers(bufferCount, &s_constantBufferId);
+				glDeleteBuffers(bufferCount, &m_constantBufferId);
 				const GLenum errorCode = glGetError();
 				if (errorCode != GL_NO_ERROR)
 				{
@@ -116,7 +116,7 @@ namespace eae6320
 					Logging::OutputError("OpenGL failed to delete the constant buffer: %s",
 						reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				}
-				s_constantBufferId = 0;
+				m_constantBufferId = 0;
 			}
 			return !wereThereErrors;
 		}

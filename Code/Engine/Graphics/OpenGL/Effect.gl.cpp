@@ -26,7 +26,7 @@ namespace eae6320
 		{
 			// Create a program
 			{
-				s_programId = glCreateProgram();
+				m_programId = glCreateProgram();
 				const GLenum errorCode = glGetError();
 				if (errorCode != GL_NO_ERROR)
 				{
@@ -35,7 +35,7 @@ namespace eae6320
 						reinterpret_cast<const char*>(gluErrorString(errorCode)));
 					return false;
 				}
-				else if (s_programId == 0)
+				else if (m_programId == 0)
 				{
 					EAE6320_ASSERT(false);
 					Logging::OutputError("OpenGL failed to create a program");
@@ -43,19 +43,19 @@ namespace eae6320
 				}
 			}
 			// Load and attach the shaders
-			if (!LoadVertexShader(s_programId, relativeVertexShaderPath))
+			if (!LoadVertexShader(m_programId, relativeVertexShaderPath))
 			{
 				EAE6320_ASSERT(false);
 				return false;
 			}
-			if (!LoadFragmentShader(s_programId, relativeFragmentShaderPath))
+			if (!LoadFragmentShader(m_programId, relativeFragmentShaderPath))
 			{
 				EAE6320_ASSERT(false);
 				return false;
 			}
 			// Link the program
 			{
-				glLinkProgram(s_programId);
+				glLinkProgram(m_programId);
 				GLenum errorCode = glGetError();
 				if (errorCode == GL_NO_ERROR)
 				{
@@ -65,13 +65,13 @@ namespace eae6320
 					std::string linkInfo;
 					{
 						GLint infoSize;
-						glGetProgramiv(s_programId, GL_INFO_LOG_LENGTH, &infoSize);
+						glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoSize);
 						errorCode = glGetError();
 						if (errorCode == GL_NO_ERROR)
 						{
 							sLogInfo info(static_cast<size_t>(infoSize));
 							GLsizei* dontReturnLength = NULL;
-							glGetProgramInfoLog(s_programId, static_cast<GLsizei>(infoSize), dontReturnLength, info.memory);
+							glGetProgramInfoLog(m_programId, static_cast<GLsizei>(infoSize), dontReturnLength, info.memory);
 							errorCode = glGetError();
 							if (errorCode == GL_NO_ERROR)
 							{
@@ -96,7 +96,7 @@ namespace eae6320
 					// Check to see if there were link errors
 					GLint didLinkingSucceed;
 					{
-						glGetProgramiv(s_programId, GL_LINK_STATUS, &didLinkingSucceed);
+						glGetProgramiv(m_programId, GL_LINK_STATUS, &didLinkingSucceed);
 						errorCode = glGetError();
 						if (errorCode == GL_NO_ERROR)
 						{
@@ -131,9 +131,9 @@ namespace eae6320
 		{
 			bool wereThereErrors = false;
 
-			if (s_programId != 0)
+			if (m_programId != 0)
 			{
-				glDeleteProgram(s_programId);
+				glDeleteProgram(m_programId);
 				const GLenum errorCode = glGetError();
 				if (errorCode != GL_NO_ERROR)
 				{
@@ -142,14 +142,14 @@ namespace eae6320
 					Logging::OutputError("OpenGL failed to delete the program: %s",
 						reinterpret_cast<const char*>(gluErrorString(errorCode)));
 				}
-				s_programId = 0;
+				m_programId = 0;
 			}
 
 			return !wereThereErrors;
 		}
-		void Effect::BindEffect()
+		void Effect::BindEffect()const
 		{
-			glUseProgram(s_programId);
+			glUseProgram(m_programId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		}
 	}

@@ -19,22 +19,25 @@ namespace eae6320
 		class Effect
 		{
 		public:
-			static bool LoadEffect(const char * const relativePath, Effect&effect);
+			static bool LoadEffect(const char * const i_relativePath, Effect& o_effect);
 			
 			bool CleanUpEffect();
-			void BindEffect();
+			void BindEffect()const;
 
 			uint32_t GetEffectUUID()const;
 
+			Effect();
+			~Effect();
+
 		private:
-			uint32_t effectUUID = 0;
-			bool LoadShaders(const char * const relativeVertexShaderPath, const char * const relativeFragmentShaderPath);
+			uint32_t effectUUID;
+			bool LoadShaders(const char * const i_relativeVertexShaderPath, const char * const i_relativeFragmentShaderPath);
 #if defined( EAE6320_PLATFORM_D3D )
-			ID3D11VertexShader* s_vertexShader = NULL;
-			ID3D11PixelShader* s_fragmentShader = NULL;
-			ID3D11InputLayout* s_vertexLayout = NULL;
+			ID3D11VertexShader* m_vertexShader;
+			ID3D11PixelShader* m_fragmentShader;
+			ID3D11InputLayout* m_vertexLayout;
 #elif defined( EAE6320_PLATFORM_GL )
-			GLuint s_programId = 0;
+			GLuint m_programId;
 #endif
 		};
 	}

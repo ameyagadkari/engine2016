@@ -56,6 +56,45 @@
 
 #endif
 
+// Texture Objects
+//=================
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+	#define DeclareTexture2DObject( i_name, i_id ) Texture2D i_name : register( t##i_id );
+
+#elif defined( EAE6320_PLATFORM_GL )
+
+	#define DeclareTexture2DObject( i_name, i_id ) layout( binding = i_id ) uniform sampler2D i_name;
+
+#endif
+
+// Sampler State Objects
+//=================
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+	#define DeclareSamplerStateObject( i_name, i_id ) SamplerState i_name : register( s##i_id );
+
+#elif defined( EAE6320_PLATFORM_GL )
+
+	#define DeclareSamplerStateObject( i_name, i_id )
+
+#endif
+
+// Sampled Color
+//=================
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+	#define DeclareSampledColor( i_texture2D, i_samplerstate, i_texcoord ) i_texture2D.Sample( i_samplerstate, i_texcoord );
+
+#elif defined( EAE6320_PLATFORM_GL )
+
+	#define DeclareSampledColor( i_texture2D, i_samplerstate, i_texcoord ) texture2D( i_texture2D, i_texcoord );
+
+#endif
+
 DeclareConstantBuffer( constantBuffer_frame, 0 )
 {
 	float4x4 g_transform_worldToCamera;
@@ -72,3 +111,7 @@ DeclareConstantBuffer( constantBuffer_material, 2 )
 {
 	float4 g_color;
 };
+
+DeclareTexture2DObject( primaryTexture, 0 )
+
+DeclareSamplerStateObject( samplerStateHLSL, 0 )

@@ -1,0 +1,9 @@
+-- Default Material File for Bob Effect
+return
+{
+	constant_buffer_data = 
+	{
+
+	},
+	effect_filepath = "effects/std_effect.txteffect",
+}

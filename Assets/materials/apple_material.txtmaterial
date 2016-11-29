@@ -1,9 +1,10 @@
--- Default Material File for Bob Effect
+-- Apple Material File
 return
 {
 	constant_buffer_data = 
 	{
-
+		
 	},
 	effect_filepath = "effects/bob_effect.txteffect",
+	texture_filepath = "textures/apple.jpg",
 }

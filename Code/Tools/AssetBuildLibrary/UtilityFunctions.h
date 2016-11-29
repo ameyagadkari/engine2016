@@ -29,7 +29,7 @@ namespace eae6320
 		// in Visual Studio's "Error List" tab
 		void OutputErrorMessage( const char* const i_errorMessage, const char* const i_optionalFileName = NULL );
 
-		bool CheckIfColorIsInCorrectFormat(float *rgba);
+		bool CheckIfNumberIsNormalized(const float * const array, size_t length);
 		bool WriteCStringToFile(const char * const cString, FILE  * outputFile);
 	}
 }

@@ -5,12 +5,14 @@
     <ClCompile Include="cQuaternion.cpp" />
     <ClCompile Include="cVector.cpp" />
     <ClCompile Include="Functions.cpp" />
+    <ClCompile Include="cHalf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMatrix_transformation.h" />
     <ClInclude Include="cQuaternion.h" />
     <ClInclude Include="cVector.h" />
     <ClInclude Include="Functions.h" />
+    <ClInclude Include="cHalf.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Functions.inl" />

@@ -35,25 +35,27 @@ namespace eae6320
 		class Mesh
 		{
 		public:
-			static bool LoadMesh(const char * const relativePath, Mesh &o_mesh);
+			static bool LoadMesh(const char * const i_relativePath, Mesh &o_mesh);
 			bool CleanUp();
-			void RenderMesh();		
+			void RenderMesh()const;	
+			Mesh();
+			~Mesh();
 		private:		
-			uint32_t numberOfIndices = 0;
-			bool is16bit;
-			bool Initialize(MeshData &meshData);		
+			uint32_t m_numberOfIndices;
+			bool m_is16bit;
+			bool Initialize(const MeshData &i_meshData);		
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
-			ID3D11Buffer* s_vertexBuffer = NULL;
-			ID3D11Buffer* s_indexBuffer = NULL;
+			ID3D11Buffer* m_vertexBuffer;
+			ID3D11Buffer* m_indexBuffer;
 #elif defined( EAE6320_PLATFORM_GL )
-			GLuint s_vertexArrayId = 0;
+			GLuint m_vertexArrayId;
 #ifdef EAE6320_GRAPHICS_ISDEVICEDEBUGINFOENABLED
 			// OpenGL debuggers don't seem to support freeing the vertex buffer
 			// and letting the vertex array object hold a reference to it,
 			// and so if debug info is enabled an explicit reference is held
-			GLuint s_vertexBufferId = 0;
-			GLuint s_indexBufferId = 0;
+			GLuint m_vertexBufferId;
+			GLuint m_indexBufferId;
 #endif
 #endif			
 		};

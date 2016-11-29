@@ -25,14 +25,14 @@ namespace eae6320
 			};
 			struct sMaterial
 			{
-				struct
+				struct sColor
 				{
 					float r, g, b, a;
+					sColor() :r(1.0f), g(1.0f), b(1.0f), a(1.0f)
+					{}
 				} g_color;
-				sMaterial() 
-				{
-					g_color.r = g_color.g = g_color.b = g_color.a = 1.0f;
-				}
+				sMaterial() :g_color()
+				{}
 			};
 		};
 	}

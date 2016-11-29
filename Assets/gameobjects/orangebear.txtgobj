@@ -1,7 +1,7 @@
 -- Gameobject Data for Orange Bear
 return
 {
-	material_filepath = "materials/orangebear_material_std_effect.txtmaterial",
+	material_filepath = "materials/orangebear_material.txtmaterial",
 	mesh_filepath = "meshes/bear.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",	

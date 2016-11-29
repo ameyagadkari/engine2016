@@ -12,13 +12,21 @@ namespace eae6320
 			struct Vertex
 			{
 				float x, y, z;
+				uint16_t u, v;
 				uint8_t r, g, b, a;
 			};
-			Vertex *vertexData = NULL;
-			void *indexData = NULL;
-			uint32_t numberOfVertices = 0;
-			uint32_t numberOfIndices = 0;
-			uint32_t typeOfIndexData = 0;
+			Vertex *vertexData;
+			void *indexData;
+			uint32_t numberOfVertices;
+			uint32_t numberOfIndices;
+			uint32_t typeOfIndexData;
+			MeshData() :
+				vertexData(NULL),
+				indexData(NULL),
+				numberOfVertices(0),
+				numberOfIndices(0),
+				typeOfIndexData(0)
+			{}
 		};
 	}
 }

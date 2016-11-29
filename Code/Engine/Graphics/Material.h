@@ -11,6 +11,7 @@ namespace eae6320
 	{
 		class ConstantBuffer;
 		class Effect;
+		class cTexture;
 	}
 }
 
@@ -24,19 +25,20 @@ namespace eae6320
 			Material();
 			~Material();
 
-			static bool LoadMaterial(const char * const relativePath, Material& o_material);
+			static bool LoadMaterial(const char * const i_relativePath, Material& o_material);
 
 			bool CleanUpMaterial();
-			void BindMaterial();
+			void BindMaterial()const;
 
 			uint32_t GetMaterialUUID()const;
 			Effect * GetEffect()const;
 
 		private:
-			static uint32_t previousEffectUUID;
-			uint32_t materialUUID = 0;
-			ConstantBuffer *materialBuffer;
-			Effect *effect;
+			static uint32_t s_previousEffectUUID;
+			uint32_t m_materialUUID;
+			ConstantBuffer *m_materialBuffer;
+			Effect *m_effect;
+			cTexture *m_texture;
 		};
 	}
 }

@@ -144,19 +144,9 @@ namespace eae6320
 		}
 		inline GameObject::~GameObject()
 		{
-			if (mesh && !mesh->CleanUp())
-			{
-				EAE6320_ASSERT(false);
-				Logging::OutputError("Mesh cleanup failed");
-			}
 			if (mesh)
 			{
 				delete mesh;
-			}
-			if (material && !material->CleanUpMaterial())
-			{
-				EAE6320_ASSERT(false);
-				Logging::OutputError("Material cleanup failed");
 			}
 			if (material)
 			{

@@ -29,8 +29,8 @@ namespace
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
-	ConstantBuffer frameBuffer;
-	ConstantBuffer drawCallBuffer;
+	ConstantBuffer *frameBuffer = NULL;
+	ConstantBuffer *drawCallBuffer = NULL;
 	eae6320::Camera::cCamera* camera;
 	HWND s_renderingWindow = NULL;
 
@@ -44,17 +44,19 @@ namespace
 	IDXGISwapChain* s_swapChain = NULL;
 	ID3D11RenderTargetView* s_renderTargetView = NULL;
 	ID3D11DepthStencilView* s_depthStencilView = NULL;
+	ID3D11SamplerState* s_samplerState = NULL;
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 #elif defined( EAE6320_PLATFORM_GL )
 	HDC s_deviceContext = NULL;
 	HGLRC s_openGlRenderingContext = NULL;
+	GLuint s_samplerState = 0;
 	bool CreateRenderingContext();
 	bool EnableBackFaceCulling();
 	bool EnableDepthTesting();
 	bool EnableDepthWriting();
 #endif
-
+	bool CreateBindSamplerStates();
 }
 
 void eae6320::Graphics::SetCamera(Camera::cCamera * Camera)
@@ -83,7 +85,7 @@ void eae6320::Graphics::RenderFrame()
 		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
 		frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 		frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
-		frameBuffer.UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
+		frameBuffer->UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
 	}
 
 	// Draw Submitted Gameobjects
@@ -99,7 +101,7 @@ void eae6320::Graphics::RenderFrame()
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
 			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetOrientation(), (*it)->GetPosition());
-			drawCallBuffer.UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			(*it)->GetMesh()->RenderMesh();
 		}
 		sortedGameObjects.clear();
@@ -115,32 +117,39 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 		EAE6320_ASSERT(false);
 		return false;
 	}
-	if (!frameBuffer.InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
+	if (!CreateBindSamplerStates())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+	frameBuffer = new ConstantBuffer();
+	if (!frameBuffer->InitializeConstantBuffer(ConstantBufferType::FRAME, sizeof(frameBufferData), &frameBufferData))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-		frameBuffer.BindingConstantBuffer();
+		frameBuffer->BindingConstantBuffer();
 	}
 
-	if (!drawCallBuffer.InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
+	drawCallBuffer = new ConstantBuffer();
+	if (!drawCallBuffer->InitializeConstantBuffer(ConstantBufferType::DRAWCALL, sizeof(ConstantBufferData::sDrawCall)))
 	{
 		EAE6320_ASSERT(false);
 		return false;
 	}
 	else
 	{
-		drawCallBuffer.BindingConstantBuffer(BindMode::VS_ONLY);
+		drawCallBuffer->BindingConstantBuffer(BindMode::VS_ONLY);
 	}
 	return true;
 }
 
 bool eae6320::Graphics::CleanUp()
 {
-	frameBuffer.CleanUpConstantBuffer();
-	drawCallBuffer.CleanUpConstantBuffer();
+	delete frameBuffer;
+	delete drawCallBuffer;
 
 	bool wereThereErrors = false;
 
@@ -164,7 +173,7 @@ namespace
 		{
 			std::list<eae6320::Gameplay::GameObject*>::iterator itList = sortedGameObjects.begin();
 			uint32_t currentMaterialUUID = (*itList)->GetMaterial()->GetMaterialUUID();
-			uint32_t currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();	
+			uint32_t currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();
 			std::vector<eae6320::Gameplay::GameObject*>::iterator itVector = unsortedGameObjects.begin();
 			uint32_t materialUUIDToBeChecked = (*itVector)->GetMaterial()->GetMaterialUUID();
 			uint32_t effectUUIDToBeChecked = (*itVector)->GetMaterial()->GetEffect()->GetEffectUUID();
@@ -180,14 +189,16 @@ namespace
 			if (itList == sortedGameObjects.end())
 			{
 				sortedGameObjects.push_back((*itVector));
-				unsortedGameObjects.erase(itVector);
+				std::swap(*itVector, unsortedGameObjects.back());
+				unsortedGameObjects.pop_back();
 			}
 			else
 			{
 				if (currentMaterialUUID == materialUUIDToBeChecked && currentEffectUUID == effectUUIDToBeChecked)
 				{
 					sortedGameObjects.insert(itList, (*itVector));
-					unsortedGameObjects.erase(itVector);
+					std::swap(*itVector, unsortedGameObjects.back());
+					unsortedGameObjects.pop_back();
 				}
 				else
 				{
@@ -206,7 +217,8 @@ namespace
 							{
 								itemNotAdded = false;
 								sortedGameObjects.insert(itList, (*itVector));
-								unsortedGameObjects.erase(itVector);
+								std::swap(*itVector, unsortedGameObjects.back());
+								unsortedGameObjects.pop_back();
 								break;
 							}
 						}
@@ -321,7 +333,11 @@ namespace
 				s_depthStencilView->Release();
 				s_depthStencilView = NULL;
 			}
-
+			if (s_samplerState)
+			{
+				s_samplerState->Release();
+				s_samplerState = NULL;
+			}
 			commonData->s_direct3dDevice->Release();
 			commonData->s_direct3dDevice = NULL;
 		}
@@ -336,6 +352,21 @@ namespace
 			s_swapChain = NULL;
 		}
 #elif defined( EAE6320_PLATFORM_GL )
+		if (s_samplerState != 0)
+		{
+			const GLsizei samplerStateCount = 1;
+			glDeleteSamplers(samplerStateCount, &s_samplerState);
+			const GLenum errorCode = glGetError();
+			if (errorCode != GL_NO_ERROR)
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to delete the sample state: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
+			}
+			s_samplerState = 0;
+		}
+
 		if (s_openGlRenderingContext != NULL)
 		{
 			if (wglMakeCurrent(s_deviceContext, NULL) != FALSE)
@@ -363,11 +394,104 @@ namespace
 			// The documentation says that this call isn't necessary when CS_OWNDC is used
 			ReleaseDC(s_renderingWindow, s_deviceContext);
 			s_deviceContext = NULL;
-	}
+		}
 #endif
 		return !wereThereErrors;
-}
+	}
 
+	bool CreateBindSamplerStates()
+	{
+#if defined( EAE6320_PLATFORM_D3D )
+		// Create a sampler state object
+		{
+			D3D11_SAMPLER_DESC samplerStateDescription;
+			{
+				// Linear filtering
+				samplerStateDescription.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+				// If UVs go outside [0,1] wrap them around (so that textures can tile)
+				samplerStateDescription.AddressU = samplerStateDescription.AddressV
+					= samplerStateDescription.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+				// Default values
+				samplerStateDescription.MipLODBias = 0.0f;
+				samplerStateDescription.MaxAnisotropy = 1;
+				samplerStateDescription.ComparisonFunc = D3D11_COMPARISON_NEVER;
+				samplerStateDescription.BorderColor[0] = samplerStateDescription.BorderColor[1]
+					= samplerStateDescription.BorderColor[2] = samplerStateDescription.BorderColor[3] = 1.0f;
+				samplerStateDescription.MinLOD = -FLT_MAX;
+				samplerStateDescription.MaxLOD = FLT_MAX;
+			}
+			const HRESULT result = commonData->s_direct3dDevice->CreateSamplerState(&samplerStateDescription, &s_samplerState);
+			if (FAILED(result))
+			{
+				EAE6320_ASSERT(false);
+				eae6320::Logging::OutputError("Direct3D failed to create a sampler state with HRESULT %#010x", result);
+				return false;
+			}
+		}
+		// Bind the sampler state
+		{
+			const unsigned int samplerStateRegister = 0; // This must match the SamplerState register defined in the shader
+			const unsigned int samplerStateCount = 1;
+			commonData->s_direct3dImmediateContext->PSSetSamplers(samplerStateRegister, samplerStateCount, &s_samplerState);
+		}
+#elif defined( EAE6320_PLATFORM_GL )
+		// Create a sampler state object
+		{
+			const GLsizei samplerStateCount = 1;
+			glGenSamplers(samplerStateCount, &s_samplerState);
+			const GLenum errorCode = glGetError();
+			if (errorCode == GL_NO_ERROR)
+			{
+				if (s_samplerState != 0)
+				{
+					// Linear Filtering
+					glSamplerParameteri(s_samplerState, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+					EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+					glSamplerParameteri(s_samplerState, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+					// If UVs go outside [0,1] wrap them around (so that textures can tile)
+					glSamplerParameteri(s_samplerState, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+					glSamplerParameteri(s_samplerState, GL_TEXTURE_WRAP_T, GL_REPEAT);
+					EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+				}
+				else
+				{
+					EAE6320_ASSERT(false);
+					eae6320::Logging::OutputError("OpenGL failed to create a sampler state");
+					return false;
+				}
+			}
+			else
+			{
+				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				eae6320::Logging::OutputError("OpenGL failed to create a sampler state: %s",
+					reinterpret_cast<const char*>(gluErrorString(errorCode)));
+				return false;
+			}
+		}
+		// Bind the sampler state
+		{
+			// We will never be required to use more than one texture in an Effect in this class,
+			// but it doesn't hurt to bind the state to a few extra texture units
+			// just in case you decide to try using more
+			const GLuint maxTextureUnitCountYouThinkYoullUse = 5;
+			for (GLuint i = 0; i < maxTextureUnitCountYouThinkYoullUse; ++i)
+			{
+				glBindSampler(i, s_samplerState);
+				const GLenum errorCode = glGetError();
+				if (errorCode != GL_NO_ERROR)
+				{
+					EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+					eae6320::Logging::OutputError("OpenGL failed to bind the sampler state to texture unit %u: %s",
+						i, reinterpret_cast<const char*>(gluErrorString(errorCode)));
+					return false;
+				}
+			}
+		}
+#endif
+		return true;
+	}
 #if defined( EAE6320_PLATFORM_D3D )
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight)
 	{
