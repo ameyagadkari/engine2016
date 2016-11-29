@@ -731,11 +731,11 @@ namespace
 
 				if (eae6320::AssetBuild::CheckIfNumberIsNormalized(uv, 2))
 				{
-					meshData.vertexData[index].u = eae6320::Math::cHalf::compress(uv[0]);
+					meshData.vertexData[index].u = eae6320::Math::cHalf::MakeHalfFromFloat(uv[0]);
 #if defined( EAE6320_PLATFORM_D3D )
-					meshData.vertexData[index].v = eae6320::Math::cHalf::compress(1.0f - uv[1]);
+					meshData.vertexData[index].v = eae6320::Math::cHalf::MakeHalfFromFloat(1.0f - uv[1]);
 #elif defined( EAE6320_PLATFORM_GL )
-					meshData.vertexData[index].v = eae6320::Math::cHalf::compress(uv[1]);
+					meshData.vertexData[index].v = eae6320::Math::cHalf::MakeHalfFromFloat(uv[1]);
 #endif
 				}
 				else
