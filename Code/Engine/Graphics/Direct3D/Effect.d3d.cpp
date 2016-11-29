@@ -115,7 +115,7 @@ namespace eae6320
 
 						colorElement.SemanticName = "TEXCOORD";
 						colorElement.SemanticIndex = 0;	// (Semantics without modifying indices at the end can always use zero)
-						colorElement.Format = DXGI_FORMAT_R32G32_FLOAT;
+						colorElement.Format = DXGI_FORMAT_R16G16_FLOAT;
 						colorElement.InputSlot = 0;
 						colorElement.AlignedByteOffset = offsetof(MeshData::Vertex, u);
 						colorElement.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;

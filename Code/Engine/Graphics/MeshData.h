@@ -12,7 +12,7 @@ namespace eae6320
 			struct Vertex
 			{
 				float x, y, z;
-				float u, v;
+				uint16_t u, v;
 				uint8_t r, g, b, a;
 			};
 			Vertex *vertexData;

@@ -175,7 +175,7 @@ bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 			const GLint elementCount = 2;
 			const GLboolean isNormalized = GL_FALSE;	// The given floats should be used as-is
 
-			glVertexAttribPointer(vertexElementLocation, elementCount, GL_FLOAT, isNormalized, stride,
+			glVertexAttribPointer(vertexElementLocation, elementCount, GL_HALF_FLOAT, isNormalized, stride,
 				reinterpret_cast<GLvoid*>(offsetof(MeshData::Vertex, u)));
 
 			const GLenum errorCode = glGetError();
