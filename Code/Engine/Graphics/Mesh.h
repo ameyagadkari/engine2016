@@ -6,10 +6,11 @@ This file manages mesh-related functionality
 #define EAE6320_MESH_H
 
 #if defined( EAE6320_PLATFORM_D3D )
-#include<D3D11.h>
+struct ID3D11Buffer;
+struct ID3D11Buffer;
 #elif defined( EAE6320_PLATFORM_GL )
-#include "OpenGL\Includes.h"
 #include "Configuration.h"
+typedef unsigned int GLuint;
 #endif	
 
 #include <cstdint>

@@ -10,10 +10,10 @@
 // Header Files
 //=============
 
-#include "Configuration.h"
+//#include "Configuration.h"
 
 #ifdef EAE6320_PLATFORM_GL
-	#include "OpenGL/Includes.h"
+typedef unsigned int GLuint;
 #endif
 
 // Forward Declarations

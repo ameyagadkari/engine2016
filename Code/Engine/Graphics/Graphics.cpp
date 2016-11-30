@@ -13,8 +13,11 @@
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
 
-#if defined( EAE6320_PLATFORM_GL )
+#if defined ( EAE6320_PLATFORM_D3D )
+#include <D3D11.h>
+#elif defined( EAE6320_PLATFORM_GL )
 #include "../Windows/Functions.h"
+#include "OpenGL\Includes.h"
 #include <sstream>
 #endif
 
@@ -52,9 +55,9 @@ namespace
 	HGLRC s_openGlRenderingContext = NULL;
 	GLuint s_samplerState = 0;
 	bool CreateRenderingContext();
-	bool EnableBackFaceCulling();
+	/*bool EnableBackFaceCulling();
 	bool EnableDepthTesting();
-	bool EnableDepthWriting();
+	bool EnableDepthWriting();*/
 #endif
 	bool CreateBindSamplerStates();
 }
@@ -245,6 +248,8 @@ namespace
 #elif defined( EAE6320_PLATFORM_GL )
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+		glDepthMask(GL_TRUE);
+		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		glClearDepth(1.0f);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		const GLbitfield clearColorAndDepth = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
@@ -297,7 +302,7 @@ namespace
 			return false;
 		}
 
-		if (!EnableBackFaceCulling())
+		/*if (!EnableBackFaceCulling())
 		{
 			EAE6320_ASSERT(false);
 			return false;
@@ -313,7 +318,7 @@ namespace
 		{
 			EAE6320_ASSERT(false);
 			return false;
-		}
+		}*/
 #endif
 		return true;
 	}
@@ -808,7 +813,7 @@ namespace
 		return true;
 	}
 
-	bool EnableBackFaceCulling()
+	/*bool EnableBackFaceCulling()
 	{
 		glEnable(GL_CULL_FACE);
 		const GLenum errorCode = glGetError();
@@ -862,6 +867,6 @@ namespace
 		}
 
 		return true;
-	}
+	}*/
 #endif
 }

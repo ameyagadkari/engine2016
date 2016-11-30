@@ -2,6 +2,7 @@
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
 #include "../../Platform/Platform.h"
+#include "Includes.h"
 
 namespace
 {
@@ -151,6 +152,7 @@ namespace eae6320
 		{
 			glUseProgram(m_programId);
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+			m_renderState.Bind();
 		}
 	}
 }

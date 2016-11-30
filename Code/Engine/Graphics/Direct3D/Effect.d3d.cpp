@@ -5,6 +5,7 @@
 #include "../../Logging/Logging.h"
 #include "../../Platform/Platform.h"
 
+#include <D3D11.h>
 #include <string>
 
 namespace
@@ -172,6 +173,8 @@ namespace eae6320
 
 			commonData->s_direct3dImmediateContext->IASetInputLayout(m_vertexLayout);
 			commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			m_renderState.Bind();
 		}
 	}
 }

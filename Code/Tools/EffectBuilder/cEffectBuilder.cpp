@@ -10,6 +10,7 @@
 #include "../AssetBuildLibrary/UtilityFunctions.h"
 #include "../../Engine/Platform/Platform.h"
 #include "../../External/Lua/Includes.h"
+#include "../../Engine/Graphics/cRenderState.h"
 
 // Inherited Implementation
 //=========================
@@ -24,6 +25,7 @@ namespace
 {
 	const char * vertexShaderPath = NULL;
 	const char * fragmentShaderPath = NULL;
+	uint8_t renderStateBits = 0;
 
 	FILE * outputFile = NULL;
 
@@ -31,6 +33,10 @@ namespace
 	bool LoadShadersTable(lua_State& io_luaState);
 	bool LoadVertexShaderPath(lua_State& io_luaState);
 	bool LoadFragmentShaderPath(lua_State& io_luaState);
+	bool LoadRenderStatesTable(lua_State& io_luaState);
+	bool LoadAlphaTransparencyTable(lua_State& io_luaState);
+	bool LoadDepthBufferingTable(lua_State& io_luaState);
+	bool LoadDrawBothTriangleSidesTable(lua_State& io_luaState);
 }
 
 bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -146,6 +152,14 @@ bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& 
 
 	// Writing data to file 
 	{
+		// Render State Bits
+		fwrite(&renderStateBits, sizeof(uint8_t), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing render state bits bool to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
+		}
 		// Writing the Vertex Shader Path
 		if (!WriteCStringToFile(vertexShaderPath, outputFile))
 		{
@@ -208,7 +222,10 @@ namespace
 		{
 			return false;
 		}
-
+		if (!LoadRenderStatesTable(io_luaState))
+		{
+			return false;
+		}
 		return true;
 	}
 	bool LoadShadersTable(lua_State& io_luaState)
@@ -322,6 +339,155 @@ namespace
 		{
 			wereThereErrors = true;
 			fprintf_s(stderr, "The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+
+	bool LoadRenderStatesTable(lua_State & io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "render_states";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			renderStateBits = 0x02;
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
+		{
+			if (!LoadAlphaTransparencyTable(io_luaState))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+
+			if (!LoadDepthBufferingTable(io_luaState))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+
+			if (!LoadDrawBothTriangleSidesTable(io_luaState))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a table (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+
+		// Pop the Render States table
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+
+	bool LoadAlphaTransparencyTable(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "alpha_transparency";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			eae6320::Graphics::RenderStates::DisableAlphaTransparency(renderStateBits);
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+		{
+			if (lua_toboolean(&io_luaState, -1))
+			{
+				eae6320::Graphics::RenderStates::EnableAlphaTransparency(renderStateBits);
+			}
+			else
+			{
+				eae6320::Graphics::RenderStates::DisableAlphaTransparency(renderStateBits);
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+	bool LoadDepthBufferingTable(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "depth_buffering";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			eae6320::Graphics::RenderStates::EnableDepthBuffering(renderStateBits);
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+		{
+			if (lua_toboolean(&io_luaState, -1))
+			{
+				eae6320::Graphics::RenderStates::EnableDepthBuffering(renderStateBits);
+			}
+			else
+			{
+				eae6320::Graphics::RenderStates::DisableDepthBuffering(renderStateBits);
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+	bool LoadDrawBothTriangleSidesTable(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "draw_both_triangle_sides";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			eae6320::Graphics::RenderStates::DisableDrawingBothTriangleSides(renderStateBits);
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+		{
+			if (lua_toboolean(&io_luaState, -1))
+			{
+				eae6320::Graphics::RenderStates::EnableDrawingBothTriangleSides(renderStateBits);
+			}
+			else
+			{
+				eae6320::Graphics::RenderStates::DisableDrawingBothTriangleSides(renderStateBits);
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
 			goto OnExit;
 		}
 

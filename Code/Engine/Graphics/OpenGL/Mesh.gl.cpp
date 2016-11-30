@@ -5,7 +5,7 @@
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
 #include "../MeshData.h"
-
+#include "Includes.h"
 
 bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 {
