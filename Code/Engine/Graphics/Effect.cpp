@@ -19,8 +19,7 @@ eae6320::Graphics::Effect::Effect() :
 	effectUUID(0),
 #if defined( EAE6320_PLATFORM_D3D )
 	m_vertexShader(NULL),
-	m_fragmentShader(NULL),
-	m_vertexLayout(NULL)
+	m_fragmentShader(NULL)
 #elif defined( EAE6320_PLATFORM_GL )
 	m_programId(0)
 #endif

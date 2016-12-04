@@ -1,0 +1,37 @@
+/*
+	This is a vertex shader that can be used to render sprites
+*/
+
+#include "shaders.inc"
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+void main(
+	in const float3 i_vertexPosition_screen : POSITION,
+	in const float4 i_color : COLOR,
+	in const float2 i_UV : TEXCOORD,
+	out float4 gl_Position : SV_POSITION,
+	out float4 o_color : COLOR,
+	out float2 o_UV : TEXCOORD
+	)
+
+#elif defined( EAE6320_PLATFORM_GL )
+
+	layout( location = 0 ) in vec3 i_vertexPosition_screen;
+	layout( location = 1 ) in vec4 i_color;
+	layout( location = 2 ) in vec2 i_UV;
+	layout( location = 0 ) out vec4 o_color;
+	layout( location = 1 ) out vec2 o_UV;
+void main()
+#endif
+{
+	// Pass the input position to the GPU unchanged
+	{
+		gl_Position = float4( i_vertexPosition_screen, 1.0 );
+	}
+	// Pass the input color and the texture coordinates to the fragment shader unchanged
+	{
+		o_color = i_color;
+		o_UV = i_UV;
+	}
+}

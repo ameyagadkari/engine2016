@@ -12,6 +12,7 @@
 #include "../../Game/Gameplay/GameObject.h"
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
+#include "cSprite.h"
 
 #if defined ( EAE6320_PLATFORM_D3D )
 #include <D3D11.h>
@@ -150,7 +151,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 }
 
 bool eae6320::Graphics::CleanUp()
-{
+{	
 	delete frameBuffer;
 	delete drawCallBuffer;
 

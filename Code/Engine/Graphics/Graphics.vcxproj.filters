@@ -57,6 +57,16 @@
     <ClCompile Include="OpenGL\cRenderState.gl.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="cSprite.cpp" />
+    <ClCompile Include="Direct3D\cSprite.d3d.cpp">
+      <Filter>Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\cSprite.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\UtilityFunctions.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -76,6 +86,10 @@
     </ClInclude>
     <ClInclude Include="cTexture.h" />
     <ClInclude Include="cRenderState.h" />
+    <ClInclude Include="cSprite.h" />
+    <ClInclude Include="OpenGL\UtilityFunctions.gl.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cRenderState\cRenderState.inl">

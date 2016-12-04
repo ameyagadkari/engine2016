@@ -1,6 +1,12 @@
 -- Effect File for Bob Effect
 return
 {
+	render_states = 
+	{
+		alpha_transparency = false,
+		depth_buffering = true,
+		draw_both_triangle_sides = false,
+	},
 	shaders = 
 	{
 		vertex_shader = "shaders/bob_vertex.txtshader",

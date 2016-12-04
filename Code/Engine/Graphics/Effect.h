@@ -39,7 +39,8 @@ namespace eae6320
 #if defined( EAE6320_PLATFORM_D3D )
 			ID3D11VertexShader* m_vertexShader;
 			ID3D11PixelShader* m_fragmentShader;
-			ID3D11InputLayout* m_vertexLayout;
+			//Create only one as the vertex layout is same for all shaders
+			static ID3D11InputLayout* ms_vertexLayout;
 #elif defined( EAE6320_PLATFORM_GL )
 			GLuint m_programId;
 #endif

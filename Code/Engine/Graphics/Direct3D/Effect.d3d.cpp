@@ -8,6 +8,11 @@
 #include <D3D11.h>
 #include <string>
 
+// Static Data Initialization
+//===========================
+
+ID3D11InputLayout* eae6320::Graphics::Effect::ms_vertexLayout = NULL;
+
 namespace
 {
 	eae6320::Graphics::CommonData *commonData = eae6320::Graphics::CommonData::GetCommonData();
@@ -71,7 +76,8 @@ namespace eae6320
 				}
 			}
 
-			// Create the vertex layout
+			if (!ms_vertexLayout)
+				// Create the vertex layout
 			{
 				// These elements must match the VertexFormat::Vertex layout struct exactly.
 				// They instruct Direct3D how to match the binary data in the vertex buffer
@@ -124,7 +130,7 @@ namespace eae6320
 					}
 				}
 				const HRESULT result = commonData->s_direct3dDevice->CreateInputLayout(layoutDescription, vertexElementCount,
-					compiledVertexShader.data, compiledVertexShader.size, &m_vertexLayout);
+					compiledVertexShader.data, compiledVertexShader.size, &ms_vertexLayout);
 				if (FAILED(result))
 				{
 					wereThereErrors = true;
@@ -142,10 +148,10 @@ namespace eae6320
 		{
 			bool wereThereErrors = false;
 
-			if (m_vertexLayout)
+			if (ms_vertexLayout)
 			{
-				m_vertexLayout->Release();
-				m_vertexLayout = NULL;
+				ms_vertexLayout->Release();
+				ms_vertexLayout = NULL;
 			}
 
 			if (m_vertexShader)
@@ -171,7 +177,7 @@ namespace eae6320
 			commonData->s_direct3dImmediateContext->VSSetShader(m_vertexShader, noInterfaces, interfaceCount);
 			commonData->s_direct3dImmediateContext->PSSetShader(m_fragmentShader, noInterfaces, interfaceCount);
 
-			commonData->s_direct3dImmediateContext->IASetInputLayout(m_vertexLayout);
+			commonData->s_direct3dImmediateContext->IASetInputLayout(ms_vertexLayout);
 			commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			m_renderState.Bind();

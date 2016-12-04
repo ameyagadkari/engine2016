@@ -22,12 +22,17 @@
     <ClCompile Include="CommonData.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="cRenderState\cRenderState.cpp" />
+    <ClCompile Include="cSprite.cpp" />
     <ClCompile Include="cTexture\cTexture.cpp" />
     <ClCompile Include="Direct3D\ConstantBuffer.d3d.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Direct3D\cRenderState.d3d.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Direct3D\cSprite.d3d.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -51,6 +56,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="OpenGL\cSprite.gl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="OpenGL\cTexture.gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -67,6 +76,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="OpenGL\UtilityFunctions.gl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonData.h" />
@@ -74,6 +84,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferData.h" />
     <ClInclude Include="cRenderState.h" />
+    <ClInclude Include="cSprite.h" />
     <ClInclude Include="cTexture.h" />
     <ClInclude Include="cTexture\Internal.h" />
     <ClInclude Include="Effect.h" />
@@ -82,6 +93,7 @@
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="OpenGL\Includes.h" />
+    <ClInclude Include="OpenGL\UtilityFunctions.gl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cRenderState\cRenderState.inl" />
