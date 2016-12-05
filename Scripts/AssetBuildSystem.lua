@@ -198,7 +198,7 @@ NewAssetTypeInfo( "gameobjects",
 			if DoesFileExist( sourceAbsolutePath ) then
 				local gameobject = dofile( sourceAbsolutePath )
 				if type( gameobject ) ~= "table" then
-					OutputErrorMessage( "The gameobeject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+					OutputErrorMessage( "The gameobject file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
 				end				
 				local path_material = gameobject.material_filepath
 				local path_material_type = type( path_material )
@@ -214,6 +214,34 @@ NewAssetTypeInfo( "gameobjects",
 					OutputErrorMessage( "The mesh path must be a string instead of a " .. path_mesh_type .. " in gameobject file " .. i_sourceRelativePath)
 				else
 					RegisterAssetToBeBuilt( path_mesh, "meshes" )
+				end				
+			end
+		end,	
+	}
+)
+
+-- Gameobject2D Asset Type
+--------------------
+
+NewAssetTypeInfo( "gameobjects2d",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "Gameobject2DBuilder.exe"
+		end,	
+		RegisterReferencedAssets = function( i_sourceRelativePath )
+		local sourceAbsolutePath = s_AuthoredAssetDir .. i_sourceRelativePath
+			if DoesFileExist( sourceAbsolutePath ) then
+				local gameobject2d = dofile( sourceAbsolutePath )
+				if type( gameobject2d ) ~= "table" then
+					OutputErrorMessage( "The gameobject2d file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+				end				
+				local path_material = gameobject2d.material_filepath
+				local path_material_type = type( path_material )
+				if path_material_type ~= "string" then
+					OutputErrorMessage( "The material path must be a string instead of a " .. path_material_type .. " in gameobject file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_material, "materials")
 				end				
 			end
 		end,	

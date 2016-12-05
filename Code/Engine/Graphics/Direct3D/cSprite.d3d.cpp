@@ -11,7 +11,6 @@
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
 #include "../CommonData.h"
-#include "../../Math/cHalf.h"
 
 // Static Data Initialization
 //===========================
@@ -95,26 +94,26 @@ void eae6320::Graphics::cSprite::Draw() const
 				// Lower Left
 				{
 					MeshData::Vertex& vertex = vertexData[0];
-					vertex.u = Math::cHalf::MakeHalfFromFloat(m_textureCoordinates.left);
-					vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f - m_textureCoordinates.bottom);
+					vertex.u = m_textureCoordinates.left;
+					vertex.v = m_textureCoordinates.bottom;
 				}
 				// Upper Left
 				{
 					MeshData::Vertex& vertex = vertexData[1];
-					vertex.u = Math::cHalf::MakeHalfFromFloat(m_textureCoordinates.left);
-					vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f - m_textureCoordinates.top);
+					vertex.u = m_textureCoordinates.left;
+					vertex.v = m_textureCoordinates.top;
 				}
 				// Lower Right
 				{
 					MeshData::Vertex& vertex = vertexData[2];
-					vertex.u = Math::cHalf::MakeHalfFromFloat(m_textureCoordinates.right);
-					vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f - m_textureCoordinates.bottom);
+					vertex.u = m_textureCoordinates.right;
+					vertex.v = m_textureCoordinates.bottom;
 				}
 				// Upper Right
 				{
 					MeshData::Vertex& vertex = vertexData[3];
-					vertex.u = Math::cHalf::MakeHalfFromFloat(m_textureCoordinates.right);
-					vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f - m_textureCoordinates.top);
+					vertex.u = m_textureCoordinates.right;
+					vertex.v = m_textureCoordinates.top;
 				}
 			}
 			// Colors
@@ -181,8 +180,8 @@ bool eae6320::Graphics::cSprite::Initialize()
 			vertex.x = -1.0f;
 			vertex.y = -1.0f;
 			vertex.z = 0.0f;
-			vertex.u = Math::cHalf::MakeHalfFromFloat(0.0f);
-			vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f);
+			vertex.u = zeroAsHalf;
+			vertex.v = oneAsHalf;
 			vertex.r = vertex.g = vertex.b = vertex.a = 255;
 		}
 		// Upper Left
@@ -191,8 +190,8 @@ bool eae6320::Graphics::cSprite::Initialize()
 			vertex.x = -1.0f;
 			vertex.y = 1.0f;
 			vertex.z = 0.0f;
-			vertex.u = Math::cHalf::MakeHalfFromFloat(0.0f);
-			vertex.v = Math::cHalf::MakeHalfFromFloat(0.0f);
+			vertex.u = zeroAsHalf;
+			vertex.v = zeroAsHalf;
 			vertex.r = vertex.g = vertex.b = vertex.a = 255;
 		}
 		// Lower Right
@@ -201,8 +200,8 @@ bool eae6320::Graphics::cSprite::Initialize()
 			vertex.x = 1.0f;
 			vertex.y = -1.0f;
 			vertex.z = 0.0f;
-			vertex.u = Math::cHalf::MakeHalfFromFloat(1.0f);
-			vertex.v = Math::cHalf::MakeHalfFromFloat(1.0f);
+			vertex.u = oneAsHalf;
+			vertex.v = oneAsHalf;
 			vertex.r = vertex.g = vertex.b = vertex.a = 255;
 		}
 		// Upper Right
@@ -211,8 +210,8 @@ bool eae6320::Graphics::cSprite::Initialize()
 			vertex.x = 1.0f;
 			vertex.y = 1.0f;
 			vertex.z = 0.0f;
-			vertex.u = Math::cHalf::MakeHalfFromFloat(1.0f);
-			vertex.v = Math::cHalf::MakeHalfFromFloat(0.0f);
+			vertex.u = oneAsHalf;
+			vertex.v = zeroAsHalf;
 			vertex.r = vertex.g = vertex.b = vertex.a = 255;
 		}
 	}

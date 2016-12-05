@@ -1,0 +1,12 @@
+-- Gameobject2D Data for Logo
+return
+{
+	screen_position = 
+	{
+		left = -1.0,
+		right = -0.75,
+		top = 1.0,
+		bottom = 0.75,
+	},
+	material_filepath = "materials/logo_material.txtmaterial",	
+}

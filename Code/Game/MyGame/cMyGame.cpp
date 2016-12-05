@@ -5,6 +5,7 @@
 #include <vector>
 #include <regex>
 #include "../Gameplay/GameObject.h"
+#include "../Gameplay/GameObject2D.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
@@ -26,11 +27,11 @@ eae6320::cMyGame::~cMyGame()
 
 namespace
 {
-	void GenerateRelativePaths();
+	void GenerateRelativePaths(std::string prefix);
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
+	std::map<const std::string, eae6320::Gameplay::GameObject2D*> gameObjects2D;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
-	size_t numberOfGameObjects;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
 }
@@ -43,16 +44,29 @@ namespace
 bool eae6320::cMyGame::Initialize()
 {
 	bool wereThereErrors = false;
-	GenerateRelativePaths();
-	for (size_t i = 0; i < numberOfGameObjects; i++)
 	{
-		gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
+		const std::string prefix = "data/gameobjects/";
+		GenerateRelativePaths(prefix);
+		const size_t numberOfGameObjects = relativePaths.size();
+		for (size_t i = 0; i < numberOfGameObjects; i++)
+		{
+			gameObjects[fileNames[i]] = (Gameplay::GameObject::LoadGameObject(relativePaths[i].c_str()));
+		}
+		if (!numberOfGameObjects)
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			Logging::OutputError("No Gameobjects to draw build the assets.");
+		}
 	}
-	if (!numberOfGameObjects)
 	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("No Gameobjects to draw build the assets.");
+		const std::string prefix = "data/gameobjects2d/";
+		GenerateRelativePaths(prefix);
+		const size_t numberOfGameObjects2D = relativePaths.size();
+		for (size_t i = 0; i < numberOfGameObjects2D; i++)
+		{
+			gameObjects2D[fileNames[i]] = (Gameplay::GameObject2D::LoadGameObject2D(relativePaths[i].c_str()));
+		}
 	}
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 2.5f, 50.0f));
@@ -124,13 +138,24 @@ void eae6320::cMyGame::UpdateGameObjectOrientation()
 	}
 }
 
-void eae6320::cMyGame::SubmitDrawcallData()
+void eae6320::cMyGame::SubmitDrawcallData3D()
 {
 	for (auto const& gameObject : gameObjects)
 	{
 		if (gameObject.second)
 		{
 			Graphics::SetGameObject(gameObject.second);
+		}
+	}
+}
+
+void eae6320::cMyGame::SubmitDrawcallData2D()
+{
+	for (auto const& gameObject2D : gameObjects2D)
+	{
+		if (gameObject2D.second)
+		{
+			Graphics::SetGameObject2D(gameObject2D.second);
 		}
 	}
 }
@@ -147,6 +172,14 @@ bool eae6320::cMyGame::CleanUp()
 		}
 	}
 	gameObjects.clear();
+	for (auto const& gameObject2D : gameObjects2D)
+	{
+		if (gameObject2D.second)
+		{
+			delete gameObject2D.second;
+		}
+	}
+	gameObjects2D.clear();
 	if (!Camera::cCamera::CleanUp())
 	{
 		wereThereErrors = true;
@@ -162,9 +195,10 @@ bool eae6320::cMyGame::CleanUp()
 
 namespace
 {
-	void GenerateRelativePaths()
+	void GenerateRelativePaths(std::string prefix)
 	{
-		std::string prefix = "data/gameobjects/";
+		relativePaths.clear();
+		fileNames.clear();
 		WIN32_FIND_DATA search_data;
 		memset(&search_data, 0, sizeof(WIN32_FIND_DATA));
 		HANDLE handle = FindFirstFile((prefix + "*").c_str(), &search_data);
@@ -182,6 +216,5 @@ namespace
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);
-		numberOfGameObjects = relativePaths.size();
 	}
 }
