@@ -25,24 +25,24 @@ namespace eae6320
 				Unknown
 			};
 			// Returns the size in bytes of a single 4x4 (16 pixel) block
-			inline unsigned int GetSizeOfBlock( const eFormat i_format )
+			inline unsigned int GetSizeOfBlock(const eFormat i_format)
 			{
-				switch ( i_format )
+				switch (i_format)
 				{
 					// RGB (with an optional binary alpha)
-					case BC1: return 8; break;
+				case BC1: return 8; break;
 					// RGB + A (BC1 for RGB and 4 bits for each alpha pixel)
-					case BC2: return 8 + ( 4 * 16 );
+				case BC2: return 8 + (4 * 16);
 					// RGB + A (BC1 for RGB and BC4 for alpha)
-					case BC3: return 8 + 8; break;
+				case BC3: return 8 + 8; break;
 					// Single Channel
-					case BC4: return 8; break;
+				case BC4: return 8; break;
 					// Two Channels (2 BC4s)
-					case BC5: return 8 + 8; break;
+				case BC5: return 8 + 8; break;
 					// RGB 16-bit ("h" for "half precision") floating point
-					case BC6h: return 16; break;
+				case BC6h: return 16; break;
 					// RGBA
-					case BC7: return 16; break;
+				case BC7: return 16; break;
 				}
 
 				// The format doesn't use block compression
@@ -57,15 +57,13 @@ namespace eae6320
 		{
 			const void* imageData;
 			size_t imageDataSize;
-			unsigned int width, height;
 			unsigned int mipLevelCount;
 			TextureFormats::eFormat format;
 
 			sDdsInfo()
 				:
-				imageData( nullptr ), imageDataSize( 0 ),
-				width( 0 ), height( 0 ), mipLevelCount( 0 ),
-				format( TextureFormats::Unknown )
+				imageData(nullptr), imageDataSize(0),
+				mipLevelCount(0), format(TextureFormats::Unknown)
 			{
 
 			}

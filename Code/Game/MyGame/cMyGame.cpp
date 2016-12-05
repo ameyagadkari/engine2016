@@ -12,6 +12,9 @@
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
 
+#include "../../Engine/Graphics/Material.h"
+#include "../../Engine/Graphics/cTexture.h"
+
 // Interface
 //==========
 

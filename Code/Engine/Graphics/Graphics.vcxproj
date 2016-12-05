@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cRenderState\cRenderState.inl" />
+    <None Include="cTexture\cTexture.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D01E2480-8C49-4E7D-A34D-4DDB6AD3F552}</ProjectGuid>

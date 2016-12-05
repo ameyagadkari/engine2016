@@ -154,8 +154,28 @@ bool eae6320::Graphics::cTexture::Load( const char* const i_relativePath, cTextu
 				ddsInfo.imageData = currentPosition;
 				ddsInfo.imageDataSize = remainingSize;
 			}
-			ddsInfo.width = static_cast<unsigned int>( header->dwWidth );
-			ddsInfo.height = static_cast<unsigned int>( header->dwHeight );
+			if ( header->dwWidth < ( 1u << ( sizeof( m_width ) * 8u ) ) )
+			{
+				o_texture.m_width = static_cast<uint16_t>( header->dwWidth );
+			}
+			else
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF( false, "Texture width (%u) too big", header->dwWidth );
+				Logging::OutputError( "The width (%u) of the DDS file %s is too big", header->dwWidth, i_relativePath);
+				goto OnExit;
+			}
+			if ( header->dwHeight < ( 1u << ( sizeof( m_height ) * 8u ) ) )
+			{
+				o_texture.m_height = static_cast<uint16_t>( header->dwHeight );
+			}
+			else
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF( false, "Texture width (%u) too big", header->dwHeight );
+				Logging::OutputError( "The width (%u) of the DDS file %s is too big", header->dwHeight, i_relativePath );
+				goto OnExit;
+			}
 			ddsInfo.mipLevelCount = static_cast<unsigned int>( header->dwMipMapCount );
 			// Format
 			{
@@ -191,10 +211,11 @@ OnExit:
 eae6320::Graphics::cTexture::cTexture()
 	:
 #if defined( EAE6320_PLATFORM_D3D )
-	m_textureView( NULL )
+	m_textureView( NULL ),
 #elif defined( EAE6320_PLATFORM_GL )
-	m_textureId( 0 )
+	m_textureId( 0 ),
 #endif
+	m_width( 0 ), m_height( 0 )
 {
 
 }

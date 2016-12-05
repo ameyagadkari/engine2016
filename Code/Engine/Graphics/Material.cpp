@@ -121,6 +121,11 @@ eae6320::Graphics::Effect * eae6320::Graphics::Material::GetEffect() const
 	return m_effect;
 }
 
+eae6320::Graphics::cTexture * eae6320::Graphics::Material::GetTexture() const
+{
+	return m_texture;
+}
+
 bool eae6320::Graphics::Material::CleanUpMaterial()
 {
 	bool wereThereErrors = false;

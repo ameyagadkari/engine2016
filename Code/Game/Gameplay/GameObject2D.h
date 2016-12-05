@@ -1,6 +1,8 @@
 #ifndef EAE6320_GAMEOBJECT2D_H
 #define EAE6320_GAMEOBJECT2D_H
 
+#include <cstdint>
+
 // Forward Declarations
 //=====================
 namespace eae6320
@@ -12,6 +14,24 @@ namespace eae6320
 	}
 }
 
+// Helper Structs
+//================
+namespace eae6320
+{
+	namespace Gameplay
+	{
+		enum struct Anchor { TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT, CENTER, LEFT_CENTER, BOTTOM_CENTER, TOP_CENTER, RIGHT_CENTER };
+		struct RectTransform
+		{
+			struct
+			{
+				int16_t x, y;
+			}pixelCoordinates;
+			uint16_t width, height;
+		};
+	}
+}
+
 namespace eae6320
 {
 	namespace Gameplay
@@ -19,7 +39,7 @@ namespace eae6320
 		class GameObject2D
 		{
 		public:
-			
+
 			~GameObject2D();
 			static GameObject2D* LoadGameObject2D(const char * const relativePath);
 
@@ -35,8 +55,10 @@ namespace eae6320
 
 		private:
 			GameObject2D();
+			RectTransform rectTransform;
 			Graphics::cSprite* sprite;
 			Graphics::Material* material;
+			Anchor anchor;
 		};
 	}
 }

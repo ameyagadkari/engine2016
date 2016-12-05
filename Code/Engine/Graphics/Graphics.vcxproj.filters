@@ -95,5 +95,8 @@
     <None Include="cRenderState\cRenderState.inl">
       <Filter>cRenderState</Filter>
     </None>
+    <None Include="cTexture\cTexture.inl">
+      <Filter>cTexture</Filter>
+    </None>
   </ItemGroup>
 </Project>

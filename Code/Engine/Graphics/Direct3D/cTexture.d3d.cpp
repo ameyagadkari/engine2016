@@ -7,7 +7,7 @@
 #include <cstdlib>
 // <windows.h> is #inluded before <D3D11.h> so that it is #included consistently.
 // I didn't think about this and should change this next year so that D3D has it's own Includes.h file like OpenGL does :(
-	#include "../../Windows/Includes.h"
+#include "../../Windows/Includes.h"
 #include <D3D11.h>
 #include "../cTexture/Internal.h"
 #include "../../Asserts/Asserts.h"
@@ -20,10 +20,10 @@
 // Render
 //-------
 
-void eae6320::Graphics::cTexture::Bind( const unsigned int i_id ) const
+void eae6320::Graphics::cTexture::Bind(const unsigned int i_id) const
 {
 	const unsigned int viewCount = 1;
-	CommonData::GetCommonData()->s_direct3dImmediateContext->PSSetShaderResources( i_id, viewCount, &m_textureView );
+	CommonData::GetCommonData()->s_direct3dImmediateContext->PSSetShaderResources(i_id, viewCount, &m_textureView);
 }
 
 // Initialization / Clean Up
@@ -31,7 +31,7 @@ void eae6320::Graphics::cTexture::Bind( const unsigned int i_id ) const
 
 bool eae6320::Graphics::cTexture::CleanUp()
 {
-	if ( m_textureView )
+	if (m_textureView)
 	{
 		m_textureView->Release();
 		m_textureView = NULL;
@@ -46,7 +46,7 @@ bool eae6320::Graphics::cTexture::CleanUp()
 // Initialization / Clean Up
 //--------------------------
 
-bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sDdsInfo& i_ddsInfo )
+bool eae6320::Graphics::cTexture::Initialize(const char* const i_path, const sDdsInfo& i_ddsInfo)
 {
 	bool wereThereErrors = false;
 
@@ -59,28 +59,28 @@ bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sD
 	// (e.g. MIP maps, volume textures, texture arrays))
 	{
 		const size_t byteCountToAllocate = sizeof(D3D11_SUBRESOURCE_DATA) * i_ddsInfo.mipLevelCount;
-		subResourceData = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>( malloc( byteCountToAllocate ) );
-		if ( !subResourceData )
+		subResourceData = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(malloc(byteCountToAllocate));
+		if (!subResourceData)
 		{
 			wereThereErrors = true;
-			EAE6320_ASSERTF( false, "Failed to allocate %u bytes", byteCountToAllocate );
-			Logging::OutputError( "Failed to allocate %u bytes for %u subresources for %s", byteCountToAllocate, i_ddsInfo.mipLevelCount, i_path );
+			EAE6320_ASSERTF(false, "Failed to allocate %u bytes", byteCountToAllocate);
+			Logging::OutputError("Failed to allocate %u bytes for %u subresources for %s", byteCountToAllocate, i_ddsInfo.mipLevelCount, i_path);
 			goto OnExit;
 		}
 	}
 	// Fill in the data for each MIP level
 	{
-		unsigned int currentWidth = static_cast<unsigned int>( i_ddsInfo.width );
-		unsigned int currentHeight = static_cast<unsigned int>( i_ddsInfo.height );
-		const uint8_t* currentPosition = reinterpret_cast<const uint8_t*>( i_ddsInfo.imageData );
+		unsigned int currentWidth = static_cast<unsigned int>(m_width);
+		unsigned int currentHeight = static_cast<unsigned int>(m_height);
+		const uint8_t* currentPosition = reinterpret_cast<const uint8_t*>(i_ddsInfo.imageData);
 		const uint8_t* const endOfFile = currentPosition + i_ddsInfo.imageDataSize;
-		const unsigned int blockSize = TextureFormats::GetSizeOfBlock( i_ddsInfo.format );
-		for ( unsigned int i = 0; i < i_ddsInfo.mipLevelCount; ++i )
+		const unsigned int blockSize = TextureFormats::GetSizeOfBlock(i_ddsInfo.format);
+		for (unsigned int i = 0; i < i_ddsInfo.mipLevelCount; ++i)
 		{
 			// Calculate how much memory this MIP level uses
-			const unsigned int blockCount_singleRow = ( currentWidth + 3 ) / 4;
+			const unsigned int blockCount_singleRow = (currentWidth + 3) / 4;
 			const unsigned int byteCount_singleRow = blockCount_singleRow * blockSize;
-			const unsigned int rowCount = ( currentHeight + 3 ) / 4;
+			const unsigned int rowCount = (currentHeight + 3) / 4;
 			const unsigned int byteCount_currentMipLevel = byteCount_singleRow * rowCount;
 			// Set the data into the subresource
 			{
@@ -92,34 +92,34 @@ bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sD
 			// Update current data for next iteration
 			{
 				currentPosition += byteCount_currentMipLevel;
-				if ( currentPosition <= endOfFile )
+				if (currentPosition <= endOfFile)
 				{
-					currentWidth = std::max( currentWidth / 2, 1u );
-					currentHeight = std::max( currentHeight / 2, 1u );
+					currentWidth = std::max(currentWidth / 2, 1u);
+					currentHeight = std::max(currentHeight / 2, 1u);
 				}
 				else
 				{
 					wereThereErrors = true;
-					EAE6320_ASSERTF( false, "DDS file not big enough" );
-					Logging::OutputError( "The DDS file %s isn't big enough to hold the data that its header claims to", i_path );
+					EAE6320_ASSERTF(false, "DDS file not big enough");
+					Logging::OutputError("The DDS file %s isn't big enough to hold the data that its header claims to", i_path);
 					goto OnExit;
 				}
 			}
 		}
-		EAE6320_ASSERTF( currentPosition == endOfFile, "The DDS file %s has more data than it should", i_path );
+		EAE6320_ASSERTF(currentPosition == endOfFile, "The DDS file %s has more data than it should", i_path);
 	}
 	// Create the resource
 	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_UNKNOWN;
-	switch ( i_ddsInfo.format )
+	switch (i_ddsInfo.format)
 	{
-		case TextureFormats::BC1: dxgiFormat = DXGI_FORMAT_BC1_UNORM; break;
-		case TextureFormats::BC3: dxgiFormat = DXGI_FORMAT_BC3_UNORM; break;
+	case TextureFormats::BC1: dxgiFormat = DXGI_FORMAT_BC1_UNORM; break;
+	case TextureFormats::BC3: dxgiFormat = DXGI_FORMAT_BC3_UNORM; break;
 	}
 	{
 		D3D11_TEXTURE2D_DESC textureDescription = { 0 };
 		{
-			textureDescription.Width = i_ddsInfo.width;
-			textureDescription.Height = i_ddsInfo.height;
+			textureDescription.Width = static_cast<unsigned int>(m_width);
+			textureDescription.Height = static_cast<unsigned int>(m_height);
 			textureDescription.MipLevels = i_ddsInfo.mipLevelCount;
 			textureDescription.ArraySize = 1;
 			textureDescription.Format = dxgiFormat;
@@ -134,12 +134,12 @@ bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sD
 			textureDescription.CPUAccessFlags = 0;	// No CPU access is necessary
 			textureDescription.MiscFlags = 0;
 		}
-		const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateTexture2D( &textureDescription, subResourceData, &resource );
-		if ( FAILED( result ) )
+		const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateTexture2D(&textureDescription, subResourceData, &resource);
+		if (FAILED(result))
 		{
 			wereThereErrors = true;
-			EAE6320_ASSERTF( false, "CreateTexture2D() failed" );
-			eae6320::Logging::OutputError( "Direct3D failed to create a texture from %s with HRESULT %#010x", i_path, result );
+			EAE6320_ASSERTF(false, "CreateTexture2D() failed");
+			eae6320::Logging::OutputError("Direct3D failed to create a texture from %s with HRESULT %#010x", i_path, result);
 			goto OnExit;
 		}
 	}
@@ -155,12 +155,12 @@ bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sD
 				shaderResourceView2dDescription.MipLevels = -1;	// Use all MIP levels
 			}
 		}
-		const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateShaderResourceView( resource, &shaderResourceViewDescription, &m_textureView );
-		if ( FAILED( result ) )
+		const HRESULT result = CommonData::GetCommonData()->s_direct3dDevice->CreateShaderResourceView(resource, &shaderResourceViewDescription, &m_textureView);
+		if (FAILED(result))
 		{
 			wereThereErrors = true;
-			EAE6320_ASSERTF( false, "CreateShaderResourceView() failed" );
-			eae6320::Logging::OutputError( "Direct3D failed to create a shader resource view for %s with HRESULT %#010x", i_path, result );
+			EAE6320_ASSERTF(false, "CreateShaderResourceView() failed");
+			eae6320::Logging::OutputError("Direct3D failed to create a shader resource view for %s with HRESULT %#010x", i_path, result);
 			goto OnExit;
 		}
 	}
@@ -169,14 +169,14 @@ OnExit:
 
 	// The texture resource is always released, even on success
 	// (the view will hold its own reference to the resource)
-	if ( resource )
+	if (resource)
 	{
 		resource->Release();
 		resource = NULL;
 	}
-	if ( subResourceData )
+	if (subResourceData)
 	{
-		free( subResourceData );
+		free(subResourceData);
 		subResourceData = NULL;
 	}
 

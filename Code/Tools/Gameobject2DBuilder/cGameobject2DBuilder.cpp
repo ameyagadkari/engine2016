@@ -10,6 +10,7 @@
 #include "../../Engine/Platform/Platform.h"
 #include "../../External/Lua/Includes.h"
 #include "../../Engine/Graphics/cSprite.h"
+#include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Math/cHalf.h"
 
 // Inherited Implementation
@@ -19,18 +20,21 @@
 //------
 namespace
 {
-	eae6320::Graphics::Sprite::ScreenPosition screenPosition;
 	eae6320::Graphics::Sprite::TextureCoordinates textureCoordinates;
+	eae6320::Gameplay::RectTransform rectTranform;
+	uint8_t anchorEnumNumber = 0;
 	const char * materialPath = NULL;
 
 	FILE * outputFile = NULL;
 
 	bool LoadGameobject2DTable(lua_State& io_luaState);
-	bool LoadLeftValue(lua_State& io_luaState, bool doesItSupportDefault);
-	bool LoadRightValue(lua_State& io_luaState, bool doesItSupportDefault);
-	bool LoadTopValue(lua_State& io_luaState, bool doesItSupportDefault);
-	bool LoadBottomValue(lua_State& io_luaState, bool doesItSupportDefault);
-
+	bool LoadLeftValue(lua_State& io_luaState);
+	bool LoadRightValue(lua_State& io_luaState);
+	bool LoadTopValue(lua_State& io_luaState);
+	bool LoadBottomValue(lua_State& io_luaState);
+	bool LoadPixelCoordinates(lua_State& io_luaState);
+	bool LoadWidth(lua_State& io_luaState);
+	bool LoadHeight(lua_State& io_luaState);
 }
 
 bool eae6320::AssetBuild::cGameobject2DBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -146,19 +150,27 @@ bool eae6320::AssetBuild::cGameobject2DBuilder::Build(const std::vector<std::str
 
 	// Writing data to file 
 	{
-		// Writing Screen Position struct
-		fwrite(&screenPosition, sizeof(Graphics::Sprite::ScreenPosition), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing screen position struct to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
 		// Writing Texture Coordinates struct
 		fwrite(&textureCoordinates, sizeof(Graphics::Sprite::TextureCoordinates), 1, outputFile);
 		if (ferror(outputFile))
 		{
 			fprintf_s(stderr, "Error writing texture coordinates struct to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
+		}
+		// Writing Pixel Coordinates struct
+		fwrite(&rectTranform, sizeof(Gameplay::RectTransform), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing pixel coordinates struct to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
+		}
+		// Writing anchor enum number
+		fwrite(&anchorEnumNumber, sizeof(uint8_t), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing anchor enum number to %s \n", m_path_target);
 			wereThereErrors = true;
 			goto OnExit;
 		}
@@ -247,9 +259,9 @@ namespace
 			}
 		}
 
-		// Loading screen positon table
+		// Loading rect transform table
 		{
-			const char* key = "screen_position";
+			const char* key = "rect_transform";
 			lua_pushstring(&io_luaState, key);
 			lua_gettable(&io_luaState, -2);
 			if (lua_isnil(&io_luaState, -1))
@@ -261,32 +273,24 @@ namespace
 			}
 			if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 			{
-				const bool defaultNotSupported = false;
-				if (!LoadLeftValue(io_luaState, defaultNotSupported))
+				if (!LoadPixelCoordinates(io_luaState))
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load left value");
+					fprintf_s(stderr, "Failed to load pixel coordinates");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadRightValue(io_luaState, defaultNotSupported))
+				if (!LoadWidth(io_luaState))
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load right value");
+					fprintf_s(stderr, "Failed to load width");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadTopValue(io_luaState, defaultNotSupported))
+				if (!LoadHeight(io_luaState))
 				{
 					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load top value");
-					lua_pop(&io_luaState, 1);
-					return !wereThereErrors;
-				}
-				if (!LoadBottomValue(io_luaState, defaultNotSupported))
-				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load bottom value");
+					fprintf_s(stderr, "Failed to load height");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
@@ -296,6 +300,75 @@ namespace
 			{
 				wereThereErrors = true;
 				fprintf_s(stderr, "The value at \"%s\" must be a table (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+				lua_pop(&io_luaState, 1);
+				return !wereThereErrors;
+			}
+		}
+
+		//Loading anchor
+		{
+			const char* key = "anchor";
+			lua_pushstring(&io_luaState, key);
+			lua_gettable(&io_luaState, -2);
+			if (lua_isnil(&io_luaState, -1))
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+				lua_pop(&io_luaState, 1);
+				return !wereThereErrors;
+			}
+			if (lua_type(&io_luaState, -1) == LUA_TSTRING)
+			{
+				const char * const anchor = lua_tostring(&io_luaState, -1);
+				if (strcmp(anchor, "top_left") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::TOP_LEFT);
+				}
+				else if (strcmp(anchor, "bottom_left") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::BOTTOM_LEFT);
+				}
+				else if (strcmp(anchor, "top_right") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::TOP_RIGHT);
+				}
+				else if (strcmp(anchor, "bottom_right") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::BOTTOM_RIGHT);
+				}
+				else if (strcmp(anchor, "center") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::CENTER);
+				}
+				else if (strcmp(anchor, "left_center") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::LEFT_CENTER);
+				}
+				else if (strcmp(anchor, "bottom_center") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::BOTTOM_CENTER);
+				}
+				else if (strcmp(anchor, "top_center") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::TOP_CENTER);
+				}
+				else if (strcmp(anchor, "right_center") == 0)
+				{
+					anchorEnumNumber = static_cast<uint8_t>(eae6320::Gameplay::Anchor::RIGHT_CENTER);
+				}
+				else
+				{
+					wereThereErrors = true;
+					fprintf_s(stderr, "Invalid anchor type: %s", anchor);
+					lua_pop(&io_luaState, 1);
+					return !wereThereErrors;
+				}
+				lua_pop(&io_luaState, 1);
+			}
+			else
+			{
+				wereThereErrors = true;
+				fprintf_s(stderr, "The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
 				lua_pop(&io_luaState, 1);
 				return !wereThereErrors;
 			}
@@ -313,29 +386,28 @@ namespace
 			}
 			if (lua_type(&io_luaState, -1) == LUA_TTABLE)
 			{
-				const bool defaultSupported = true;
-				if (!LoadLeftValue(io_luaState, defaultSupported))
+				if (!LoadLeftValue(io_luaState))
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "Failed to load left value");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadRightValue(io_luaState, defaultSupported))
+				if (!LoadRightValue(io_luaState))
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "Failed to load right value");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadTopValue(io_luaState, defaultSupported))
+				if (!LoadTopValue(io_luaState))
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "Failed to load top value");
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadBottomValue(io_luaState, defaultSupported))
+				if (!LoadBottomValue(io_luaState))
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "Failed to load bottom value");
@@ -352,216 +424,237 @@ namespace
 				return !wereThereErrors;
 			}
 		}
+
 		return !wereThereErrors;
 	}
 
-	bool LoadLeftValue(lua_State& io_luaState, bool doesItSupportDefault)
+	bool LoadLeftValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
 		const char* key = "left";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
-		if (doesItSupportDefault)
+		if (lua_isnil(&io_luaState, -1))
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				textureCoordinates.left = eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			textureCoordinates.left = eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
+			lua_pop(&io_luaState, 1);
 		}
 		else
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				screenPosition.left = static_cast<float>(lua_tonumber(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
 		}
 		return !wereThereErrors;
 	}
-	bool LoadRightValue(lua_State& io_luaState, bool doesItSupportDefault)
+	bool LoadRightValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
 		const char* key = "right";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
-		if (doesItSupportDefault)
+		if (lua_isnil(&io_luaState, -1))
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				textureCoordinates.right = eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			textureCoordinates.right = eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
+			lua_pop(&io_luaState, 1);
 		}
 		else
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				screenPosition.right = static_cast<float>(lua_tonumber(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
 		}
 		return !wereThereErrors;
 	}
-	bool LoadTopValue(lua_State& io_luaState, bool doesItSupportDefault)
+	bool LoadTopValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
 		const char* key = "top";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
-		if (doesItSupportDefault)
+		if (lua_isnil(&io_luaState, -1))
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				textureCoordinates.top =
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			textureCoordinates.top =
 #if defined( EAE6320_PLATFORM_D3D )
-					eae6320::Math::cHalf::MakeHalfFromFloat(1.0f - static_cast<float>(lua_tonumber(&io_luaState, -1)));
+				eae6320::Math::cHalf::MakeHalfFromFloat(1.0f - static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #elif defined( EAE6320_PLATFORM_GL )
-					eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
+				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			lua_pop(&io_luaState, 1);
 		}
 		else
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				screenPosition.top = static_cast<float>(lua_tonumber(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
 		}
 		return !wereThereErrors;
 	}
-	bool LoadBottomValue(lua_State& io_luaState, bool doesItSupportDefault)
+	bool LoadBottomValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
 		const char* key = "bottom";
 		lua_pushstring(&io_luaState, key);
 		lua_gettable(&io_luaState, -2);
-		if (doesItSupportDefault)
+		if (lua_isnil(&io_luaState, -1))
 		{
-			if (lua_isnil(&io_luaState, -1))
-			{
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				textureCoordinates.bottom =
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			textureCoordinates.bottom =
 #if defined( EAE6320_PLATFORM_D3D )
-					eae6320::Math::cHalf::MakeHalfFromFloat(1.0f - static_cast<float>(lua_tonumber(&io_luaState, -1)));
+				eae6320::Math::cHalf::MakeHalfFromFloat(1.0f - static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #elif defined( EAE6320_PLATFORM_GL )
-					eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
+				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
+			lua_pop(&io_luaState, 1);
 		}
 		else
 		{
-			if (lua_isnil(&io_luaState, -1))
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		return !wereThereErrors;
+	}
+
+	bool LoadPixelCoordinates(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* key = "pixel_coordinates";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TTABLE)
+		{
+			const size_t arrayLength = static_cast<size_t>(luaL_len(&io_luaState, -1));
+			int16_t xy[2] = { 0,0 };
+			if (arrayLength == 2)
 			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
-			{
-				screenPosition.bottom = static_cast<float>(lua_tonumber(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
+				// Remember that Lua arrays are 1-based and not 0-based!
+				for (size_t i = 1; i <= arrayLength; ++i)
+				{
+					lua_pushinteger(&io_luaState, i);
+					lua_gettable(&io_luaState, -2);
+					if (lua_isnil(&io_luaState, -1))
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "No value for key:%zu was found in the table", i);
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
+					if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+					{
+						xy[i - 1] = static_cast<int16_t>(lua_tonumber(&io_luaState, -1));
+						lua_pop(&io_luaState, 1);
+					}
+					else
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "The value isn't a number!");
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
+				}
+				rectTranform.pixelCoordinates.x = xy[0];
+				rectTranform.pixelCoordinates.y = xy[1];
 			}
 			else
 			{
 				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+				fprintf_s(stderr, "There are %zu pixel coordinates instead of 2", arrayLength);
 				lua_pop(&io_luaState, 1);
 				return !wereThereErrors;
 			}
+			lua_pop(&io_luaState, 1);
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a table (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		return !wereThereErrors;
+	}
+	bool LoadWidth(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* key = "width";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			rectTranform.width = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		return !wereThereErrors;
+	}
+	bool LoadHeight(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* key = "height";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TNUMBER)
+		{
+			rectTranform.height = static_cast<uint16_t>(lua_tonumber(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a number (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			lua_pop(&io_luaState, 1);
+			return !wereThereErrors;
 		}
 		return !wereThereErrors;
 	}

@@ -104,8 +104,8 @@ bool eae6320::Graphics::cTexture::Initialize( const char* const i_path, const sD
 	}
 	// Fill in the data for each MIP level
 	{
-		GLsizei currentWidth = static_cast<GLsizei>( i_ddsInfo.width );
-		GLsizei currentHeight = static_cast<GLsizei>( i_ddsInfo.height );
+		GLsizei currentWidth = static_cast<GLsizei>( m_width );
+		GLsizei currentHeight = static_cast<GLsizei>( m_height );
 		const uint8_t* currentPosition = reinterpret_cast<const uint8_t*>( i_ddsInfo.imageData );
 		const uint8_t* const endOfFile = currentPosition + i_ddsInfo.imageDataSize;
 		const GLsizei blockSize = static_cast<GLsizei>( TextureFormats::GetSizeOfBlock( i_ddsInfo.format ) );
