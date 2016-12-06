@@ -3,10 +3,11 @@ return
 {
 	rect_transform = 
 	{
-		pixel_coordinates = { 0, 200 },
+		pixel_coordinates = { 400, 400 },
 		width = 100,
 		height = 100,
-	},	
-	anchor = "top_left",
+	},
+	maintain_width = true,
+	anchor = "top_right",
 	material_filepath = "materials/logo_material.txtmaterial",	
 }

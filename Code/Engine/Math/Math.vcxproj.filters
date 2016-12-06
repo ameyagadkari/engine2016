@@ -13,6 +13,7 @@
     <ClInclude Include="cVector.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="cHalf.h" />
+    <ClInclude Include="BitManipulator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Functions.inl" />

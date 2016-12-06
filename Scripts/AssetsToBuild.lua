@@ -21,6 +21,6 @@ return
 	gameobjects2d = 
 	{
 		"gameobjects2d/logo.txtg2dobj",
-		"gameobjects2d/test.txtg2dobj",
+		"gameobjects2d/score.txtg2dobj",
 	},
 }

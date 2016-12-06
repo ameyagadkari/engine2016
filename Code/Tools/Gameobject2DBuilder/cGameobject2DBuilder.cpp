@@ -12,6 +12,7 @@
 #include "../../Engine/Graphics/cSprite.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Math/cHalf.h"
+#include "../../Engine/Math/BitManipulator.h"
 
 // Inherited Implementation
 //=========================
@@ -23,7 +24,10 @@ namespace
 	eae6320::Graphics::Sprite::TextureCoordinates textureCoordinates;
 	eae6320::Gameplay::RectTransform rectTranform;
 	uint8_t anchorEnumNumber = 0;
+	uint8_t controlBits = 0;
 	const char * materialPath = NULL;
+	uint8_t maintainWidth = 0;
+	uint8_t maintainHeight = 0;
 
 	FILE * outputFile = NULL;
 
@@ -166,6 +170,14 @@ bool eae6320::AssetBuild::cGameobject2DBuilder::Build(const std::vector<std::str
 			wereThereErrors = true;
 			goto OnExit;
 		}
+		// Writing control bits
+		fwrite(&controlBits, sizeof(uint8_t), 1, outputFile);
+		if (ferror(outputFile))
+		{
+			fprintf_s(stderr, "Error writing control bits to %s \n", m_path_target);
+			wereThereErrors = true;
+			goto OnExit;
+		}
 		// Writing anchor enum number
 		fwrite(&anchorEnumNumber, sizeof(uint8_t), 1, outputFile);
 		if (ferror(outputFile))
@@ -258,7 +270,79 @@ namespace
 				return !wereThereErrors;
 			}
 		}
-
+		// Process maintain width bboolean
+		{
+			const char* key = "maintain_width";
+			lua_pushstring(&io_luaState, key);
+			lua_gettable(&io_luaState, -2);
+			if (lua_isnil(&io_luaState, -1))
+			{
+				lua_pop(&io_luaState, 1);
+			}
+			else
+			{
+				if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+				{
+					maintainWidth = lua_toboolean(&io_luaState, -1);
+					if (maintainWidth)
+					{
+						eae6320::Math::BitManipulator::SetBit(controlBits, 0);
+					}
+					else
+					{
+						eae6320::Math::BitManipulator::ClearBit(controlBits, 0);
+					}
+					lua_pop(&io_luaState, 1);
+				}
+				else
+				{
+					wereThereErrors = true;
+					fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+					lua_pop(&io_luaState, 1);
+					return !wereThereErrors;
+				}
+			}
+		}
+		// Process maintain height boolean
+		{
+			const char* key = "maintain_height";
+			lua_pushstring(&io_luaState, key);
+			lua_gettable(&io_luaState, -2);
+			if (lua_isnil(&io_luaState, -1))
+			{
+				lua_pop(&io_luaState, 1);
+			}
+			else
+			{
+				if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+				{
+					maintainHeight = lua_toboolean(&io_luaState, -1);
+					if (maintainHeight)
+					{
+						eae6320::Math::BitManipulator::SetBit(controlBits, 1);
+					}
+					else
+					{
+						eae6320::Math::BitManipulator::ClearBit(controlBits, 1);
+					}
+					lua_pop(&io_luaState, 1);
+				}
+				else
+				{
+					wereThereErrors = true;
+					fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+					lua_pop(&io_luaState, 1);
+					return !wereThereErrors;
+				}
+			}
+		}
+		// Error check 
+		if (!maintainWidth && !maintainHeight)
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "You must atleast maintain width or height");
+			return !wereThereErrors;
+		}
 		// Loading rect transform table
 		{
 			const char* key = "rect_transform";
@@ -280,19 +364,25 @@ namespace
 					lua_pop(&io_luaState, 1);
 					return !wereThereErrors;
 				}
-				if (!LoadWidth(io_luaState))
+				if (maintainWidth)
 				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load width");
-					lua_pop(&io_luaState, 1);
-					return !wereThereErrors;
+					if (!LoadWidth(io_luaState))
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "Failed to load width");
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
 				}
-				if (!LoadHeight(io_luaState))
+				if (maintainHeight)
 				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "Failed to load height");
-					lua_pop(&io_luaState, 1);
-					return !wereThereErrors;
+					if (!LoadHeight(io_luaState))
+					{
+						wereThereErrors = true;
+						fprintf_s(stderr, "Failed to load height");
+						lua_pop(&io_luaState, 1);
+						return !wereThereErrors;
+					}
 				}
 				lua_pop(&io_luaState, 1);
 			}
@@ -498,7 +588,7 @@ namespace
 				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
 			lua_pop(&io_luaState, 1);
-		}
+	}
 		else
 		{
 			wereThereErrors = true;
@@ -507,7 +597,7 @@ namespace
 			return !wereThereErrors;
 		}
 		return !wereThereErrors;
-	}
+}
 	bool LoadBottomValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
@@ -528,7 +618,7 @@ namespace
 				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
 			lua_pop(&io_luaState, 1);
-		}
+	}
 		else
 		{
 			wereThereErrors = true;

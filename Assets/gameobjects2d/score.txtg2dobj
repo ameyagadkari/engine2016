@@ -1,0 +1,13 @@
+-- Gameobject2D Data for Score
+return
+{
+	rect_transform = 
+	{
+		pixel_coordinates = { -425, 400 },
+		width = 150,
+		height = 200,
+	},	
+	maintain_width = true,
+	anchor = "top_left",
+	material_filepath = "materials/score_material.txtmaterial",	
+}

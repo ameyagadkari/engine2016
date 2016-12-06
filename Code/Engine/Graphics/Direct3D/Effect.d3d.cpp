@@ -171,6 +171,8 @@ namespace eae6320
 
 		void Effect::BindEffect()const
 		{
+			m_renderState.Bind();
+
 			ID3D11ClassInstance** const noInterfaces = NULL;
 			const unsigned int interfaceCount = 0;
 
@@ -179,8 +181,6 @@ namespace eae6320
 
 			commonData->s_direct3dImmediateContext->IASetInputLayout(ms_vertexLayout);
 			commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-			m_renderState.Bind();
 		}
 	}
 }

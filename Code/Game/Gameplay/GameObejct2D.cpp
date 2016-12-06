@@ -12,7 +12,8 @@
 
 namespace
 {
-	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor, const  uint16_t i_textureWidth, const uint16_t i_textureHeight);
+	void ProcessControlBits(const uint8_t i_controlBits, const eae6320::Gameplay::GameObject2D* i_gameObject2D, eae6320::Gameplay::RectTransform& o_rectTransform);
+	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor);
 }
 
 namespace eae6320
@@ -59,6 +60,7 @@ namespace eae6320
 			uint8_t* data = reinterpret_cast<uint8_t*>(binaryGameObject2D.data);
 
 			uint8_t offsetToAdd = 0;
+			uint8_t controlBits = 0;
 
 			// Extracting Binary Data
 			{
@@ -73,9 +75,13 @@ namespace eae6320
 				// Extracting the anchor
 				data += sizeof(RectTransform);
 				{
+					controlBits = *reinterpret_cast<uint8_t*>(data);
+				}
+				// Extracting the anchor
+				data += sizeof(uint8_t);
+				{
 					gameObject2D->anchor = static_cast<Anchor>(*reinterpret_cast<uint8_t*>(data));
 				}
-
 				// Extracting Offset To Add
 				data += sizeof(uint8_t);
 				offsetToAdd = *reinterpret_cast<uint8_t*>(data);
@@ -95,12 +101,10 @@ namespace eae6320
 
 				// Creating new Sprite
 				{
-
+					ProcessControlBits(controlBits, gameObject2D, gameObject2D->rectTransform);
 					const RectTransform rectTranform = gameObject2D->rectTransform;
 					const Anchor anchor = gameObject2D->anchor;
-					const uint16_t textureWidth = gameObject2D->material->GetTexture()->GetWidth();
-					const uint16_t textureHeight = gameObject2D->material->GetTexture()->GetHeight();
-					const Graphics::Sprite::ScreenPosition screenPosition = ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(rectTranform, anchor, textureWidth, textureHeight);
+					const Graphics::Sprite::ScreenPosition screenPosition = ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(rectTranform, anchor);
 					gameObject2D->sprite = new Graphics::cSprite(screenPosition, textureCoordinates);
 				}
 			}
@@ -146,71 +150,93 @@ namespace eae6320
 
 namespace
 {
-	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor, const uint16_t i_textureWidth, const uint16_t i_textureHeight)
+	void ProcessControlBits(const uint8_t i_controlBits, const eae6320::Gameplay::GameObject2D* i_gameObject2D, eae6320::Gameplay::RectTransform& o_rectTransform)
+	{
+		const uint16_t textureWidth = i_gameObject2D->GetMaterial()->GetTexture()->GetWidth();
+		const uint16_t textureHeight = i_gameObject2D->GetMaterial()->GetTexture()->GetHeight();
+
+		const float aspectRatioTexture = static_cast<float>(textureWidth) / textureHeight;
+		switch (i_controlBits)
+		{
+			//maintain width
+		case 0x80:
+			o_rectTransform.height = static_cast<uint16_t>(o_rectTransform.width / aspectRatioTexture);
+				break;
+			//maintain height
+		case 0x40:
+			o_rectTransform.width = static_cast<uint16_t>(o_rectTransform.height * aspectRatioTexture);
+			break;
+			//maintain both
+		case 0xC0:
+			break;
+		default:
+			EAE6320_ASSERT(false);
+			eae6320::Logging::OutputError("Wrong control bits. You need to maintain either width or height of sprite. This should not happen");
+			break;
+		}
+	}
+	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor)
 	{
 		eae6320::Graphics::Sprite::ScreenPosition returnValue;
 
-		const float screenAspectRatio = static_cast<float>(eae6320::UserSettings::GetResolutionWidth()) / eae6320::UserSettings::GetResolutionHeight();
-		const float textureAspectRatio = static_cast<float>(i_textureWidth) / i_textureHeight;
-
-		const float widthMultiplier = 2.0f / eae6320::UserSettings::GetResolutionWidth();// *screenAspectRatio;
-		const float heightMultiplier = 2.0f / eae6320::UserSettings::GetResolutionHeight();// *screenAspectRatio;
+		const float widthMultiplier = 2.0f / eae6320::UserSettings::GetResolutionWidth();
+		const float heightMultiplier = 2.0f / eae6320::UserSettings::GetResolutionHeight();
 
 		switch (i_anchor)
 		{
 		case eae6320::Gameplay::Anchor::TOP_LEFT:
 			returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
 			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::BOTTOM_LEFT:
 			returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
 			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::TOP_RIGHT:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
 			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
 			returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::BOTTOM_RIGHT:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
 			returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
 			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::CENTER:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::LEFT_CENTER:
 			returnValue.left = i_rectTransform.pixelCoordinates.x *widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::BOTTOM_CENTER:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
 			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::TOP_CENTER:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
-			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier; 
-			returnValue.right = ((i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*textureAspectRatio)*widthMultiplier;
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*textureAspectRatio)*heightMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
 			break;
 		case eae6320::Gameplay::Anchor::RIGHT_CENTER:
-			returnValue.left = ((i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*textureAspectRatio)*widthMultiplier;
-			returnValue.top = ((i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
-			returnValue.right = i_rectTransform.pixelCoordinates.x *widthMultiplier; 
-			returnValue.bottom = ((i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*textureAspectRatio)*heightMultiplier;
+			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+			returnValue.right = i_rectTransform.pixelCoordinates.x *widthMultiplier;
+			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
 			break;
 		default:
 			break;

@@ -1,5 +1,5 @@
 /*
-This class represents a rotation
+This class represents a half(half of float)
 */
 
 #ifndef EAE6320_MATH_CHALF_H

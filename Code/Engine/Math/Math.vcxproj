@@ -26,6 +26,7 @@
     <ClCompile Include="Functions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BitManipulator.h" />
     <ClInclude Include="cHalf.h" />
     <ClInclude Include="cMatrix_transformation.h" />
     <ClInclude Include="cQuaternion.h" />
