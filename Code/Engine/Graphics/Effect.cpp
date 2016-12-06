@@ -15,11 +15,11 @@ namespace
 }
 
 eae6320::Graphics::Effect::Effect() :
+	m_renderState(),
 	effectUUID(0),
 #if defined( EAE6320_PLATFORM_D3D )
 	m_vertexShader(NULL),
-	m_fragmentShader(NULL),
-	m_vertexLayout(NULL)
+	m_fragmentShader(NULL)
 #elif defined( EAE6320_PLATFORM_GL )
 	m_programId(0)
 #endif
@@ -56,7 +56,11 @@ bool eae6320::Graphics::Effect::LoadEffect(const char * const i_relativePath, Ef
 
 	// Extracting Binary Data
 	{
+		// Extracting Render State Bits To Add
+		uint8_t renderStateBits = *reinterpret_cast<uint8_t*>(data);
+		
 		// Extracting Offset To Add
+		data += sizeof(renderStateBits);
 		uint8_t offsetToAdd = *reinterpret_cast<uint8_t*>(data);
 
 		// Extracting Vertex Shader Path
@@ -70,6 +74,15 @@ bool eae6320::Graphics::Effect::LoadEffect(const char * const i_relativePath, Ef
 		// Extracting Fragment Shader Path
 		data += sizeof(offsetToAdd);
 		const char * const relativeFragmentShaderPath = reinterpret_cast<const char * const>(data);
+
+		//Initializing Render State
+		if (!o_effect.m_renderState.Initialize(renderStateBits))
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERT(false);
+			Logging::OutputError("Failed to initialize the render state in: %s", i_relativePath);
+			goto OnExit;
+		}
 
 		// Loading Shaders
 		if (!o_effect.LoadShaders(relativeVertexShaderPath, relativeFragmentShaderPath))

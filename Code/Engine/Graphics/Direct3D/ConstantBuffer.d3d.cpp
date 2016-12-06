@@ -4,6 +4,7 @@
 #include "../CommonData.h"
 #include "../../Math/Functions.h"
 #include "../ConstantBufferData.h"
+#include <D3D11.h>
 
 namespace eae6320
 {

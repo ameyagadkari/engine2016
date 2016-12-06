@@ -6,5 +6,5 @@ return
 		
 	},
 	effect_filepath = "effects/std_effect.txteffect",
-	texture_filepath = "textures/cube.jpeg",
+	texture_filepath = "textures/cube.tif",
 }

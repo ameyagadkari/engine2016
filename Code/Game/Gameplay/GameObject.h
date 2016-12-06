@@ -21,8 +21,15 @@ namespace eae6320
 namespace eae6320
 {
 	namespace Gameplay
-	{		
+	{
 		class IGameObjectController;
+	}
+}
+
+namespace eae6320
+{
+	namespace Gameplay
+	{		
 		class GameObject
 		{
 		public:
@@ -57,9 +64,9 @@ namespace eae6320
 		private:
 			inline GameObject();
 
-			Graphics::Mesh*mesh = NULL;
-			Graphics::Material*material = NULL;
-			IGameObjectController* controller = NULL;
+			Graphics::Mesh* mesh;
+			Graphics::Material* material;
+			IGameObjectController* controller;
 
 			Math::cVector position;
 			Math::cQuaternion orientation;

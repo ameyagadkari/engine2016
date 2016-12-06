@@ -1,0 +1,13 @@
+-- Gameobject2D Data for Logo
+return
+{
+	rect_transform = 
+	{
+		pixel_coordinates = { 400, 400 },
+		width = 100,
+		height = 100,
+	},
+	maintain_width = true,
+	anchor = "top_right",
+	material_filepath = "materials/logo_material.txtmaterial",	
+}

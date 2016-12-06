@@ -5,7 +5,8 @@
 #include "../../Asserts/Asserts.h"
 #include "../../Logging/Logging.h"
 #include "../MeshData.h"
-
+#include "Includes.h"
+#include "UtilityFunctions.gl.h"
 
 bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 {
@@ -99,7 +100,14 @@ bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 		}
 	}
 	// Initialize the vertex format
+	if (!OpenGLUtilityFunctions::InitilaizeVertexFormat())
 	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		eae6320::Logging::OutputError("OpenGL failed to initialize vertex format");
+		goto OnExit;
+	}
+	/*{
 		// The "stride" defines how large a single vertex is in the stream of data
 		// (or, said another way, how far apart each position element is)
 		const GLsizei stride = sizeof(MeshData::Vertex);
@@ -201,7 +209,7 @@ bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 				goto OnExit;
 			}
 		}
-	}
+	}*/
 
 	// Create a index buffer object and make it active
 	{
@@ -331,8 +339,8 @@ OnExit:
 			eae6320::Logging::OutputError("OpenGL failed to unbind the vertex array: %s",
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 			goto OnExit;
-				}
-			}
+		}
+	}
 
 	return !wereThereErrors;
 
@@ -355,7 +363,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 				reinterpret_cast<const char*>(gluErrorString(errorCode)));
 		}
 		m_vertexBufferId = 0;
-		}
+	}
 
 	if (m_indexBufferId != 0)
 	{
@@ -387,7 +395,7 @@ bool eae6320::Graphics::Mesh::CleanUp()
 		m_vertexArrayId = 0;
 	}
 	return !wereThereErrors;
-	}
+}
 
 void eae6320::Graphics::Mesh::RenderMesh()const
 {

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CubeController.cpp" />
+    <ClCompile Include="GameObejct2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="SnakeController.cpp" />
     <ClCompile Include="StandardRotationController.cpp" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ClInclude Include="CubeController.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObject2D.h" />
     <ClInclude Include="IGameObjectController.h" />
     <ClInclude Include="SnakeController.h" />
     <ClInclude Include="StandardRotationController.h" />

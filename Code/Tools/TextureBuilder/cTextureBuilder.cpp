@@ -3,6 +3,7 @@
 
 #include "cTextureBuilder.h"
 
+#include <algorithm>
 #include <codecvt>
 #include <locale>
 #include <string>
@@ -123,17 +124,42 @@ namespace
 #else
 		flippedImage = std::move( uncompressedImage );
 #endif
-		// Direct3D will only load BC compressed textures whose dimensions are multiples of 4
-		// ("BC" stands for "block compression", and each block is 4x4)
+		// Textures used by the GPU have size restrictions that standard images don't
 		DirectX::ScratchImage resizedImage;
 		{
 			const DirectX::TexMetadata flippedMetadata = flippedImage.GetMetadata();
-			size_t targetWidth, targetHeight;
+			size_t targetWidth = flippedMetadata.width;
+			size_t targetHeight = flippedMetadata.height;
 			{
-				// Round up to the nearest multiple of 4
-				const size_t blockSize = 4;
-				targetWidth = eae6320::Math::RoundUpToMultiple_powerOf2(flippedMetadata.width, blockSize);
-				targetHeight = eae6320::Math::RoundUpToMultiple_powerOf2(flippedMetadata.height, blockSize);
+				// Direct3D will only load BC compressed textures whose dimensions are multiples of 4
+				// ("BC" stands for "block compression", and each block is 4x4)
+				{
+					// Round up to the nearest multiple of 4
+					const size_t blockSize = 4;
+					targetWidth = eae6320::Math::RoundUpToMultiple_powerOf2( targetWidth, blockSize );
+					targetHeight = eae6320::Math::RoundUpToMultiple_powerOf2( targetHeight, blockSize );
+				}
+				// Direct3D can't support textures over a certain size
+				{
+					if ( !resizedImage.GetMetadata().IsVolumemap() )
+					{
+						if ( !resizedImage.GetMetadata().IsCubemap() )
+						{
+							targetWidth = std::min<size_t>( targetWidth, D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION );
+							targetHeight = std::min<size_t>( targetHeight, D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION );
+						}
+						else
+						{
+							targetWidth = std::min<size_t>( targetWidth, D3D11_REQ_TEXTURECUBE_DIMENSION );
+							targetHeight = std::min<size_t>( targetHeight, D3D11_REQ_TEXTURECUBE_DIMENSION );
+						}
+					}
+					else
+					{
+						targetWidth = std::min<size_t>( targetWidth, D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION );
+						targetHeight = std::min<size_t>( targetHeight, D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION );
+					}
+				}
 			}
 			if ( ( targetWidth != flippedMetadata.width ) || ( targetHeight != flippedMetadata.height ) )
 			{

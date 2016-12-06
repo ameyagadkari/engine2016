@@ -6,11 +6,14 @@ This file manages effect-related functionality
 #define EAE6320_EFFECT_H
 
 #if defined( EAE6320_PLATFORM_D3D )
-#include <D3D11.h>
+struct ID3D11VertexShader;
+struct ID3D11PixelShader;
+struct ID3D11InputLayout;
 #elif defined( EAE6320_PLATFORM_GL )
-#include "OpenGL\Includes.h"
+typedef unsigned int GLuint;
 #endif	
 
+#include "cRenderState.h"
 #include <cstdint>
 namespace eae6320
 {
@@ -32,10 +35,12 @@ namespace eae6320
 		private:
 			uint32_t effectUUID;
 			bool LoadShaders(const char * const i_relativeVertexShaderPath, const char * const i_relativeFragmentShaderPath);
+			cRenderState m_renderState;
 #if defined( EAE6320_PLATFORM_D3D )
 			ID3D11VertexShader* m_vertexShader;
 			ID3D11PixelShader* m_fragmentShader;
-			ID3D11InputLayout* m_vertexLayout;
+			//Create only one as the vertex layout is same for all shaders
+			static ID3D11InputLayout* ms_vertexLayout;
 #elif defined( EAE6320_PLATFORM_GL )
 			GLuint m_programId;
 #endif

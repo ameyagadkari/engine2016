@@ -196,7 +196,7 @@ bool eae6320::AssetBuild::cGameobjectBuilder::Build(const std::vector<std::strin
 			wereThereErrors = true;
 			goto OnExit;
 		}
-		// Writing the Effect File Path
+		// Writing the Material File Path
 		if (!WriteCStringToFile(materialPath, outputFile))
 		{
 			wereThereErrors = true;
@@ -259,7 +259,7 @@ namespace
 	{
 		bool wereThereErrors = false;
 
-		//Loading effect path
+		//Loading material path
 		{
 			const char* key = "material_filepath";
 			lua_pushstring(&io_luaState, key);

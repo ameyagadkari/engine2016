@@ -31,7 +31,7 @@ void main()
 		float4 vertexPosition_camera = mul( vertexPosition_world, g_transform_worldToCamera );
 		gl_Position = mul( vertexPosition_camera, g_transform_cameraToScreen );
 	}
-	// Pass the input color to the fragment shader unchanged
+	// Pass the input color and the texture coordinates to the fragment shader unchanged
 	{
 		o_color = i_color;
 		o_UV = i_UV;

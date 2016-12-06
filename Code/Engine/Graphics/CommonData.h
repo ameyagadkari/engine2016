@@ -6,8 +6,12 @@ This file manages common functionality
 #define EAE6320_COMMON_DATA_H
 
 
+// Forward Declarations
+//=====================
+
 #if defined( EAE6320_PLATFORM_D3D )
-#include <D3D11.h>
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 #endif	
 
 namespace eae6320
@@ -22,8 +26,8 @@ namespace eae6320
 			static bool CleanUp();
 			inline virtual ~CommonData();
 #if defined( EAE6320_PLATFORM_D3D )
-			ID3D11Device* s_direct3dDevice = NULL;
-			ID3D11DeviceContext* s_direct3dImmediateContext = NULL;
+			ID3D11Device* s_direct3dDevice;
+			ID3D11DeviceContext* s_direct3dImmediateContext;
 #endif	
 		private:
 			inline CommonData();

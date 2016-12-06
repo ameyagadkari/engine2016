@@ -9,6 +9,7 @@
 #include "../../Logging/Logging.h"
 #include "../MeshData.h"
 
+#include <D3D11.h>
 
 bool eae6320::Graphics::Mesh::Initialize(const MeshData& i_meshData)
 {

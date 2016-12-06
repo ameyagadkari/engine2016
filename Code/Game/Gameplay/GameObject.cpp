@@ -31,7 +31,7 @@ namespace eae6320
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
-					eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", relativePath, errorMessage.c_str());
+					eae6320::Logging::OutputError("Failed to load the binary gameobject file \"%s\": %s", relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}
@@ -118,7 +118,7 @@ namespace eae6320
 						eae6320::Logging::OutputError("Failed to load the binary mesh file: %s", meshPath);
 						goto OnExit;
 					}
-				}			
+				}
 			}
 
 		OnExit:
@@ -137,11 +137,11 @@ namespace eae6320
 			}
 		}
 
-		inline GameObject::GameObject()
-		{
-			mesh = new Graphics::Mesh();
-			material = new Graphics::Material();
-		}
+		inline GameObject::GameObject() :
+			mesh(new Graphics::Mesh()),
+			material(new Graphics::Material()),
+			controller(NULL)
+		{}
 		inline GameObject::~GameObject()
 		{
 			if (mesh)

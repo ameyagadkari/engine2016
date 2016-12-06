@@ -10,10 +10,11 @@
 // Header Files
 //=============
 
-#include "Configuration.h"
+//#include "Configuration.h"
+#include <cstdint>
 
 #ifdef EAE6320_PLATFORM_GL
-	#include "OpenGL/Includes.h"
+typedef unsigned int GLuint;
 #endif
 
 // Forward Declarations
@@ -64,6 +65,12 @@ namespace eae6320
 			// and so this is the caller's responsibility to pass in.
 			void Bind( const unsigned int i_id ) const;
 
+			// Access
+			//-------
+
+			uint16_t GetWidth() const;
+			uint16_t GetHeight() const;
+
 			// Initialization / Clean Up
 			//--------------------------
 
@@ -83,7 +90,8 @@ namespace eae6320
 #elif defined( EAE6320_PLATFORM_GL )
 			GLuint m_textureId;
 #endif
-
+			uint16_t m_width;
+			uint16_t m_height;
 			// Implementation
 			//===============
 
@@ -96,5 +104,7 @@ namespace eae6320
 		};
 	}
 }
+
+#include "cTexture/cTexture.inl"
 
 #endif	// EAE6320_GRAPHICS_CTEXTURE_H

@@ -18,4 +18,9 @@ return
 		"gameobjects/brownbear.txtgobj",
 		"gameobjects/orangebear.txtgobj",
 	},
+	gameobjects2d = 
+	{
+		"gameobjects2d/logo.txtg2dobj",
+		"gameobjects2d/score.txtg2dobj",
+	},
 }

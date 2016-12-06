@@ -10,11 +10,16 @@
 #include "../Platform/Platform.h"
 #include "../Time/Time.h"
 #include "../../Game/Gameplay/GameObject.h"
+#include "../../Game/Gameplay/GameObject2D.h"
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
+#include "cSprite.h"
 
-#if defined( EAE6320_PLATFORM_GL )
+#if defined ( EAE6320_PLATFORM_D3D )
+#include <D3D11.h>
+#elif defined( EAE6320_PLATFORM_GL )
 #include "../Windows/Functions.h"
+#include "OpenGL\Includes.h"
 #include <sstream>
 #endif
 
@@ -27,6 +32,7 @@ namespace
 	//std::map<uint32_t, std::vector < eae6320::Gameplay::GameObject* >>gameObjects;
 	std::vector<eae6320::Gameplay::GameObject*>unsortedGameObjects;
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
+	std::vector<eae6320::Gameplay::GameObject2D*>unsortedGameObjects2D;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer *frameBuffer = NULL;
@@ -52,9 +58,9 @@ namespace
 	HGLRC s_openGlRenderingContext = NULL;
 	GLuint s_samplerState = 0;
 	bool CreateRenderingContext();
-	bool EnableBackFaceCulling();
+	/*bool EnableBackFaceCulling();
 	bool EnableDepthTesting();
-	bool EnableDepthWriting();
+	bool EnableDepthWriting();*/
 #endif
 	bool CreateBindSamplerStates();
 }
@@ -69,6 +75,19 @@ void eae6320::Graphics::SetGameObject(Gameplay::GameObject*gameObject)
 	if (gameObject)
 	{
 		unsortedGameObjects.push_back(gameObject);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Trying to draw a non existent gameobject. Check gameobject name");
+	}
+}
+
+void eae6320::Graphics::SetGameObject2D(Gameplay::GameObject2D*gameObject2d)
+{
+	if (gameObject2d)
+	{
+		unsortedGameObjects2D.push_back(gameObject2d);
 	}
 	else
 	{
@@ -105,6 +124,17 @@ void eae6320::Graphics::RenderFrame()
 			(*it)->GetMesh()->RenderMesh();
 		}
 		sortedGameObjects.clear();
+	}
+
+	// Draw Submitted Gameobjects2D
+	{
+		size_t length = unsortedGameObjects2D.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			unsortedGameObjects2D[i]->GetMaterial()->BindMaterial();
+			unsortedGameObjects2D[i]->GetSprite()->Draw();
+		}
+		unsortedGameObjects2D.clear();
 	}
 	SwapBuffers();
 }
@@ -147,7 +177,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 }
 
 bool eae6320::Graphics::CleanUp()
-{
+{	
 	delete frameBuffer;
 	delete drawCallBuffer;
 
@@ -236,14 +266,16 @@ namespace
 	void ClearScreen()
 	{
 #if defined( EAE6320_PLATFORM_D3D )
-		float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float clearColor[4] = { 0.53f, 0.81f, 0.98f, 1.0f };
 		commonData->s_direct3dImmediateContext->ClearRenderTargetView(s_renderTargetView, clearColor);
 		const float depthToClear = 1.0f;
 		const uint8_t stencilToClear = 0;
 		commonData->s_direct3dImmediateContext->ClearDepthStencilView(s_depthStencilView, D3D11_CLEAR_DEPTH,
 			depthToClear, stencilToClear);
 #elif defined( EAE6320_PLATFORM_GL )
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
+		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+		glDepthMask(GL_TRUE);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		glClearDepth(1.0f);
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
@@ -297,7 +329,7 @@ namespace
 			return false;
 		}
 
-		if (!EnableBackFaceCulling())
+		/*if (!EnableBackFaceCulling())
 		{
 			EAE6320_ASSERT(false);
 			return false;
@@ -313,7 +345,7 @@ namespace
 		{
 			EAE6320_ASSERT(false);
 			return false;
-		}
+		}*/
 #endif
 		return true;
 	}
@@ -808,7 +840,7 @@ namespace
 		return true;
 	}
 
-	bool EnableBackFaceCulling()
+	/*bool EnableBackFaceCulling()
 	{
 		glEnable(GL_CULL_FACE);
 		const GLenum errorCode = glGetError();
@@ -862,6 +894,6 @@ namespace
 		}
 
 		return true;
-	}
+	}*/
 #endif
 }
