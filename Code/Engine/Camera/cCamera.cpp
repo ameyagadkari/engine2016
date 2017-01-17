@@ -126,7 +126,7 @@ namespace eae6320
 				if (UserInput::IsKeyPressed(0x4C))//L
 					localOffset.x += 1.0f;
 
-				const float speed_unitsPerSecond = 1.0f;
+				const float speed_unitsPerSecond = 100.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 				localOffset *= offsetModifier;
 				position += localOffset;
@@ -153,7 +153,7 @@ namespace eae6320
 				if (UserInput::IsKeyPressed(0x48))//H
 					localOffset.x += 1.0f;
 
-				const float speed_unitsPerSecond = 10.0f;
+				const float speed_unitsPerSecond = 100.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 				localOffset *= offsetModifier;
 				eularAngles += localOffset;
