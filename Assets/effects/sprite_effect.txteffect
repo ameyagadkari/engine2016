@@ -1,4 +1,4 @@
--- Effect File for Standard Effect
+-- Effect File for Sprite Effect
 return
 {
 	render_states = 

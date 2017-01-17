@@ -1,7 +1,7 @@
 -- Gameobject Data for Plane
 return
 {
-	material_filepath = "materials/std_material.txtmaterial",
+	material_filepath = "materials/plane_material.txtmaterial",
 	mesh_filepath = "meshes/plane.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",

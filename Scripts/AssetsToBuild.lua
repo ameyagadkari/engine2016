@@ -10,12 +10,15 @@ return
 	gameobjects =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
+		"gameobjects/plane.txtgobj",
 		"gameobjects/ceiling.txtgobj",
 		"gameobjects/floor.txtgobj",
 		"gameobjects/frontwall.txtgobj",
 		"gameobjects/backwall.txtgobj",
 		"gameobjects/rightwall.txtgobj",
 		"gameobjects/leftwall.txtgobj",
+		"gameobjects/wallbraceouter.txtgobj",
+		"gameobjects/railing.txtgobj",
 	},
 	--[[gameobjects2d = 
 	{
