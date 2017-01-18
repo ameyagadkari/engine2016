@@ -1,0 +1,10 @@
+-- Inside Walls Material File
+return
+{
+	constant_buffer_data = 
+	{
+		
+	},
+	effect_filepath = "effects/std_effect.txteffect",
+	texture_filepath = "textures/wall_COLOR.dds",
+}

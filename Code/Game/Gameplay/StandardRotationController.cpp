@@ -2,7 +2,7 @@
 
 #include"../../Engine/Time/Time.h"
 #include "../../Engine/StringHandler/HashedString.h"
-#define SPEED 10.0f
+#define SPEED 125.0f
 namespace eae6320
 {
 	namespace Gameplay

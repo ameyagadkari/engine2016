@@ -1,0 +1,9 @@
+-- Ceiling Material File
+return
+{
+	constant_buffer_data = 
+	{
+		g_color = {1.0,0.0,0.0,1.0},
+	},
+	effect_filepath = "effects/std_effect.txteffect",
+}

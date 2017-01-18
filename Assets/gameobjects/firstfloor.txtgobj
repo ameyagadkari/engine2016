@@ -1,0 +1,12 @@
+-- Gameobject Data for Floor
+return
+{
+	material_filepath = "materials/floor_material.txtmaterial",
+	mesh_filepath = "meshes/firstfloor.txtmesh",
+	controller_name = "NoController",
+	rotation_axis = "x_axis",
+	position = {0.0,0.0,0.0},
+	eular_angles = {0.0,0.0,0.0},	
+	is_static = true,
+	is_rotating = false,		
+}
