@@ -65,7 +65,15 @@ namespace eae6320
 			this->farPlaneDistance = farPlaneDistance;
 		}
 #pragma endregion
-		cCamera::cCamera(bool isStatic, Math::cVector eularAngles, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance) :
+		cCamera::cCamera(
+			bool isStatic,
+			Math::cVector eularAngles,
+			Math::cVector position,
+			Math::cQuaternion orientation,
+			float fieldOfView,
+			float nearPlaneDistance,
+			float farPlaneDistance)
+			:
 			isStatic(isStatic),
 			eularAngles(eularAngles),
 			position(position),
@@ -75,16 +83,31 @@ namespace eae6320
 			farPlaneDistance(farPlaneDistance),
 			aspectRatio(static_cast<float>(UserSettings::GetResolutionWidth() / UserSettings::GetResolutionHeight()))
 		{
+			UpdateCameraAxes();
 		}
 
 		inline cCamera::~cCamera() {}
+
+		void cCamera::UpdateCameraAxes()
+		{
+			// Calculate the new Front vector
+			Math::cVector front;
+			front.z = -(cos(Math::ConvertDegreesToRadians(eularAngles.y)) * cos(Math::ConvertDegreesToRadians(eularAngles.x)));
+			front.y = -sin(Math::ConvertDegreesToRadians(eularAngles.x));
+			front.x = sin(Math::ConvertDegreesToRadians(eularAngles.y)) * cos(Math::ConvertDegreesToRadians(eularAngles.x));
+			
+			this->front = front.CreateNormalized();
+			// Also re-calculate the Right and Up vector
+			right = (Math::Cross(this->front, Math::cVector::up)).CreateNormalized();  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+			up = (Math::Cross(right, this->front)).CreateNormalized();
+		}
 
 		cCamera * cCamera::Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position, float fieldOfView, float nearPlaneDistance, float farPlaneDistance)
 		{
 			Math::cQuaternion orientationX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
 			Math::cQuaternion orientationY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
-			Math::cQuaternion orientationZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
-			Math::cQuaternion orientation = orientationX*orientationY*orientationZ;
+			//Math::cQuaternion orientationZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
+			Math::cQuaternion orientation = orientationX*orientationY;// *orientationZ;
 			cCamera *camera = new cCamera(isStatic, eularAngles, position, orientation, fieldOfView, nearPlaneDistance, farPlaneDistance);
 			return camera;
 		}
@@ -113,56 +136,70 @@ namespace eae6320
 			{
 				Math::cVector localOffset = Math::cVector::zero;
 
-				if (UserInput::IsKeyPressed(0x4F))//O
-					localOffset.z += 1.0f;
-				if (UserInput::IsKeyPressed(0x55))//U
-					localOffset.z -= 1.0f;
-				if (UserInput::IsKeyPressed(0x49))//I
-					localOffset.y += 1.0f;
-				if (UserInput::IsKeyPressed(0x4B))//K
-					localOffset.y -= 1.0f;
-				if (UserInput::IsKeyPressed(0x4A))//J
-					localOffset.x -= 1.0f;
-				if (UserInput::IsKeyPressed(0x4C))//L
-					localOffset.x += 1.0f;
+				if (UserInput::IsKeyPressed('W'))
+					localOffset += front;
+				if (UserInput::IsKeyPressed('S'))
+					localOffset -= front;
+				if (UserInput::IsKeyPressed('D'))
+					localOffset += right;
+				if (UserInput::IsKeyPressed('A'))
+					localOffset -= right;
+				//if (UserInput::IsKeyPressed(0x4A))//J
+				//	localOffset.x -= 1.0f;
+				//if (UserInput::IsKeyPressed(0x4C))//L
+				//	localOffset.x += 1.0f;
 
 				const float speed_unitsPerSecond = 100.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 				localOffset *= offsetModifier;
+
 				position += localOffset;
 			}
 		}
 
-		void cCamera::UpdateCurrentCameraOrientation()
+		void cCamera::UpdateCurrentCameraOrientation(bool constrainPitch)
 		{
-			
+
 			if (!isStatic)
 			{
 				Math::cVector localOffset = Math::cVector::zero;
 
-				if (UserInput::IsKeyPressed(0x59))//Y
-					localOffset.z += 1.0f;
-				if (UserInput::IsKeyPressed(0x52))//R
-					localOffset.z -= 1.0f;
-				if (UserInput::IsKeyPressed(0x54))//T
+				//if (UserInput::IsKeyPressed(0x59))//Y
+				//	localOffset.z += 1.0f;
+				//if (UserInput::IsKeyPressed(0x52))//R
+				//	localOffset.z -= 1.0f;
+				if (UserInput::IsKeyPressed('H'))
 					localOffset.y += 1.0f;
-				if (UserInput::IsKeyPressed(0x47))//G
+				if (UserInput::IsKeyPressed('F'))
 					localOffset.y -= 1.0f;
-				if (UserInput::IsKeyPressed(0x46))//F
-					localOffset.x -= 1.0f;
-				if (UserInput::IsKeyPressed(0x48))//H
+				if (UserInput::IsKeyPressed('G'))
 					localOffset.x += 1.0f;
+				if (UserInput::IsKeyPressed('T'))
+					localOffset.x -= 1.0f;
 
 				const float speed_unitsPerSecond = 100.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 				localOffset *= offsetModifier;
 				eularAngles += localOffset;
 
+				if (constrainPitch)
+				{
+					if (eularAngles.x > 89.0f)
+					{
+						eularAngles.x = 89.0f;
+					}
+					if (eularAngles.x < -89.0f)
+					{
+						eularAngles.x = -89.0f;
+					}
+				}
+				UpdateCameraAxes();
 				Math::cQuaternion orientationAroundX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
 				Math::cQuaternion orientationAroundY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
-				Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
+				//Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
 
-				orientation = orientationAroundX*orientationAroundY*orientationAroundZ;
+				orientation = orientationAroundX*orientationAroundY;// *orientationAroundZ;
+				
 			}
 		}
 

@@ -12,13 +12,13 @@ namespace eae6320
 	{
 		class cCamera
 		{
-		public:					
+		public:
 			inline virtual ~cCamera();
 
 			void UpdateCurrentCameraPosition();
-			void UpdateCurrentCameraOrientation();
+			void UpdateCurrentCameraOrientation(bool constrainPitch = true);
 
-			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(60.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 10000.0f);
+			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(45.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 2500.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
@@ -49,6 +49,9 @@ namespace eae6320
 			inline cCamera(bool isStatic, Math::cVector eularAngles, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance);
 
 			Math::cVector position;
+			Math::cVector front;
+			Math::cVector up;
+			Math::cVector right;
 			Math::cQuaternion orientation;
 			float fieldOfView;
 			float nearPlaneDistance;
@@ -57,11 +60,13 @@ namespace eae6320
 			bool isStatic;
 
 			Math::cVector eularAngles;
-						
+
 			static std::vector<eae6320::Camera::cCamera*> sCameras;
 			static cCamera* sCurrentCamera;
 			static size_t sCurrentCameraNumber;
-			static size_t sMaxCameraNumber;			
+			static size_t sMaxCameraNumber;
+
+			void UpdateCameraAxes();
 		};
 	}
 }
