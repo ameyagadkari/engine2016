@@ -1,7 +1,7 @@
 -- Gameobject Data for Flags
 return
 {
-	material_filepath = "materials/std_material.txtmaterial",
+	material_filepath = "materials/flag_material.txtmaterial",
 	mesh_filepath = "meshes/flags.txtmesh",
 	controller_name = "NoController",
 	rotation_axis = "x_axis",

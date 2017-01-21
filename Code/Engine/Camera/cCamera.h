@@ -18,7 +18,7 @@ namespace eae6320
 			void UpdateCurrentCameraPosition();
 			void UpdateCurrentCameraOrientation(bool constrainPitch = true);
 
-			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(45.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 2500.0f);
+			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(45.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 10000.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
