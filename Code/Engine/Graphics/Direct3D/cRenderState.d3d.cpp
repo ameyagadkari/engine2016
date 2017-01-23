@@ -37,7 +37,7 @@ void eae6320::Graphics::cRenderState::Bind() const
 		const unsigned int unusedStencilReference = 0;
 		commonData->s_direct3dImmediateContext->OMSetDepthStencilState( m_depthStencilState, unusedStencilReference );
 	}
-	// Draw Both Triangle Sides
+	// Draw Both Triangle Sides/ Draw In Wire Frame Mode
 	{
 		EAE6320_ASSERT( m_rasterizerState != NULL );
 		commonData->s_direct3dImmediateContext->RSSetState( m_rasterizerState );
@@ -166,7 +166,14 @@ bool eae6320::Graphics::cRenderState::InitializeFromBits()
 	{
 		D3D11_RASTERIZER_DESC rasterizerStateDescription;
 		// Draw solid geometry (i.e. not wireframe)
-		rasterizerStateDescription.FillMode = D3D11_FILL_SOLID;
+		if (IsWireFrameModeEnabled())
+		{
+			rasterizerStateDescription.FillMode = D3D11_FILL_WIREFRAME;
+		}
+		else
+		{
+			rasterizerStateDescription.FillMode = D3D11_FILL_SOLID;
+		}
 		// Triangles use left-handed winding order
 		// (opposite from OpenGL)
 		rasterizerStateDescription.FrontCounterClockwise = FALSE;

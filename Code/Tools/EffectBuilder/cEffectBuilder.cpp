@@ -37,6 +37,7 @@ namespace
 	bool LoadAlphaTransparencyTable(lua_State& io_luaState);
 	bool LoadDepthBufferingTable(lua_State& io_luaState);
 	bool LoadDrawBothTriangleSidesTable(lua_State& io_luaState);
+	bool LoadWireFrameModeTable(lua_State& io_luaState);
 }
 
 bool eae6320::AssetBuild::cEffectBuilder::Build(const std::vector<std::string>& i_arguments)
@@ -378,6 +379,12 @@ namespace
 				wereThereErrors = true;
 				goto OnExit;
 			}
+
+			if (!LoadWireFrameModeTable(io_luaState))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
 		}
 		else
 		{
@@ -482,6 +489,40 @@ namespace
 			else
 			{
 				eae6320::Graphics::RenderStates::DisableDrawingBothTriangleSides(renderStateBits);
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
+			goto OnExit;
+		}
+
+	OnExit:
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+	bool LoadWireFrameModeTable(lua_State& io_luaState)
+	{
+		bool wereThereErrors = false;
+		const char* const key = "wire_frame_mode";
+		lua_pushstring(&io_luaState, key);
+		lua_gettable(&io_luaState, -2);
+		if (lua_isnil(&io_luaState, -1))
+		{
+			eae6320::Graphics::RenderStates::DisableWireFrameMode(renderStateBits);
+			goto OnExit;
+		}
+		if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
+		{
+			if (lua_toboolean(&io_luaState, -1))
+			{
+				eae6320::Graphics::RenderStates::EnableWireFrameMode(renderStateBits);
+			}
+			else
+			{
+				eae6320::Graphics::RenderStates::DisableWireFrameMode(renderStateBits);
 			}
 		}
 		else

@@ -31,7 +31,9 @@ namespace eae6320
 				DepthBuffering = 1 << 1,
 				// Set to draw triangles regardless of whether they are front-facing or back-facing
 				// (set to disable culling)
-				DrawBothTriangleSides = 1 << 2
+				DrawBothTriangleSides = 1 << 2,
+				// Set to draw triangles in wire frame mode
+				DrawWireFrame = 1 << 3
 			};
 
 			// Alpha Transparency
@@ -46,6 +48,10 @@ namespace eae6320
 			bool ShouldBothTriangleSidesBeDrawn( const uint8_t i_renderStateBits );
 			void EnableDrawingBothTriangleSides( uint8_t& io_renderStateBits );
 			void DisableDrawingBothTriangleSides( uint8_t& io_renderStateBits );
+			// Draw Triangles In Wire Frame Mode
+			bool IsWireFrameModeEnabled(const uint8_t i_renderStateBits);
+			void EnableWireFrameMode(uint8_t& io_renderStateBits);
+			void DisableWireFrameMode(uint8_t& io_renderStateBits);
 		}
 	}
 }
@@ -84,6 +90,7 @@ namespace eae6320
 			bool IsAlphaTransparencyEnabled() const;
 			bool IsDepthBufferingEnabled() const;
 			bool ShouldBothTriangleSidesBeDrawn() const;
+			bool IsWireFrameModeEnabled() const;
 
 			uint8_t GetRenderStateBits() const;
 

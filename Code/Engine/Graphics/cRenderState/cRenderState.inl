@@ -51,6 +51,20 @@ inline void eae6320::Graphics::RenderStates::DisableDrawingBothTriangleSides( ui
 	io_renderStateBits &= ~DrawBothTriangleSides;
 }
 
+// Draw Both Triangle Sides
+inline bool eae6320::Graphics::RenderStates::IsWireFrameModeEnabled(const uint8_t i_renderStateBits)
+{
+	return (i_renderStateBits & DrawWireFrame) != 0;
+}
+inline void eae6320::Graphics::RenderStates::EnableWireFrameMode(uint8_t& io_renderStateBits)
+{
+	io_renderStateBits |= DrawWireFrame;
+}
+inline void eae6320::Graphics::RenderStates::DisableWireFrameMode(uint8_t& io_renderStateBits)
+{
+	io_renderStateBits &= ~DrawWireFrame;
+}
+
 // Access
 //-------
 
@@ -67,6 +81,11 @@ inline bool eae6320::Graphics::cRenderState::IsDepthBufferingEnabled() const
 inline bool eae6320::Graphics::cRenderState::ShouldBothTriangleSidesBeDrawn() const
 {
 	return RenderStates::ShouldBothTriangleSidesBeDrawn( m_bits );
+}
+
+inline bool eae6320::Graphics::cRenderState::IsWireFrameModeEnabled() const
+{
+	return RenderStates::IsWireFrameModeEnabled(m_bits);
 }
 
 inline uint8_t eae6320::Graphics::cRenderState::GetRenderStateBits() const
