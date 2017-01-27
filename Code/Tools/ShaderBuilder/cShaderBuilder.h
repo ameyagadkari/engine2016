@@ -40,7 +40,7 @@ namespace eae6320
 			// Build
 			//------
 
-			virtual bool Build( const std::vector<std::string>& i_arguments );
+			bool Build( const std::vector<std::string>& i_arguments ) override;
 
 			// Implementation
 			//===============

@@ -46,7 +46,7 @@ bool eae6320::AssetBuild::cMeshBuilder::Build(const std::vector<std::string>& i_
 
 	bool wereThereErrors = false;
 	std::string errorMessage;
-	Graphics::MeshData *meshData = NULL;
+	MeshData *meshData = NULL;
 	FILE * outputFile = NULL;
 
 	// Create a new Lua state

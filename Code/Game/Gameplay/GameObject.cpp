@@ -7,7 +7,6 @@
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Platform/Platform.h"
 #include "../../Engine/UserInput/UserInput.h"
-#include "../../Engine/Time/Time.h"
 #include "../../Engine/Math/Functions.h"
 #include "../../Engine/Graphics/Mesh.h"
 #include "../../Engine/Graphics/Material.h"
@@ -24,14 +23,14 @@ namespace eae6320
 			GameObject *gameObject = new GameObject();
 
 			// Load the binary GameObject file
-			eae6320::Platform::sDataFromFile binaryGameObject;
+			Platform::sDataFromFile binaryGameObject;
 			{
 				std::string errorMessage;
-				if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryGameObject, &errorMessage))
+				if (!LoadBinaryFile(relativePath, binaryGameObject, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
-					eae6320::Logging::OutputError("Failed to load the binary gameobject file \"%s\": %s", relativePath, errorMessage.c_str());
+					Logging::OutputError("Failed to load the binary gameobject file \"%s\": %s", relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}
@@ -68,7 +67,7 @@ namespace eae6320
 					}
 					else
 					{
-						gameObject->controller = NULL;
+						gameObject->controller = nullptr;
 					}
 				}
 
@@ -98,7 +97,7 @@ namespace eae6320
 					{
 						wereThereErrors = true;
 						EAE6320_ASSERT(false);
-						eae6320::Logging::OutputError("Failed to load the binary effect file: %s", materialPath);
+						Logging::OutputError("Failed to load the binary effect file: %s", materialPath);
 						goto OnExit;
 					}
 				}
@@ -115,7 +114,7 @@ namespace eae6320
 					{
 						wereThereErrors = true;
 						EAE6320_ASSERT(false);
-						eae6320::Logging::OutputError("Failed to load the binary mesh file: %s", meshPath);
+						Logging::OutputError("Failed to load the binary mesh file: %s", meshPath);
 						goto OnExit;
 					}
 				}
@@ -140,8 +139,13 @@ namespace eae6320
 		inline GameObject::GameObject() :
 			mesh(new Graphics::Mesh()),
 			material(new Graphics::Material()),
-			controller(NULL)
-		{}
+			controller(nullptr),
+			isStatic(false),
+			isRotating(false), 
+			rotationAxis()
+		{
+		}
+
 		inline GameObject::~GameObject()
 		{
 			if (mesh)

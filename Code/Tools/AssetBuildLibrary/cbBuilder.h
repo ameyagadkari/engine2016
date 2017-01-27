@@ -38,6 +38,7 @@ namespace eae6320
 			//==========
 
 		public:
+			virtual ~cbBuilder() = default;
 
 			// Build
 			//------

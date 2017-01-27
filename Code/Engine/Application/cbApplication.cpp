@@ -229,6 +229,7 @@ void eae6320::Application::cbApplication::OnNewFrame()
 	UpdateGameObjectPosition();
 	UpdateGameObjectOrientation();
 	SubmitDrawcallData3D();
+	SubmitDebugShapeData3D();
 	SubmitDrawcallData2D();
 	Graphics::RenderFrame();	
 }

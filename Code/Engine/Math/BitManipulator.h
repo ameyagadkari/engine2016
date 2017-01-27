@@ -13,27 +13,14 @@ namespace eae6320
 	{
 		namespace BitManipulator
 		{
-			bool IsBitSet(uint8_t number, uint8_t bitNumber)
-			{
-				uint8_t bit_mask = 0x80;
-				return (number & (bit_mask >> bitNumber)) != 0;
-			}
-			bool IsBitClear(uint8_t number, uint8_t bitNumber)
-			{
-				return !IsBitSet(number, bitNumber);
-			}
-			void SetBit(uint8_t& number, uint8_t bitNumber)
-			{
-				uint8_t bit_mask = 0x80;
-				number = number | (bit_mask >> bitNumber);
-			}
-			void ClearBit(uint8_t& number, uint8_t bitNumber)
-			{
-				uint8_t bit_mask = 0x80;
-				number = number & ~(bit_mask >> bitNumber);
-			}
+			bool IsBitSet(uint8_t number, uint8_t bitNumber);
+			bool IsBitClear(uint8_t number, uint8_t bitNumber);
+			void SetBit(uint8_t& number, uint8_t bitNumber);
+			void ClearBit(uint8_t& number, uint8_t bitNumber);
 		}
 	}
 }
+
+#include "BitManipulator.inl"
 
 #endif // !EAE6320_MATH_BIT_MANIPULATOR_H

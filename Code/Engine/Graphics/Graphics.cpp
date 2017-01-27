@@ -11,6 +11,7 @@
 #include "../Time/Time.h"
 #include "../../Game/Gameplay/GameObject.h"
 #include "../../Game/Gameplay/GameObject2D.h"
+#include "../../Game/Gameplay/DebugObject.h"
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
 #include "cSprite.h"
@@ -19,12 +20,13 @@
 #include <D3D11.h>
 #elif defined( EAE6320_PLATFORM_GL )
 #include "../Windows/Functions.h"
-#include "OpenGL\Includes.h"
+#include "OpenGL/Includes.h"
 #include <sstream>
 #endif
 
 #include <list>
 #include <vector>
+
 namespace
 {
 	using namespace eae6320::Graphics;
@@ -33,12 +35,13 @@ namespace
 	std::vector<eae6320::Gameplay::GameObject*>unsortedGameObjects;
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
 	std::vector<eae6320::Gameplay::GameObject2D*>unsortedGameObjects2D;
+	std::vector<eae6320::Gameplay::DebugObject*>unsortedDebugObject;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
-	ConstantBuffer *frameBuffer = NULL;
-	ConstantBuffer *drawCallBuffer = NULL;
+	ConstantBuffer *frameBuffer = nullptr;
+	ConstantBuffer *drawCallBuffer = nullptr;
 	eae6320::Camera::cCamera* camera;
-	HWND s_renderingWindow = NULL;
+	HWND s_renderingWindow = nullptr;
 
 	void SortGameObjects();
 	void ClearScreen();
@@ -54,8 +57,8 @@ namespace
 	bool CreateDevice(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 	bool CreateViews(const unsigned int i_resolutionWidth, const unsigned int i_resolutionHeight);
 #elif defined( EAE6320_PLATFORM_GL )
-	HDC s_deviceContext = NULL;
-	HGLRC s_openGlRenderingContext = NULL;
+	HDC s_deviceContext = nullptr;
+	HGLRC s_openGlRenderingContext = nullptr;
 	GLuint s_samplerState = 0;
 	bool CreateRenderingContext();
 	/*bool EnableBackFaceCulling();
@@ -96,6 +99,19 @@ void eae6320::Graphics::SetGameObject2D(Gameplay::GameObject2D*gameObject2d)
 	}
 }
 
+void eae6320::Graphics::SetDebugObject(Gameplay::DebugObject*debugObject)
+{
+	if (debugObject)
+	{
+		unsortedDebugObject.push_back(debugObject);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Trying to draw a non existent gameobject. Check gameobject name");
+	}
+}
+
 void eae6320::Graphics::RenderFrame()
 {
 	ClearScreen();
@@ -103,7 +119,7 @@ void eae6320::Graphics::RenderFrame()
 	{
 		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
 		frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
-		frameBufferData.g_elapsedSecondCount_total = eae6320::Time::GetElapsedSecondCount_total();
+		frameBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
 		frameBuffer->UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
 	}
 
@@ -124,6 +140,25 @@ void eae6320::Graphics::RenderFrame()
 			(*it)->GetMesh()->RenderMesh();
 		}
 		sortedGameObjects.clear();
+	}
+
+	// Draw Debug Shapes
+	{
+		size_t length = unsortedDebugObject.size();
+		for (size_t i = 0; i < length; i++)
+		{		
+			ConstantBufferData::sDrawCall drawCallBufferData;
+			Material*material = Gameplay::DebugObject::GetMaterial();
+			if (currentMaterialUUID != material->GetMaterialUUID())
+			{
+				material->BindMaterial();
+				currentMaterialUUID = material->GetMaterialUUID();
+			}
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObject[i]->GetPosition());
+			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+			unsortedDebugObject[i]->GetMesh()->RenderMesh();
+		}
+		unsortedDebugObject.clear();
 	}
 
 	// Draw Submitted Gameobjects2D
@@ -188,7 +223,7 @@ bool eae6320::Graphics::CleanUp()
 		wereThereErrors = true;
 	}
 
-	s_renderingWindow = NULL;
+	s_renderingWindow = nullptr;
 	return !wereThereErrors;
 }
 
@@ -209,7 +244,7 @@ namespace
 			uint32_t effectUUIDToBeChecked = (*itVector)->GetMaterial()->GetEffect()->GetEffectUUID();
 			while (itList != sortedGameObjects.end() && currentMaterialUUID != materialUUIDToBeChecked && currentEffectUUID != effectUUIDToBeChecked)
 			{
-				itList++;
+				++itList;
 				if (itList != sortedGameObjects.end())
 				{
 					currentMaterialUUID = (*itList)->GetMaterial()->GetMaterialUUID();
@@ -235,7 +270,7 @@ namespace
 					bool itemNotAdded = true;
 					while (itList != sortedGameObjects.end())
 					{
-						itList++;
+						++itList;
 						if (itList != sortedGameObjects.end())
 						{
 							currentEffectUUID = (*itList)->GetMaterial()->GetEffect()->GetEffectUUID();
@@ -328,24 +363,6 @@ namespace
 			EAE6320_ASSERT(false);
 			return false;
 		}
-
-		/*if (!EnableBackFaceCulling())
-		{
-			EAE6320_ASSERT(false);
-			return false;
-		}
-
-		if (!EnableDepthTesting())
-		{
-			EAE6320_ASSERT(false);
-			return false;
-		}
-
-		if (!EnableDepthWriting())
-		{
-			EAE6320_ASSERT(false);
-			return false;
-		}*/
 #endif
 		return true;
 	}
@@ -839,61 +856,5 @@ namespace
 
 		return true;
 	}
-
-	/*bool EnableBackFaceCulling()
-	{
-		glEnable(GL_CULL_FACE);
-		const GLenum errorCode = glGetError();
-		if (errorCode != GL_NO_ERROR)
-		{
-			EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			eae6320::Logging::OutputError("OpenGL failed to enable backface culling: %s",
-				reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			return false;
-		}
-		return true;
-	}
-
-	bool EnableDepthTesting()
-	{
-		{
-			glDepthFunc(GL_LESS);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				eae6320::Logging::OutputError("OpenGL failed to enable depth function: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				return false;
-			}
-		}
-		{
-			glEnable(GL_DEPTH_TEST);
-			const GLenum errorCode = glGetError();
-			if (errorCode != GL_NO_ERROR)
-			{
-				EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				eae6320::Logging::OutputError("OpenGL failed to enable depth testing: %s",
-					reinterpret_cast<const char*>(gluErrorString(errorCode)));
-				return false;
-			}
-		}
-		return true;
-	}
-
-	bool EnableDepthWriting()
-	{
-		glDepthMask(GL_TRUE);
-		const GLenum errorCode = glGetError();
-		if (errorCode != GL_NO_ERROR)
-		{
-			EAE6320_ASSERTF(false, reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			eae6320::Logging::OutputError("OpenGL failed to enable depth writing: %s",
-				reinterpret_cast<const char*>(gluErrorString(errorCode)));
-			return false;
-		}
-
-		return true;
-	}*/
 #endif
 }

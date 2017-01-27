@@ -81,16 +81,17 @@ namespace eae6320
 		// Initialization / Clean Up /Draw
 		//--------------------------------
 
-		virtual bool Initialize();
-		virtual void ChangeCamera();
-		virtual void UpdateCameraPostion();
-		virtual void UpdateCameraOrientation();
-		virtual void SubmitCamera();
-		virtual void UpdateGameObjectPosition();
-		virtual void UpdateGameObjectOrientation();
-		virtual void SubmitDrawcallData3D();
-		virtual void SubmitDrawcallData2D();
-		virtual bool CleanUp();	
+		bool Initialize() override;
+		void ChangeCamera() override;
+		void UpdateCameraPostion() override;
+		void UpdateCameraOrientation() override;
+		void SubmitCamera() override;
+		void UpdateGameObjectPosition() override;
+		void UpdateGameObjectOrientation() override;
+		void SubmitDrawcallData3D() override;
+		void SubmitDrawcallData2D() override;
+		void SubmitDebugShapeData3D() override;
+		bool CleanUp() override;	
 	};
 }
 

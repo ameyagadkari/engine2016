@@ -11,7 +11,7 @@
 // Static Data Initialization
 //===========================
 
-ID3D11InputLayout* eae6320::Graphics::Effect::ms_vertexLayout = NULL;
+ID3D11InputLayout* eae6320::Graphics::Effect::ms_vertexLayout = nullptr;
 
 namespace
 {

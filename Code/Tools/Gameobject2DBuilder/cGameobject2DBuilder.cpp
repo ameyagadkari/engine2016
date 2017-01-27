@@ -588,7 +588,7 @@ namespace
 				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
 			lua_pop(&io_luaState, 1);
-	}
+		}
 		else
 		{
 			wereThereErrors = true;
@@ -597,7 +597,7 @@ namespace
 			return !wereThereErrors;
 		}
 		return !wereThereErrors;
-}
+	}
 	bool LoadBottomValue(lua_State& io_luaState)
 	{
 		bool wereThereErrors = false;
@@ -618,7 +618,7 @@ namespace
 				eae6320::Math::cHalf::MakeHalfFromFloat(static_cast<float>(lua_tonumber(&io_luaState, -1)));
 #endif
 			lua_pop(&io_luaState, 1);
-	}
+		}
 		else
 		{
 			wereThereErrors = true;

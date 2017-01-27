@@ -1,9 +1,9 @@
 /*
-	This class builds effects
+	This class builds gameobjects
 */
 
-#ifndef EAE6320_CEFFECTBUILDER_H
-#define EAE6320_CEFFECTBUILDER_H
+#ifndef EAE6320_CDEBUGSHAPEBUILDER_H
+#define EAE6320_CDEBUGSHAPEBUILDER_H
 
 // Header Files
 //=============
@@ -17,7 +17,7 @@ namespace eae6320
 {
 	namespace AssetBuild
 	{
-		class cEffectBuilder : public cbBuilder
+		class cDebugShapeBuilder : public cbBuilder
 		{
 			// Inherited Implementation
 			//=========================
@@ -32,4 +32,4 @@ namespace eae6320
 	}
 }
 
-#endif	// EAE6320_CEFFECTBUILDER_H
+#endif	// EAE6320_CDEBUGSHAPEBUILDER_H

@@ -27,6 +27,7 @@ namespace eae6320
 	{
 		class GameObject;
 		class GameObject2D;
+		class DebugObject;
 	}
 }
 
@@ -41,6 +42,7 @@ namespace eae6320
 		//-------
 		void SetGameObject(Gameplay::GameObject*gameObject);
 		void SetGameObject2D(Gameplay::GameObject2D*gameObject2d);
+		void SetDebugObject(Gameplay::DebugObject*debugObject);
 		void SetCamera(Camera::cCamera* camera);
 		void RenderFrame();
 		

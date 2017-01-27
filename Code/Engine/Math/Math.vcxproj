@@ -34,6 +34,7 @@
     <ClInclude Include="Functions.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BitManipulator.inl" />
     <None Include="Functions.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -27,6 +27,10 @@ return
 		"gameobjects/flags.txtgobj",
 		"gameobjects/wallbraceinner.txtgobj",
 	},
+	materials =
+	{
+		"materials/primitive_material.txtmaterial",
+	},
 	--[[gameobjects2d = 
 	{
 		"gameobjects2d/logo.txtg2dobj",

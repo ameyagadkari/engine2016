@@ -37,14 +37,14 @@ namespace eae6320
 		{
 		public:
 			static bool LoadMesh(const char * const i_relativePath, Mesh &o_mesh);
+			bool Initialize(const MeshData &i_meshData);
 			bool CleanUp();
 			void RenderMesh()const;	
 			Mesh();
 			~Mesh();
 		private:		
 			uint32_t m_numberOfIndices;
-			bool m_is16bit;
-			bool Initialize(const MeshData &i_meshData);		
+			bool m_is16bit;					
 #if defined( EAE6320_PLATFORM_D3D )
 			// The vertex buffer holds the data for each vertex
 			ID3D11Buffer* m_vertexBuffer;

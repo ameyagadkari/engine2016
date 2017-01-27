@@ -27,8 +27,8 @@ namespace eae6320
 	public:
 
 		// The writer method is what exports the file
-		virtual bool haveWriteMethod() const { return true; }
-		virtual MStatus writer( const MFileObject& i_file, const MString& i_options, FileAccessMode i_mode );
+		bool haveWriteMethod() const override { return true; }
+		MStatus writer( const MFileObject& i_file, const MString& i_options, FileAccessMode i_mode ) override;
 
 		// We won't implement a Maya importer in our class.
 		// If you wanted to be able to import your mesh files into Maya
@@ -36,7 +36,7 @@ namespace eae6320
 		// and then implement reader().
 
 		// You can choose what the default file extension of an exported mesh is
-		virtual MString defaultExtension() const { return ".txtmesh"; }
+		MString defaultExtension() const override { return ".txtmesh"; }
 
 		// Interface
 		//==========

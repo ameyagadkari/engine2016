@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Functions.inl" />
+    <None Include="BitManipulator.inl" />
   </ItemGroup>
 </Project>

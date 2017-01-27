@@ -6,14 +6,12 @@
 #include <regex>
 #include "../Gameplay/GameObject.h"
 #include "../Gameplay/GameObject2D.h"
+#include "../Gameplay/DebugObject.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
-
-#include "../../Engine/Graphics/Material.h"
-#include "../../Engine/Graphics/cTexture.h"
 
 // Interface
 //==========
@@ -32,6 +30,7 @@ namespace
 {
 	void GenerateRelativePaths(std::string prefix);
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
+	std::vector<eae6320::Gameplay::DebugObject*> debugObjects;
 	std::map<const std::string, eae6320::Gameplay::GameObject2D*> gameObjects2D;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
@@ -70,6 +69,11 @@ bool eae6320::cMyGame::Initialize()
 		{
 			gameObjects2D[fileNames[i]] = (Gameplay::GameObject2D::LoadGameObject2D(relativePaths[i].c_str()));
 		}
+	}
+	{
+		//Debug Shape Boxes
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(50.0f, 0.0f, 0.0f)));
+		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f, 1.0, 0.0f, 0.0f);
 	}
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 50.0f));
@@ -152,6 +156,14 @@ void eae6320::cMyGame::SubmitDrawcallData3D()
 	}
 }
 
+void eae6320::cMyGame::SubmitDebugShapeData3D()
+{
+	for (size_t i = 0; i < debugObjects.size(); i++)
+	{
+		Graphics::SetDebugObject(debugObjects[i]);
+	}
+}
+
 void eae6320::cMyGame::SubmitDrawcallData2D()
 {
 	for (auto const& gameObject2D : gameObjects2D)
@@ -175,6 +187,11 @@ bool eae6320::cMyGame::CleanUp()
 		}
 	}
 	gameObjects.clear();
+	for (auto const& debugObject : debugObjects)
+	{
+		delete debugObject;
+	}
+	debugObjects.clear();
 	for (auto const& gameObject2D : gameObjects2D)
 	{
 		if (gameObject2D.second)
