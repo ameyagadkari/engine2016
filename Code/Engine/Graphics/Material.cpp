@@ -126,20 +126,28 @@ eae6320::Graphics::cTexture * eae6320::Graphics::Material::GetTexture() const
 	return m_texture;
 }
 
+eae6320::Graphics::ConstantBuffer * eae6320::Graphics::Material::GetMaterialBuffer() const
+{
+	return m_materialBuffer;
+}
+
 bool eae6320::Graphics::Material::CleanUpMaterial()
 {
 	bool wereThereErrors = false;
 	if (m_materialBuffer)
 	{
 		delete m_materialBuffer;
+		m_materialBuffer = nullptr;
 	}
 	if (m_effect)
 	{
 		delete m_effect;
+		m_effect = nullptr;
 	}
 	if (m_texture)
 	{
 		delete m_texture;
+		m_texture = nullptr;
 	}
 	return !wereThereErrors;
 }

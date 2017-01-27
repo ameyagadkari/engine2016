@@ -28,9 +28,16 @@ namespace eae6320
 		{
 			return m_position;
 		}
-		DebugObject::DebugObject(Math::cVector i_position) :
+		void DebugObject::GetColor(float& i_r, float& i_g, float& i_b)const
+		{
+			i_r = m_color.r;
+			i_g = m_color.g;
+			i_b = m_color.b;
+		}
+		DebugObject::DebugObject(Math::cVector i_position, const float i_r, const float i_g, const float i_b) :
 			m_mesh(new Graphics::Mesh()),
-			m_position(i_position)
+			m_position(i_position),
+			m_color(i_r, i_g, i_b)
 		{
 			if (!ms_material)
 			{
@@ -43,13 +50,15 @@ namespace eae6320
 			if (m_mesh)
 			{
 				delete m_mesh;
+				m_mesh = nullptr;
 			}
 			if (ms_material)
 			{
 				delete ms_material;
+				ms_material = nullptr;
 			}
 		}
-		void DebugObject::CreateBox(const float i_width, const float i_height, const float i_depth, const float i_r, const float i_g, const float i_b) const
+		void DebugObject::CreateBox(const float i_width, const float i_height, const float i_depth) const
 		{
 			const float halfWidth = 0.5f*i_width;
 			const float halfHeight = 0.5f*i_height;
@@ -92,7 +101,7 @@ namespace eae6320
 			Graphics::MeshData meshData(16, 24, 36);
 			for (size_t i = 0; i < meshData.numberOfVertices; i++)
 			{
-				meshData.vertexData[i].AddVertexData(signs[i][0] * halfWidth, signs[i][1] * halfHeight, signs[i][2] * halfDepth, i_r, i_g, i_b);
+				meshData.vertexData[i].AddVertexData(signs[i][0] * halfWidth, signs[i][1] * halfHeight, signs[i][2] * halfDepth);
 			}
 
 			const uint16_t indices[36] =
@@ -107,47 +116,17 @@ namespace eae6320
 			for (size_t i = 0; i < meshData.numberOfIndices; i++)
 			{
 #if defined( EAE6320_PLATFORM_D3D )
-				reinterpret_cast<uint16_t*>(meshData.indexData)[i] = indices[i];
-#elif defined( EAE6320_PLATFORM_GL )
 				reinterpret_cast<uint16_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = indices[i];
+#elif defined( EAE6320_PLATFORM_GL )
+				reinterpret_cast<uint16_t*>(meshData.indexData)[i] = indices[i];
 #endif
-			}
+		}
 
 			if (!m_mesh->Initialize(meshData))
 			{
 				EAE6320_ASSERT(false);
 				Logging::OutputError("Failed to initialize debug box shape with %f width,%f height,%f depth", i_width, i_height, i_depth);
 			}
-			//// front
-			//o_meshData.vertexData[0].AddVertexData(-halfWidth, -halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[1].AddVertexData(-halfWidth, halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[2].AddVertexData(halfWidth, halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[3].AddVertexData(halfWidth, -halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-
-			//// back
-			//o_meshData.vertexData[4].AddVertexData(-halfWidth, -halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[5].AddVertexData(halfWidth, -halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[6].AddVertexData(halfWidth, halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[7].AddVertexData(-halfWidth, halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-
-			//// top
-			//o_meshData.vertexData[8].AddVertexData(-halfWidth, halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[9].AddVertexData(-halfWidth, halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[10].AddVertexData(halfWidth, halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[11].AddVertexData(halfWidth, halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-
-			//// bottom
-			//o_meshData.vertexData[12].AddVertexData(-halfWidth, -halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[13].AddVertexData(halfWidth, -halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[14].AddVertexData(halfWidth, -halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[15].AddVertexData(-halfWidth, -halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-
-			//// left
-			//o_meshData.vertexData[16].AddVertexData(-halfWidth, -halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[17].AddVertexData(-halfWidth, halfHeight, halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[18].AddVertexData(-halfWidth, halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-			//o_meshData.vertexData[19].AddVertexData(-halfWidth, -halfHeight, -halfDepth, i_r, i_g, i_b, i_a);
-
-		}
 	}
+}
 }

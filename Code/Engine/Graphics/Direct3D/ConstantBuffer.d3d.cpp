@@ -74,7 +74,7 @@ namespace eae6320
 
 		}
 
-		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer)
+		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer) const
 		{
 			CommonData* commonData = CommonData::GetCommonData();
 			// Update the struct (i.e. the memory that we own)

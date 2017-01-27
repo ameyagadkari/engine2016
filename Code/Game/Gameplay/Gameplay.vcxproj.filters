@@ -16,5 +16,6 @@
     <ClInclude Include="StandardRotationController.h" />
     <ClInclude Include="GameObject2D.h" />
     <ClInclude Include="DebugObject.h" />
+    <ClInclude Include="Configuration.h" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,22 @@
+/*
+	This is the fragment shader used to render meshes
+*/
+
+#include "shaders.inc"
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+void main(
+	in vec4 i_position : SV_POSITION,
+	in vec4 i_color : COLOR,
+	out vec4 o_color : SV_TARGET
+	)	
+#elif defined( EAE6320_PLATFORM_GL )
+
+	layout( location = 0 ) in vec4 i_color;
+	out vec4 o_color;	
+void main()
+#endif
+{
+	o_color = i_color * g_color;
+}

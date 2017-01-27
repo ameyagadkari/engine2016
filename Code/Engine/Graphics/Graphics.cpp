@@ -26,6 +26,7 @@
 
 #include <list>
 #include <vector>
+#include <bitset>
 
 namespace
 {
@@ -156,6 +157,9 @@ void eae6320::Graphics::RenderFrame()
 			}
 			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObject[i]->GetPosition());
 			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
+			ConstantBufferData::sMaterial materialBuffer;
+			unsortedDebugObject[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
+			material->GetMaterialBuffer()->UpdateConstantBuffer(&materialBuffer, sizeof(materialBuffer));
 			unsortedDebugObject[i]->GetMesh()->RenderMesh();
 		}
 		unsortedDebugObject.clear();

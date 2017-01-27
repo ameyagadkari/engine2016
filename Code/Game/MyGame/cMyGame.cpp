@@ -7,6 +7,7 @@
 #include "../Gameplay/GameObject.h"
 #include "../Gameplay/GameObject2D.h"
 #include "../Gameplay/DebugObject.h"
+#include "../Gameplay/Configuration.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
@@ -71,9 +72,13 @@ bool eae6320::cMyGame::Initialize()
 		}
 	}
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		//Debug Shape Boxes
-		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(50.0f, 0.0f, 0.0f)));
-		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f, 1.0, 0.0f, 0.0f);
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(50.0f, 0.0f, 0.0f), 1.0, 0.0f, 0.0f));
+		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f);
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-50.0f, 0.0f, 0.0f), 0.0, 1.0f, 0.0f));
+		debugObjects.back()->CreateBox(20.0f, 10.0f, 40.0f);
+#endif
 	}
 	//Make different cameras and pushback in cameras vector
 	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 50.0f));
@@ -187,9 +192,9 @@ bool eae6320::cMyGame::CleanUp()
 		}
 	}
 	gameObjects.clear();
-	for (auto const& debugObject : debugObjects)
+	for (size_t i = 0; i < debugObjects.size(); i++)
 	{
-		delete debugObject;
+		delete debugObjects[i];
 	}
 	debugObjects.clear();
 	for (auto const& gameObject2D : gameObjects2D)

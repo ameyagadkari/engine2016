@@ -73,7 +73,7 @@ namespace eae6320
 			EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 		}
 
-		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer)
+		void ConstantBuffer::UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer) const
 		{
 			/*if (constantBufferType == ConstantBufferType::FRAME)
 			{

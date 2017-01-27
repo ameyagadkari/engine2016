@@ -27,6 +27,7 @@
     <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="CubeController.h" />
     <ClInclude Include="DebugObject.h" />
     <ClInclude Include="GameObject.h" />

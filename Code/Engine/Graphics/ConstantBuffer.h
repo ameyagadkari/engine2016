@@ -22,7 +22,7 @@ namespace eae6320
 		public:
 			bool InitializeConstantBuffer(ConstantBufferType constantBufferType, size_t sizeOfConstantBuffer, void* initialBufferData = NULL);
 			void BindingConstantBuffer(BindMode bindMode = BindMode::VS_PS_BOTH)const;
-			void UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer);
+			void UpdateConstantBuffer(void* bufferData, size_t sizeOfConstantBuffer) const;
 			bool CleanUpConstantBuffer();
 
 			ConstantBuffer();
