@@ -73,15 +73,30 @@ bool eae6320::cMyGame::Initialize()
 	}
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		//Debug Shape Lines
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), 1.0f, 0.0f, 0.0f));
+		debugObjects.back()->CreateLine(Math::cVector(10.0f, 10.0f, 10.0f));
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(0.0f, 0.0f, 0.0f), 0.0f, 1.0f, 0.0f));
+		debugObjects.back()->CreateLine(Math::cVector(10.0f, 20.0f, 40.0f));
 		//Debug Shape Boxes
-		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(50.0f, 0.0f, 0.0f), 1.0, 0.0f, 0.0f));
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-60.0f, 10.0f, -50.0f), 0.0f, 0.0f, 1.0f));
 		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f);
-		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-50.0f, 0.0f, 0.0f), 0.0, 1.0f, 0.0f));
-		debugObjects.back()->CreateBox(20.0f, 10.0f, 40.0f);
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(60.0f, 10.0f, -50.0f), 1.0f, 1.0f, 0.0f));
+		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);
+		//Debug Shape Spheres
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-30.0f, -70.0f, -75.0f), 0.0f, 1.0f, 1.0f));
+		debugObjects.back()->CreateSphere(10.0f, 20, 20);
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), 1.0f, 0.0f, 1.0f));
+		debugObjects.back()->CreateSphere(20.0f, 20, 20);
+		//Debug Shape Cylinders
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(-40.0f, -20.0f, -100.0f), 1.0f, 0.5f, 0.0f));
+		debugObjects.back()->CreateCylinder(20.0f, 10.0f, 40.0f, 10, 10);
+		debugObjects.push_back(new Gameplay::DebugObject(Math::cVector(40.0f, -20.0f, -100.0f), 0.5f, 1.0f, 0.0f));
+		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);
 #endif
 	}
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 50.0f));
+	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 200.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
 	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);

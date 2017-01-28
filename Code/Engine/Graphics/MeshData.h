@@ -58,9 +58,15 @@ namespace eae6320
 			~MeshData()
 			{
 				if (vertexData)
+				{
 					free(vertexData);
+					vertexData = nullptr;
+				}
 				if (indexData)
+				{
 					free(indexData);
+					indexData = nullptr;
+				}
 			}
 		};
 	}
