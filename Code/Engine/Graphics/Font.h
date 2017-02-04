@@ -12,6 +12,7 @@ namespace eae6320
 {
 	namespace Graphics
 	{
+		struct MeshData;
 		struct FontData;
 		class Material;
 		namespace Sprite
@@ -39,14 +40,14 @@ namespace eae6320
 		public:
 			static bool LoadFont(const char * const i_relativePath);
 			static bool CleanUp();
-			static void RenderText(const char * const textToDisplay, int16_t x, int16_t y);
+			static void RenderText(const MeshData& i_meshData);
 			static Material* ms_material;
+			static uint8_t* widthArray;
+			static Sprite::TextureCoordinates* texcoordArray;
 		private:
 			Font() = default;
 			static bool Initialize();
-			static bool CleanUpFont();		
-			static Sprite::TextureCoordinates* texcoordArray;
-			static uint8_t* widthArray;
+			static bool CleanUpFont();				
 			// A single dynamic vertex buffer is created for _all_ sprites,
 			// and its contents are changed every draw call
 #if defined( EAE6320_PLATFORM_D3D )

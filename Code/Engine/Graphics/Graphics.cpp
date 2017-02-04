@@ -12,6 +12,7 @@
 #include "../../Game/Gameplay/GameObject.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Game/Debug/DebugObject.h"
+#include "../../Game/Debug/IUIController.h"
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
 #include "cSprite.h"
@@ -37,7 +38,8 @@ namespace
 	std::vector<eae6320::Gameplay::GameObject*>unsortedGameObjects;
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
 	std::vector<eae6320::Gameplay::GameObject2D*>unsortedGameObjects2D;
-	std::vector<eae6320::Debug::Shapes::DebugObject*>unsortedDebugObject;
+	std::vector<eae6320::Debug::Shapes::DebugObject*>unsortedDebugObjects;
+	std::vector<eae6320::Debug::UI::IUIController*>unsortedUIObjects;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer *frameBuffer = nullptr;
@@ -105,12 +107,25 @@ void eae6320::Graphics::SetDebugObject(Debug::Shapes::DebugObject*debugObject)
 {
 	if (debugObject)
 	{
-		unsortedDebugObject.push_back(debugObject);
+		unsortedDebugObjects.push_back(debugObject);
 	}
 	else
 	{
 		EAE6320_ASSERT(false);
-		Logging::OutputError("Trying to draw a non existent gameobject. Check gameobject name");
+		Logging::OutputError("Trying to draw a non existent debugobject. Check debugobject name");
+	}
+}
+
+void eae6320::Graphics::SetDebugUI(Debug::UI::IUIController*uiObject)
+{
+	if (uiObject)
+	{
+		unsortedUIObjects.push_back(uiObject);
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Trying to draw a non existent debugobject. Check debugobject name");
 	}
 }
 
@@ -146,7 +161,7 @@ void eae6320::Graphics::RenderFrame()
 
 	// Draw Debug Shapes
 	{
-		size_t length = unsortedDebugObject.size();
+		size_t length = unsortedDebugObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{		
 			ConstantBufferData::sDrawCall drawCallBufferData;
@@ -156,14 +171,33 @@ void eae6320::Graphics::RenderFrame()
 				material->BindMaterial();
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObject[i]->GetPosition());
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObjects[i]->GetPosition());
 			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			ConstantBufferData::sMaterial materialBuffer;
-			unsortedDebugObject[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
+			unsortedDebugObjects[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
 			material->GetMaterialBuffer()->UpdateConstantBuffer(&materialBuffer, sizeof(materialBuffer));
-			unsortedDebugObject[i]->GetMesh()->RenderMesh();
+			unsortedDebugObjects[i]->GetMesh()->RenderMesh();
 		}
-		unsortedDebugObject.clear();
+		unsortedDebugObjects.clear();
+	}
+
+	// Draw Debug UIs
+	{
+		size_t length = unsortedUIObjects.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			Material*material = Font::ms_material;
+			if (currentMaterialUUID != material->GetMaterialUUID())
+			{
+				material->BindMaterial();
+				currentMaterialUUID = material->GetMaterialUUID();
+			}
+			ConstantBufferData::sMaterial materialBuffer;
+			unsortedUIObjects[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
+			material->GetMaterialBuffer()->UpdateConstantBuffer(&materialBuffer, sizeof(materialBuffer));
+			unsortedUIObjects[i]->Draw();
+		}
+		unsortedUIObjects.clear();
 	}
 
 	// Draw Submitted Gameobjects2D

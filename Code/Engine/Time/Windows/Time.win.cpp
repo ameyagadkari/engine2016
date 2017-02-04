@@ -8,6 +8,8 @@
 #include "../../Windows/Includes.h"
 #include "../../Windows/Functions.h"
 
+#include "../FPSCounter.h"
+
 // Static Data Initialization
 //===========================
 
@@ -52,7 +54,7 @@ float eae6320::Time::GetElapsedSecondCount_duringPreviousFrame()
 void eae6320::Time::OnNewFrame()
 {
 	InitializeIfNecessary();
-
+	FPSCounter::count++;
 	// Update the previous frame
 	{
 		s_totalTicksElapsed_previousFrame = s_totalTicksElapsed_duringRun;

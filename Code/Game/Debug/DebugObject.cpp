@@ -37,10 +37,10 @@ namespace eae6320
 				i_g = m_color.g;
 				i_b = m_color.b;
 			}
-			DebugObject::DebugObject(Math::cVector i_position, const float i_r, const float i_g, const float i_b) :
+			DebugObject::DebugObject(const Math::cVector i_position, const Color i_color) :
 				m_mesh(new Graphics::Mesh()),
 				m_position(i_position),
-				m_color(i_r, i_g, i_b)
+				m_color(i_color)
 			{
 				if (!ms_material)
 				{

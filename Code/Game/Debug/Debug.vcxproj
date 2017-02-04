@@ -19,11 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="ConfigurationShapes.h" />
+    <ClInclude Include="ConfigurationUI.h" />
     <ClInclude Include="DebugObject.h" />
+    <ClInclude Include="IUIController.h" />
+    <ClInclude Include="PixelCoordinates.h" />
+    <ClInclude Include="Text.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugObject.cpp" />
+    <ClCompile Include="Text.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1FB02E9A-B09C-43A3-B1AF-48171A1F49CB}</ProjectGuid>

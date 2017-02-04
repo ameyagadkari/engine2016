@@ -38,13 +38,13 @@ namespace eae6320
 		//--------------
 
 		// You can configure your game by overriding the following functions
-		
-		virtual const char* GetPathToLogTo() const { return "eae6320_u1000981.log"; }
+
+		const char* GetPathToLogTo() const override { return "eae6320_u1000981.log"; }
 #if defined( EAE6320_PLATFORM_WINDOWS )
 		// The main window's name will be displayed as its caption (the text that is displayed in the title bar).
 		// You can make it anything that you want, but please keep the platform name and debug configuration in it somewhere
 		// so that it's easy to tell at a glance what kind of build is running.
-		virtual const char* GetMainWindowName() const
+		const char* GetMainWindowName() const override
 		{
 			return "Ameya Gadkari's EAE6320 Game"
 				" -- "
@@ -68,14 +68,17 @@ namespace eae6320
 		// as one of your classmate's.
 		// You don't need to worry about this for our class,
 		// but if you ever ship a real project using this code as a base you should probably set this to something unique :)
-		virtual const char* GetMainWindowClassName() const { return "Ameya Gadkari's EAE6320 Main Window Class"; }
+		const char* GetMainWindowClassName() const override { return "Ameya Gadkari's EAE6320 Main Window Class"; }
 		// If you want you can change the icons used for your game here. The following three are provided:
 		//	* IDI_EAEGAMEPAD
 		//	* IDI_EAEALIEN
 		//	* IDI_VSDEFAULT_LARGE / IDI_VSDEFAULT_SMALL
 		// If you want to create your a convenient website that will help is: http://icoconvert.com/
-		virtual const WORD* GetLargeIconId() const { static const WORD iconId_large = IDI_EAEGAMEPAD; return &iconId_large; }
-		virtual const WORD* GetSmallIconId() const { static const WORD iconId_small = IDI_EAEGAMEPAD; return &iconId_small; }
+		const WORD* GetLargeIconId() const override
+		{ static const WORD iconId_large = IDI_EAEGAMEPAD; return &iconId_large; }
+
+		const WORD* GetSmallIconId() const override
+		{ static const WORD iconId_small = IDI_EAEGAMEPAD; return &iconId_small; }
 #endif
 
 		// Initialization / Clean Up /Draw
@@ -88,9 +91,11 @@ namespace eae6320
 		void SubmitCamera() override;
 		void UpdateGameObjectPosition() override;
 		void UpdateGameObjectOrientation() override;
-		void SubmitDrawcallData3D() override;
-		void SubmitDrawcallData2D() override;
+		void UpdateDebugUI()override;
+		void SubmitDrawcallData3D() override;		
 		void SubmitDebugShapeData3D() override;
+		void SubmitDebugUIData2D() override;
+		void SubmitDrawcallData2D() override;
 		bool CleanUp() override;	
 	};
 }

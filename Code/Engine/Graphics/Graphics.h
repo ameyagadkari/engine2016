@@ -35,6 +35,10 @@ namespace eae6320
 		{
 			class DebugObject;
 		}
+		namespace UI
+		{
+			class IUIController;
+		}
 	}
 }
 
@@ -51,6 +55,7 @@ namespace eae6320
 		void SetGameObject2D(Gameplay::GameObject2D*gameObject2d);
 		void SetDebugObject(Debug::Shapes::DebugObject*debugObject);
 		void SetCamera(Camera::cCamera* camera);
+		void SetDebugUI(Debug::UI::IUIController*uiObject);
 		void RenderFrame();
 		
 		// Initialization / Clean Up

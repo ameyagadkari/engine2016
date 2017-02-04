@@ -2,6 +2,7 @@
 #define EAE6320_DEBUGOBJECT_H
 
 #include "../../Engine/Math/cVector.h"
+#include "Color.h"
 #include <cstdint>
 
 namespace eae6320
@@ -18,14 +19,7 @@ namespace eae6320
 	namespace Debug
 	{
 		namespace Shapes
-		{
-			struct Color
-			{
-				float r, g, b;
-				Color(float i_r, float i_g, float i_b) :
-					r(i_r), g(i_g), b(i_b)
-				{}
-			};
+		{		
 			class DebugObject
 			{
 			public:
@@ -34,7 +28,7 @@ namespace eae6320
 				Math::cVector GetPosition()const;
 				void GetColor(float& i_r, float& i_g, float& i_b)const;
 
-				DebugObject(Math::cVector i_position = Math::cVector::zero, const float i_r = 1.0f, const float i_g = 1.0f, const float i_b = 1.0f);
+				explicit DebugObject(const Math::cVector i_position = Math::cVector::zero, const Color i_color = { 1.0f,1.0f,1.0f });
 				~DebugObject();
 
 				void CreateLine(const Math::cVector i_end) const;
