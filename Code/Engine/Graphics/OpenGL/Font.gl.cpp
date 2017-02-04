@@ -235,7 +235,7 @@ bool eae6320::Graphics::Font::Initialize()
 	}
 
 	{
-		MeshData::Vertex indexData[6] = { 0,1,2,3,2,1 };
+		uint16_t indexData[6] = { 0,1,2,3,2,1 };
 		//Index Buffer init
 		const unsigned int indexBufferSize = 6 * sizeof(uint16_t);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize, reinterpret_cast<GLvoid*>(indexData), GL_STREAM_DRAW);

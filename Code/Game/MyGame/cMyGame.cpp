@@ -103,7 +103,7 @@ bool eae6320::cMyGame::Initialize()
 	{
 #if defined(EAE6320_DEBUG_UI_AREENABLED)
 		Graphics::Font::LoadFont("data/fonts/myfont.binfont");
-		debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: 6000", { 1.0f,0.0f,0.0f }));
+		debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
 #endif
 	}
 	//Make different cameras and pushback in cameras vector

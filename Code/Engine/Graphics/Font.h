@@ -53,6 +53,7 @@ namespace eae6320
 #if defined( EAE6320_PLATFORM_D3D )
 			// A vertex buffer holds the data for each vertex
 			static ID3D11Buffer* ms_vertexBuffer;
+			static ID3D11Buffer* ms_indexBuffer;
 #elif defined( EAE6320_PLATFORM_GL )
 			// A vertex array encapsulates the vertex data and the vertex input layout
 			static GLuint ms_vertexArrayId;

@@ -27,16 +27,7 @@ eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const 
 
 eae6320::Debug::UI::Text::~Text()
 {
-	if (m_screenPositionForEachCharacter)
-	{
-		free(m_screenPositionForEachCharacter);
-		m_screenPositionForEachCharacter = nullptr;
-	}
-	if (m_meshData)
-	{
-		delete m_meshData;
-		m_meshData = nullptr;
-	}
+	Text::CleanUp();
 }
 
 void eae6320::Debug::UI::Text::Draw()
@@ -50,14 +41,7 @@ void eae6320::Debug::UI::Text::Update(std::string i_string)
 	Initialize();
 }
 
-void eae6320::Debug::UI::Text::GetColor(float & i_r, float & i_g, float & i_b) const
-{
-	i_r = m_color.r;
-	i_g = m_color.g;
-	i_b = m_color.b;
-}
-
-void eae6320::Debug::UI::Text::Initialize()
+void eae6320::Debug::UI::Text::CleanUp()
 {
 	if (m_screenPositionForEachCharacter)
 	{
@@ -69,6 +53,18 @@ void eae6320::Debug::UI::Text::Initialize()
 		delete m_meshData;
 		m_meshData = nullptr;
 	}
+}
+
+void eae6320::Debug::UI::Text::GetColor(float & i_r, float & i_g, float & i_b) const
+{
+	i_r = m_color.r;
+	i_g = m_color.g;
+	i_b = m_color.b;
+}
+
+void eae6320::Debug::UI::Text::Initialize()
+{
+	CleanUp();
 	m_numberOfCharacters = m_text.length();
 	m_screenPositionForEachCharacter = reinterpret_cast<Graphics::Sprite::ScreenPosition*>(malloc(m_numberOfCharacters * sizeof(Graphics::Sprite::ScreenPosition)));
 	const float widthMultiplier = 2.0f / UserSettings::GetResolutionWidth();
@@ -87,44 +83,53 @@ void eae6320::Debug::UI::Text::Initialize()
 		}
 		m_screenPositionForEachCharacter[i].right = m_screenPositionForEachCharacter[i].left + ((static_cast<int16_t>(Graphics::Font::widthArray[m_text[i] - 32]) + widthAdvance)*widthMultiplier);
 	}
-	m_meshData = new Graphics::MeshData(typeOfIndexData, verticesPerQuad*m_numberOfCharacters, indicesPerQuad*m_numberOfCharacters);
+	m_meshData = new Graphics::MeshData(typeOfIndexData, static_cast<uint32_t>(verticesPerQuad*m_numberOfCharacters), static_cast<uint32_t>(indicesPerQuad*m_numberOfCharacters));
 	for (size_t i = 0; i < m_numberOfCharacters; i++)
 	{
 		m_meshData->vertexData[i * verticesPerQuad + 0].AddVertexData(
 			m_screenPositionForEachCharacter[i].left,
 			m_screenPositionForEachCharacter[i].bottom,
-			-1.0f,
+			0.0f,
 			Graphics::Font::texcoordArray[m_text[i] - offset].left,
 			Graphics::Font::texcoordArray[m_text[i] - offset].bottom);
 
 		m_meshData->vertexData[i * verticesPerQuad + 1].AddVertexData(
 			m_screenPositionForEachCharacter[i].right,
 			m_screenPositionForEachCharacter[i].bottom,
-			-1.0f,
+			0.0f,
 			Graphics::Font::texcoordArray[m_text[i] - offset].right,
 			Graphics::Font::texcoordArray[m_text[i] - offset].bottom);
 
 		m_meshData->vertexData[i * verticesPerQuad + 2].AddVertexData(
 			m_screenPositionForEachCharacter[i].left,
 			m_screenPositionForEachCharacter[i].top,
-			-1.0f,
+			0.0f,
 			Graphics::Font::texcoordArray[m_text[i] - offset].left,
 			Graphics::Font::texcoordArray[m_text[i] - offset].top);
 
 		m_meshData->vertexData[i * verticesPerQuad + 3].AddVertexData(
 			m_screenPositionForEachCharacter[i].right,
 			m_screenPositionForEachCharacter[i].top,
-			-1.0f,
+			0.0f,
 			Graphics::Font::texcoordArray[m_text[i] - offset].right,
 			Graphics::Font::texcoordArray[m_text[i] - offset].top);
 	}
 	for (size_t i = 0; i < m_numberOfCharacters; i++)
 	{
+#if defined( EAE6320_PLATFORM_D3D )
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 0] = static_cast<uint16_t>(i * verticesPerQuad + 1);
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 1] = static_cast<uint16_t>(i * verticesPerQuad + 0);
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 2] = static_cast<uint16_t>(i * verticesPerQuad + 2);
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 3] = static_cast<uint16_t>(i * verticesPerQuad + 1);
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 4] = static_cast<uint16_t>(i * verticesPerQuad + 2);
+		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 5] = static_cast<uint16_t>(i * verticesPerQuad + 3);
+#elif defined( EAE6320_PLATFORM_GL )
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 0] = static_cast<uint16_t>(i * verticesPerQuad + 0);
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 1] = static_cast<uint16_t>(i * verticesPerQuad + 1);
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 2] = static_cast<uint16_t>(i * verticesPerQuad + 2);
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 3] = static_cast<uint16_t>(i * verticesPerQuad + 3);
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 4] = static_cast<uint16_t>(i * verticesPerQuad + 2);
 		reinterpret_cast<uint16_t*>(m_meshData->indexData)[i * indicesPerQuad + 5] = static_cast<uint16_t>(i * verticesPerQuad + 1);
+#endif
 	}
 }

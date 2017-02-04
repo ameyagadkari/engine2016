@@ -28,11 +28,12 @@ namespace eae6320
 			{
 			public:
 				explicit Text(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_text = "", const Color i_color = { 1.0f,1.0f,1.0f });
-				~Text();
-				void Update(std::string i_string) override;
+				~Text();			
 			private:
+				void Update(std::string i_string) override;
 				void Draw() override;
 				void Initialize() override;
+				void CleanUp()override;
 				void GetColor(float& i_r, float& i_g, float& i_b)const override;
 				std::string m_text;
 				Color m_color;

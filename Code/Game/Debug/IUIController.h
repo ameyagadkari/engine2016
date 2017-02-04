@@ -14,7 +14,8 @@ namespace eae6320
 				virtual void Draw() = 0;
 				virtual void Update(std::string i_string) = 0;
 				virtual void GetColor(float& i_r, float& i_g, float& i_b)const = 0;
-			private:						
+			private:				
+				virtual void CleanUp() = 0;
 				virtual void Initialize() = 0;			
 			};
 		}
