@@ -1,0 +1,26 @@
+/*
+	This is the fragment shader used to render fonts
+*/
+
+#include "shaders.inc"
+
+#if defined( EAE6320_PLATFORM_D3D )
+
+void main(
+	in vec4 i_position : SV_POSITION,
+	in vec4 i_color : COLOR,
+	in vec2 i_UV : TEXCOORD,
+	out vec4 o_color : SV_TARGET
+	)	
+#elif defined( EAE6320_PLATFORM_GL )
+
+	layout( location = 0 ) in vec4 i_color;
+	layout( location = 1 ) in vec2 i_UV;
+	out vec4 o_color;	
+void main()
+#endif
+{
+	vec4 sampledColor = DeclareSampledColor( primaryTexture, samplerStateHLSL, i_UV )
+	sampledColor.a = (sampledColor.r >= 0.0f && sampledColor.r <= 0.25f) ? 0.0f : 1.0f;	
+	o_color = i_color * g_color * sampledColor;
+}

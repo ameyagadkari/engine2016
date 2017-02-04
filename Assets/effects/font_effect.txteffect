@@ -1,0 +1,15 @@
+-- Effect File for Sprite Effect
+return
+{
+	render_states = 
+	{
+		alpha_transparency = true,
+		depth_buffering = false,
+		draw_both_triangle_sides = true,
+	},
+	shaders = 
+	{
+		vertex_shader = "shaders/sprite_vertex.txtshader",
+		fragment_shader = "shaders/font_fragment.txtshader",
+	},
+}

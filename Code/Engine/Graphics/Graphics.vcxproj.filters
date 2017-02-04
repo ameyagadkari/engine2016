@@ -67,6 +67,10 @@
     <ClCompile Include="OpenGL\UtilityFunctions.gl.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="OpenGL\Font.gl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -90,6 +94,9 @@
     <ClInclude Include="OpenGL\UtilityFunctions.gl.h">
       <Filter>OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="FontData.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="SpriteData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cRenderState\cRenderState.inl">

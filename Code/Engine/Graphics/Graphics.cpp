@@ -11,7 +11,7 @@
 #include "../Time/Time.h"
 #include "../../Game/Gameplay/GameObject.h"
 #include "../../Game/Gameplay/GameObject2D.h"
-#include "../../Game/Gameplay/DebugObject.h"
+#include "../../Game/Debug/DebugObject.h"
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
 #include "cSprite.h"
@@ -27,6 +27,7 @@
 #include <list>
 #include <vector>
 #include <bitset>
+#include "Font.h"
 
 namespace
 {
@@ -36,7 +37,7 @@ namespace
 	std::vector<eae6320::Gameplay::GameObject*>unsortedGameObjects;
 	std::list<eae6320::Gameplay::GameObject*>sortedGameObjects;
 	std::vector<eae6320::Gameplay::GameObject2D*>unsortedGameObjects2D;
-	std::vector<eae6320::Gameplay::DebugObject*>unsortedDebugObject;
+	std::vector<eae6320::Debug::Shapes::DebugObject*>unsortedDebugObject;
 	uint32_t currentMaterialUUID = 0;
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer *frameBuffer = nullptr;
@@ -100,7 +101,7 @@ void eae6320::Graphics::SetGameObject2D(Gameplay::GameObject2D*gameObject2d)
 	}
 }
 
-void eae6320::Graphics::SetDebugObject(Gameplay::DebugObject*debugObject)
+void eae6320::Graphics::SetDebugObject(Debug::Shapes::DebugObject*debugObject)
 {
 	if (debugObject)
 	{
@@ -149,7 +150,7 @@ void eae6320::Graphics::RenderFrame()
 		for (size_t i = 0; i < length; i++)
 		{		
 			ConstantBufferData::sDrawCall drawCallBufferData;
-			Material*material = Gameplay::DebugObject::GetMaterial();
+			Material*material = Debug::Shapes::DebugObject::GetMaterial();
 			if (currentMaterialUUID != material->GetMaterialUUID())
 			{
 				material->BindMaterial();
@@ -174,6 +175,12 @@ void eae6320::Graphics::RenderFrame()
 			unsortedGameObjects2D[i]->GetSprite()->Draw();
 		}
 		unsortedGameObjects2D.clear();
+	}
+
+	//Drawing text
+	{
+		//Font::ms_material->BindMaterial();
+		//Font::RenderText("AMeya     GADKArI    !!!!!", 0, 0);
 	}
 	SwapBuffers();
 }

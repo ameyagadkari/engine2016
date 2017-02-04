@@ -31,6 +31,10 @@ return
 	{
 		"materials/primitive_material.txtmaterial",
 	},
+	fonts =
+	{
+		"fonts/myfont.txtfont",
+	},
 	--[[gameobjects2d = 
 	{
 		"gameobjects2d/logo.txtg2dobj",

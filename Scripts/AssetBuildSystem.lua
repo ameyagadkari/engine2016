@@ -338,6 +338,34 @@ NewAssetTypeInfo( "textures",
 	}
 )
 
+-- Font Asset Type
+--------------------
+
+NewAssetTypeInfo( "fonts",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "FontdataBuilder.exe"
+		end,
+		RegisterReferencedAssets = function( i_sourceRelativePath )
+		local sourceAbsolutePath = s_AuthoredAssetDir .. i_sourceRelativePath
+			if DoesFileExist( sourceAbsolutePath ) then
+				local font = dofile( sourceAbsolutePath )
+				if type( font ) ~= "table" then
+					OutputErrorMessage( "The font file (\"" .. i_sourceRelativePath .. "\" must return a table", i_sourceRelativePath )
+				end				
+				local path_material = font.material_filepath
+				local path_material_type = type( path_material )
+				if path_material_type ~= "string" then
+					OutputErrorMessage( "The material path must be a string instead of a " .. path_material_type .. " in gameobject file " .. i_sourceRelativePath)
+				else
+					RegisterAssetToBeBuilt( path_material, "materials")
+				end				
+			end
+		end,
+	}
+)
+
 -- Mesh Asset Type
 --------------------
 

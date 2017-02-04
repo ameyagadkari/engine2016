@@ -1,0 +1,10 @@
+-- Apple Material File
+return
+{
+	constant_buffer_data = 
+	{
+		g_color = {0.0,1.0,0.0,1.0},
+	},
+	effect_filepath = "effects/font_effect.txteffect",
+	texture_filepath = "textures/font.dds",
+}

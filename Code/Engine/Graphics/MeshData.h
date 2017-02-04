@@ -1,8 +1,8 @@
 #ifndef EAE6320_MESHDATA_H
 #define EAE6320_MESHDATA_H
 
-#include<cstdint>
-#include<cmath>
+#include <cstdint>
+#include <cstdlib>
 
 namespace eae6320
 {
@@ -26,6 +26,18 @@ namespace eae6320
 					a = 255;
 					u = 0;
 					v = 0;
+				}
+				void AddVertexData(const float i_x, const float i_y, const float i_z, uint16_t i_u, uint16_t i_v)
+				{
+					x = i_x;
+					y = i_y;
+					z = i_z;
+					r = 255;
+					g = 255;
+					b = 255;
+					a = 255;
+					u = i_u;
+					v = i_v;
 				}
 			};
 			Vertex *vertexData;

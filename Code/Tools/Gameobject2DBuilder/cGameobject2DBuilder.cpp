@@ -9,7 +9,7 @@
 #include "../AssetBuildLibrary/UtilityFunctions.h"
 #include "../../Engine/Platform/Platform.h"
 #include "../../External/Lua/Includes.h"
-#include "../../Engine/Graphics/cSprite.h"
+#include "../../Engine/Graphics/SpriteData.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Math/cHalf.h"
 #include "../../Engine/Math/BitManipulator.h"

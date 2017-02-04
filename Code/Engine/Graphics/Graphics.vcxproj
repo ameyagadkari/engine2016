@@ -49,6 +49,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Effect.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -68,6 +69,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="OpenGL\Font.gl.cpp" />
     <ClCompile Include="OpenGL\Mesh.gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -91,7 +93,9 @@
     <ClInclude Include="cTexture.h" />
     <ClInclude Include="cTexture\Internal.h" />
     <ClInclude Include="Effect.h" />
+    <ClInclude Include="FontData.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="Mesh.h" />
@@ -100,6 +104,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SpriteData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cRenderState\cRenderState.inl" />

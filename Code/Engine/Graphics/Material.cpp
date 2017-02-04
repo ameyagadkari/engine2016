@@ -50,7 +50,7 @@ bool eae6320::Graphics::Material::LoadMaterial(const char * const i_relativePath
 		{
 			wereThereErrors = true;
 			EAE6320_ASSERTF(false, errorMessage.c_str());
-			eae6320::Logging::OutputError("Failed to load the binary effect file \"%s\": %s", i_relativePath, errorMessage.c_str());
+			eae6320::Logging::OutputError("Failed to load the binary material file \"%s\": %s", i_relativePath, errorMessage.c_str());
 			goto OnExit;
 		}
 	}
