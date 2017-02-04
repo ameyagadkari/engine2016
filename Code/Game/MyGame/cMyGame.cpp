@@ -136,7 +136,9 @@ void eae6320::cMyGame::UpdateCameraPostion()
 
 void eae6320::cMyGame::UpdateDebugUI()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	debugUIs.back()->Update("FPS: " + std::to_string(Time::FPSCounter::Getcount()));
+#endif
 }
 
 void eae6320::cMyGame::UpdateCameraOrientation()

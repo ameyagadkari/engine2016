@@ -7,6 +7,8 @@
 #include "../../Engine/Graphics/MeshData.h"
 #include "../../Engine/Math/Functions.h"
 
+#include <cmath>
+
 namespace
 {
 	const char* const materailPath = "data/materials/primitive_material.binmaterial";
