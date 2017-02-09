@@ -18,6 +18,11 @@ GLuint eae6320::Graphics::Font::ms_indexBufferId = 0;
 
 void eae6320::Graphics::Font::RenderText(const MeshData& i_meshData)
 {
+	// Bind the vertex buffer to the device as a data source
+	{
+		glBindVertexArray(ms_vertexArrayId);
+		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	}
 	// Make the vertex buffer active
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, ms_vertexBufferId);
@@ -60,11 +65,6 @@ void eae6320::Graphics::Font::RenderText(const MeshData& i_meshData)
 		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
 	}
 
-	// Bind the vertex buffer to the device as a data source
-	{
-		glBindVertexArray(ms_vertexArrayId);
-		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
-	}
 	// Render triangles from the currently-bound vertex buffer
 	{
 		const GLenum mode = GL_TRIANGLES;

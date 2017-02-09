@@ -14,8 +14,8 @@ namespace eae6320
 			static CubeController* Initialize();
 		private:
 			CubeController();
-			virtual Math::cVector UpdatePosition()override;
-			virtual Math::cVector UpdateOrientation(RotationAxis axis)override;
+			Math::cVector UpdatePosition()override;
+			Math::cVector UpdateOrientation(RotationAxis axis)override;
 
 			float rotationSpeedOfCube;
 			RotationAxis rotationAxis;

@@ -16,6 +16,7 @@
 #include "../Camera/cCamera.h"
 #include "../Graphics/CommonData.h"
 #include "cSprite.h"
+#include "Font.h"
 
 #if defined ( EAE6320_PLATFORM_D3D )
 #include <D3D11.h>
@@ -28,7 +29,6 @@
 #include <list>
 #include <vector>
 #include <bitset>
-#include "Font.h"
 
 namespace
 {
@@ -211,11 +211,6 @@ void eae6320::Graphics::RenderFrame()
 		unsortedGameObjects2D.clear();
 	}
 
-	//Drawing text
-	{
-		//Font::ms_material->BindMaterial();
-		//Font::RenderText("AMeya     GADKArI    !!!!!", 0, 0);
-	}
 	SwapBuffers();
 }
 
@@ -253,6 +248,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 	{
 		drawCallBuffer->BindingConstantBuffer(BindMode::VS_ONLY);
 	}
+	Font::LoadFont("data/fonts/myfont.binfont");
 	return true;
 }
 
@@ -262,6 +258,13 @@ bool eae6320::Graphics::CleanUp()
 	delete drawCallBuffer;
 
 	bool wereThereErrors = false;
+
+	if (!Font::CleanUp())
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Font Cleanup Failed");
+	}
 
 	if (!CleanUpInternal())
 	{

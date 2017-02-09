@@ -25,6 +25,8 @@ namespace eae6320
 
 		bool Initialize();
 		bool CleanUp();
+
+		extern size_t fps;
 	}
 }
 

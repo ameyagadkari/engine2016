@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Time.h" />
-    <ClInclude Include="FPSCounter.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Windows">
@@ -13,6 +12,5 @@
     <ClCompile Include="Windows\Time.win.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
-    <ClCompile Include="FPSCounter.cpp" />
   </ItemGroup>
 </Project>

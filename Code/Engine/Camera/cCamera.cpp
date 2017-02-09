@@ -205,7 +205,7 @@ namespace eae6320
 
 		void cCamera::UpdateMaxCameras()
 		{
-			sMaxCameraNumber = cCamera::sCameras.size();
+			sMaxCameraNumber = sCameras.size();
 			if (sMaxCameraNumber > 0 && !sCurrentCamera)
 			{
 				sCurrentCamera = sCameras[0];
@@ -214,7 +214,7 @@ namespace eae6320
 
 		void cCamera::ChangeCurrentCamera()
 		{
-			if (UserInput::IsKeyPressedOnce(0x43))//C Forward Traversing
+			if (UserInput::IsKeyPressedOnce('C'))
 			{
 				if (sCurrentCameraNumber == sMaxCameraNumber - 1)
 				{
@@ -226,7 +226,7 @@ namespace eae6320
 				}
 				sCurrentCamera = sCameras[sCurrentCameraNumber];
 			}
-			if (UserInput::IsKeyPressedOnce(0x56))//V Backward Traversing
+			if (UserInput::IsKeyPressedOnce('V'))
 			{
 				if (sCurrentCameraNumber == 0)
 				{

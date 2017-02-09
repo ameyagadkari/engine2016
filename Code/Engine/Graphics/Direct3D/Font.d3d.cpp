@@ -106,7 +106,7 @@ void eae6320::Graphics::Font::RenderText(const MeshData& i_meshData)
 		// Set the topology (which defines how to interpret multiple vertices as a single "primitive";
 		// we have defined the vertex buffer as a triangle list
 		// (meaning that every primitive is a triangle and will be defined by three vertices)
-		commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//commonData->s_direct3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	{
 		// Every index is a 16 bit unsigned integer

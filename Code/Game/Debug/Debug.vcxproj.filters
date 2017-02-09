@@ -12,5 +12,6 @@
   <ItemGroup>
     <ClCompile Include="DebugObject.cpp" />
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="IUIController.cpp" />
   </ItemGroup>
 </Project>

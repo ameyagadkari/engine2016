@@ -7,7 +7,7 @@
 #include "../Gameplay/GameObject.h"
 #include "../Gameplay/GameObject2D.h"
 #include "../Debug/DebugObject.h"
-//#include "../Debug/ConfigurationShapes.h"
+#include "../Debug/ConfigurationShapes.h"
 #include "../Debug/Text.h"
 #include "../Debug/ConfigurationUI.h"
 #include "cMyGame.h"
@@ -15,8 +15,7 @@
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
-#include "../../Engine/Graphics/Font.h"
-#include "../../Engine/Time/FPSCounter.h"
+#include "../../Engine/Time/Time.h"
 
 // Interface
 //==========
@@ -36,7 +35,6 @@ namespace
 	void GenerateRelativePaths(std::string prefix);
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
 	std::vector<eae6320::Debug::Shapes::DebugObject*> debugObjects;
-	std::vector < eae6320::Debug::UI::IUIController*>debugUIs;
 	std::map<const std::string, eae6320::Gameplay::GameObject2D*> gameObjects2D;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
@@ -79,7 +77,7 @@ bool eae6320::cMyGame::Initialize()
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		//Debug Shape Lines
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), { 1.0f, 0.0f, 0.0f }));
+		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), { 1.0f, 0.0f, 0.0f }));
 		debugObjects.back()->CreateLine(Math::cVector(10.0f, 10.0f, 10.0f));
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, 0.0f, 0.0f), { 0.0f, 1.0f, 0.0f }));
 		debugObjects.back()->CreateLine(Math::cVector(10.0f, 20.0f, 40.0f));
@@ -87,27 +85,32 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-60.0f, 10.0f, -50.0f), { 0.0f, 0.0f, 1.0f }));
 		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f);
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(60.0f, 10.0f, -50.0f), { 1.0f, 1.0f, 0.0f }));
-		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);
+		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);*/
 		//Debug Shape Spheres
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-30.0f, -70.0f, -75.0f), { 0.0f, 1.0f, 1.0f }));
-		debugObjects.back()->CreateSphere(10.0f, 20, 20);
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
+		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
+		debugObjects.back()->CreateSphere(50.0f, 20, 20);
+		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
 		debugObjects.back()->CreateSphere(20.0f, 20, 20);
 		//Debug Shape Cylinders
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-40.0f, -20.0f, -100.0f), { 1.0f, 0.5f, 0.0f }));
 		debugObjects.back()->CreateCylinder(20.0f, 10.0f, 40.0f, 10, 10);
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(40.0f, -20.0f, -100.0f), { 0.5f, 1.0f, 0.0f }));
-		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);
+		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);*/
 #endif
 	}
 	{
 #if defined(EAE6320_DEBUG_UI_AREENABLED)
-		Graphics::Font::LoadFont("data/fonts/myfont.binfont");
-		debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,300 }, "dfgdfg: ", { 1.0f,1.0f,0.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,250 }, "ufsdjfd  : ", { 1.0f,0.0f,1.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
+
+		//After adding all debug UIs, doing this is must
+		Debug::UI::IUIController::UpdateUIElements();
 #endif
 	}
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 200.0f));
+	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 500.0f));
 	Camera::cCamera::PushBackToVector(mainCamera);
 	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::cCamera::PushBackToVector(frontLeftCamera);
@@ -126,24 +129,37 @@ bool eae6320::cMyGame::Initialize()
 
 void eae6320::cMyGame::ChangeCamera()
 {
-	Camera::cCamera::ChangeCurrentCamera();
+	if (!Debug::UI::isDebugMenuEnabled)
+	{
+		Camera::cCamera::ChangeCurrentCamera();
+	}
 }
 
 void eae6320::cMyGame::UpdateCameraPostion()
 {
-	Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraPosition();
+	if (!Debug::UI::isDebugMenuEnabled)
+	{
+		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraPosition();
+	}
 }
 
 void eae6320::cMyGame::UpdateDebugUI()
 {
 #if defined(EAE6320_DEBUG_UI_AREENABLED)
-	debugUIs.back()->Update("FPS: " + std::to_string(Time::FPSCounter::Getcount()));
+	Debug::UI::IUIController::ProcessInput();
+	if (Debug::UI::isDebugMenuEnabled)
+	{
+		Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
+	}
 #endif
 }
 
 void eae6320::cMyGame::UpdateCameraOrientation()
 {
-	Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraOrientation();
+	if (!Debug::UI::isDebugMenuEnabled)
+	{
+		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraOrientation();
+	}
 }
 
 
@@ -163,22 +179,28 @@ void eae6320::cMyGame::SubmitCamera()
 
 void eae6320::cMyGame::UpdateGameObjectPosition()
 {
-	for (auto const& gameObject : gameObjects)
+	if (!Debug::UI::isDebugMenuEnabled)
 	{
-		if (gameObject.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			gameObject.second->UpdateGameObjectPosition();
+			if (gameObject.second)
+			{
+				gameObject.second->UpdateGameObjectPosition();
+			}
 		}
 	}
 }
 
 void eae6320::cMyGame::UpdateGameObjectOrientation()
 {
-	for (auto const& gameObject : gameObjects)
+	if (!Debug::UI::isDebugMenuEnabled)
 	{
-		if (gameObject.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			gameObject.second->UpdateGameObjectOrientation();
+			if (gameObject.second)
+			{
+				gameObject.second->UpdateGameObjectOrientation();
+			}
 		}
 	}
 }
@@ -196,7 +218,8 @@ void eae6320::cMyGame::SubmitDrawcallData3D()
 
 void eae6320::cMyGame::SubmitDebugShapeData3D()
 {
-	for (size_t i = 0; i < debugObjects.size(); i++)
+	const size_t length = debugObjects.size();
+	for (size_t i = 0; i < length; i++)
 	{
 		Graphics::SetDebugObject(debugObjects[i]);
 	}
@@ -204,9 +227,13 @@ void eae6320::cMyGame::SubmitDebugShapeData3D()
 
 void eae6320::cMyGame::SubmitDebugUIData2D()
 {
-	for (size_t i = 0; i < debugUIs.size(); i++)
+	if (Debug::UI::isDebugMenuEnabled)
 	{
-		Graphics::SetDebugUI(debugUIs[i]);
+		const size_t length = Debug::UI::debugUIs.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			Graphics::SetDebugUI(Debug::UI::debugUIs[i]);
+		}
 	}
 }
 
@@ -225,43 +252,52 @@ bool eae6320::cMyGame::CleanUp()
 {
 	bool wereThereErrors = false;
 
-	for (auto const& gameObject : gameObjects)
+	// Deleting GameObjects
 	{
-		if (gameObject.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			delete gameObject.second;
+			if (gameObject.second)
+			{
+				delete gameObject.second;
+			}
 		}
+		gameObjects.clear();
 	}
-	gameObjects.clear();
-	for (size_t i = 0; i < debugObjects.size(); i++)
+	// Deleting DebugObjects
 	{
-		delete debugObjects[i];
-	}
-	debugObjects.clear();
-	for (size_t i = 0; i < debugUIs.size(); i++)
-	{
-		delete debugUIs[i];
-	}
-	debugUIs.clear();
-	for (auto const& gameObject2D : gameObjects2D)
-	{
-		if (gameObject2D.second)
+		const size_t length = debugObjects.size();
+		for (size_t i = 0; i < length; i++)
 		{
-			delete gameObject2D.second;
+			delete debugObjects[i];
 		}
+
+		debugObjects.clear();
 	}
-	gameObjects2D.clear();
+	// Deleting Debug UI
+	{
+		const size_t length = Debug::UI::debugUIs.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			delete Debug::UI::debugUIs[i];
+		}
+		Debug::UI::debugUIs.clear();
+	}
+	// Deleting GameObjects2D
+	{
+		for (auto const& gameObject2D : gameObjects2D)
+		{
+			if (gameObject2D.second)
+			{
+				delete gameObject2D.second;
+			}
+		}
+		gameObjects2D.clear();
+	}
 	if (!Camera::cCamera::CleanUp())
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);
 		Logging::OutputError("Camera Cleanup Failed");
-	}
-	if (!Graphics::Font::CleanUp())
-	{
-		wereThereErrors = true;
-		EAE6320_ASSERT(false);
-		Logging::OutputError("Font Cleanup Failed");
 	}
 	return !wereThereErrors;
 }

@@ -29,6 +29,11 @@ namespace
 
 void eae6320::Graphics::cSprite::Draw() const
 {
+	// Bind the vertex buffer to the device as a data source
+	{
+		glBindVertexArray(ms_vertexArrayId);
+		EAE6320_ASSERT(glGetError() == GL_NO_ERROR);
+	}
 	// Update the vertex buffer
 	{
 		MeshData::Vertex vertexData[s_vertexCount];
@@ -116,11 +121,6 @@ void eae6320::Graphics::cSprite::Draw() const
 			glBufferData( GL_ARRAY_BUFFER, static_cast<GLsizeiptr>( sizeof( vertexData ) ), vertexData, GL_STREAM_DRAW );
 			EAE6320_ASSERT( glGetError() == GL_NO_ERROR );
 		}
-	}
-	// Bind the vertex buffer to the device as a data source
-	{
-		glBindVertexArray( ms_vertexArrayId );
-		EAE6320_ASSERT( glGetError() == GL_NO_ERROR );
 	}
 	// Render triangles from the currently-bound vertex buffer
 	{

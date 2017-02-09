@@ -36,7 +36,8 @@ namespace eae6320
 				void CleanUp()override;
 				void GetColor(float& i_r, float& i_g, float& i_b)const override;
 				std::string m_text;
-				Color m_color;
+				Color m_selectedColor;
+				Color m_deselectedColor;
 				size_t m_numberOfCharacters;
 				Graphics::Sprite::ScreenPosition* m_screenPositionForEachCharacter;
 				PixelCoordinates m_pixelCoordinates;

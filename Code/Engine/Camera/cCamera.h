@@ -61,7 +61,7 @@ namespace eae6320
 
 			Math::cVector eularAngles;
 
-			static std::vector<eae6320::Camera::cCamera*> sCameras;
+			static std::vector<cCamera*> sCameras;
 			static cCamera* sCurrentCamera;
 			static size_t sCurrentCameraNumber;
 			static size_t sMaxCameraNumber;

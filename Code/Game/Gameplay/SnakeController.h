@@ -14,8 +14,8 @@ namespace eae6320
 			static SnakeController* Initialize();
 		private:
 			SnakeController();
-			virtual Math::cVector UpdatePosition()override;
-			virtual Math::cVector UpdateOrientation(RotationAxis axis)override;
+			Math::cVector UpdatePosition()override;
+			Math::cVector UpdateOrientation(RotationAxis axis)override;
 
 			float speedOfSnake;
 			char sign;

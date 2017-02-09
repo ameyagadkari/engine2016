@@ -29,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugObject.cpp" />
+    <ClCompile Include="IUIController.cpp" />
     <ClCompile Include="Text.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

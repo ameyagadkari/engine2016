@@ -17,7 +17,8 @@ namespace
 
 eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color) :
 	m_text(i_text),
-	m_color(i_color),
+	m_selectedColor(i_color),
+	m_deselectedColor(i_color.r - (i_color.r*colorManipulator), i_color.g - (i_color.g*colorManipulator), i_color.b - (i_color.b*colorManipulator)),
 	m_screenPositionForEachCharacter(nullptr),
 	m_pixelCoordinates(i_pixelCoordinates),
 	m_meshData(nullptr)
@@ -57,9 +58,18 @@ void eae6320::Debug::UI::Text::CleanUp()
 
 void eae6320::Debug::UI::Text::GetColor(float & i_r, float & i_g, float & i_b) const
 {
-	i_r = m_color.r;
-	i_g = m_color.g;
-	i_b = m_color.b;
+	if (isSelected)
+	{
+		i_r = m_selectedColor.r;
+		i_g = m_selectedColor.g;
+		i_b = m_selectedColor.b;
+	}
+	else
+	{
+		i_r = m_deselectedColor.r;
+		i_g = m_deselectedColor.g;
+		i_b = m_deselectedColor.b;
+	}
 }
 
 void eae6320::Debug::UI::Text::Initialize()

@@ -8,7 +8,7 @@
 
 namespace
 {
-	bool IsVirtualKeyPressed( const int i_virtualKeyCode );
+	bool IsVirtualKeyPressed(const int i_virtualKeyCode);
 	bool IsVirtualKeyPressedOnce(const int i_virtualKeyCode);
 	bool isKeyPressedOnce = false;
 	int keyThatIsPressedAndNotReleased = 0;
@@ -17,9 +17,9 @@ namespace
 // Interface
 //==========
 
-bool eae6320::UserInput::IsKeyPressed( const int i_virtualKeyCode )
+bool eae6320::UserInput::IsKeyPressed(const int i_virtualKeyCode)
 {
-	return IsVirtualKeyPressed( i_virtualKeyCode );
+	return IsVirtualKeyPressed(i_virtualKeyCode);
 }
 
 bool eae6320::UserInput::IsKeyPressedOnce(const int i_virtualKeyCode)
@@ -27,9 +27,9 @@ bool eae6320::UserInput::IsKeyPressedOnce(const int i_virtualKeyCode)
 	return IsVirtualKeyPressedOnce(i_virtualKeyCode);
 }
 
-bool eae6320::UserInput::IsMouseButtonPressed( const int i_virtualButtonCode )
+bool eae6320::UserInput::IsMouseButtonPressed(const int i_virtualButtonCode)
 {
-	return IsVirtualKeyPressed( i_virtualButtonCode );
+	return IsVirtualKeyPressed(i_virtualButtonCode);
 }
 
 // Helper Function Definitions
@@ -37,11 +37,11 @@ bool eae6320::UserInput::IsMouseButtonPressed( const int i_virtualButtonCode )
 
 namespace
 {
-	bool IsVirtualKeyPressed( const int i_virtualKeyCode )
+	bool IsVirtualKeyPressed(const int i_virtualKeyCode)
 	{
-		short keyState = GetAsyncKeyState( i_virtualKeyCode );
+		short keyState = GetAsyncKeyState(i_virtualKeyCode);
 		const short isKeyDownMask = ~1;
-		return ( keyState & isKeyDownMask ) != 0;
+		return (keyState & isKeyDownMask) != 0;
 	}
 
 	bool IsVirtualKeyPressedOnce(const int i_virtualKeyCode)
@@ -51,11 +51,11 @@ namespace
 			keyThatIsPressedAndNotReleased = i_virtualKeyCode;
 			isKeyPressedOnce = true;
 			return true;
-		}	
-		else if(!(GetAsyncKeyState(keyThatIsPressedAndNotReleased) & 0xfffe))
+		}
+		else if (!(GetAsyncKeyState(keyThatIsPressedAndNotReleased) & 0xfffe))
 		{
 			keyThatIsPressedAndNotReleased = 0;
-			isKeyPressedOnce = false;			
+			isKeyPressedOnce = false;
 		}
 		return false;
 	}
