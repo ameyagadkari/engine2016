@@ -8,10 +8,12 @@
     <ClInclude Include="ConfigurationShapes.h" />
     <ClInclude Include="ConfigurationUI.h" />
     <ClInclude Include="IUIController.h" />
+    <ClInclude Include="Checkbox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugObject.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="IUIController.cpp" />
+    <ClCompile Include="Checkbox.cpp" />
   </ItemGroup>
 </Project>

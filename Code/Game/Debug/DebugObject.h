@@ -1,10 +1,14 @@
 #ifndef EAE6320_DEBUGOBJECT_H
 #define EAE6320_DEBUGOBJECT_H
 
+#include "ConfigurationShapes.h"
+
+
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+
 #include "../../Engine/Math/cVector.h"
 #include "Color.h"
 #include <cstdint>
-
 namespace eae6320
 {
 	namespace Graphics
@@ -41,9 +45,12 @@ namespace eae6320
 				Graphics::Mesh* m_mesh;
 				Math::cVector m_position;
 				Color m_color;
-			};
+			};		
 		}
 	}
 }
+#endif
 
 #endif // !EAE6320_DEBUGOBJECT_H
+
+

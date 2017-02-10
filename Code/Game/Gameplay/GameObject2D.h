@@ -41,7 +41,7 @@ namespace eae6320
 		public:
 
 			~GameObject2D();
-			static GameObject2D* LoadGameObject2D(const char * const relativePath);
+			static GameObject2D* LoadGameObject2D(const char * const relativePath, const bool doNotUsePixelCoordinatesFromFile = false, const int16_t x = 0, const int16_t y = 0);
 
 #pragma region Gets
 			Graphics::Material* GetMaterial()const;

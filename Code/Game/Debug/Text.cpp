@@ -1,8 +1,14 @@
 #include "Text.h"
+
+
+
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "../../Engine/Graphics/SpriteData.h"
 #include "../../Engine/Graphics/MeshData.h"
 #include "../../Engine/UserSettings/UserSettings.h"
 #include "../../Engine/Graphics/Font.h"
+#include "../../Engine/Asserts/Asserts.h"
+#include "../../Engine/Logging/Logging.h"
 
 namespace
 {
@@ -16,14 +22,22 @@ namespace
 }
 
 eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color) :
+	IUIController(i_color),
 	m_text(i_text),
-	m_selectedColor(i_color),
-	m_deselectedColor(i_color.r - (i_color.r*colorManipulator), i_color.g - (i_color.g*colorManipulator), i_color.b - (i_color.b*colorManipulator)),
+	m_numberOfCharacters(0),
 	m_screenPositionForEachCharacter(nullptr),
 	m_pixelCoordinates(i_pixelCoordinates),
 	m_meshData(nullptr)
 {
-	Text::Initialize();
+	if (Graphics::Font::widthArray && Graphics::Font::texcoordArray)
+	{
+		Text::Initialize();
+	}
+	else
+	{
+		EAE6320_ASSERT(false);
+		Logging::OutputError("Font not initialized so text boxes cannot be initialized");
+	}
 }
 
 eae6320::Debug::UI::Text::~Text()
@@ -31,8 +45,9 @@ eae6320::Debug::UI::Text::~Text()
 	Text::CleanUp();
 }
 
-void eae6320::Debug::UI::Text::Draw()
+void eae6320::Debug::UI::Text::Draw(const Graphics::Material* const i_material)const
 {
+	IUIController::Draw(Graphics::Font::ms_material);
 	Graphics::Font::RenderText(*m_meshData);
 }
 
@@ -53,22 +68,6 @@ void eae6320::Debug::UI::Text::CleanUp()
 	{
 		delete m_meshData;
 		m_meshData = nullptr;
-	}
-}
-
-void eae6320::Debug::UI::Text::GetColor(float & i_r, float & i_g, float & i_b) const
-{
-	if (isSelected)
-	{
-		i_r = m_selectedColor.r;
-		i_g = m_selectedColor.g;
-		i_b = m_selectedColor.b;
-	}
-	else
-	{
-		i_r = m_deselectedColor.r;
-		i_g = m_deselectedColor.g;
-		i_b = m_deselectedColor.b;
 	}
 }
 
@@ -143,3 +142,4 @@ void eae6320::Debug::UI::Text::Initialize()
 #endif
 	}
 }
+#endif

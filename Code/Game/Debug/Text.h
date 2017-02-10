@@ -1,8 +1,9 @@
 #ifndef EAE6320_TEXT_H
 #define EAE6320_TEXT_H
 
-#include <string>
-#include "Color.h"
+#include "ConfigurationUI.h"
+
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "PixelCoordinates.h"
 #include "IUIController.h"
 
@@ -30,14 +31,11 @@ namespace eae6320
 				explicit Text(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_text = "", const Color i_color = { 1.0f,1.0f,1.0f });
 				~Text();			
 			private:
-				void Update(std::string i_string) override;
-				void Draw() override;
+				void Update(std::string i_string = "") override;
+				void Draw(const Graphics::Material* const i_material = nullptr)const override;
 				void Initialize() override;
 				void CleanUp()override;
-				void GetColor(float& i_r, float& i_g, float& i_b)const override;
 				std::string m_text;
-				Color m_selectedColor;
-				Color m_deselectedColor;
 				size_t m_numberOfCharacters;
 				Graphics::Sprite::ScreenPosition* m_screenPositionForEachCharacter;
 				PixelCoordinates m_pixelCoordinates;
@@ -48,3 +46,5 @@ namespace eae6320
 }
 
 #endif // !EAE6320_TEXT_H
+
+#endif

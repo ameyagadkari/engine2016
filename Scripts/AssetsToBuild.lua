@@ -35,6 +35,11 @@ return
 	{
 		"fonts/myfont.txtfont",
 	},
+	gameobjects2d =
+	{
+		"gameobjects2d/checkbox/checked.txtg2dobj",
+		"gameobjects2d/checkbox/unchecked.txtg2dobj",
+	}, 
 	--[[gameobjects2d = 
 	{
 		"gameobjects2d/logo.txtg2dobj",

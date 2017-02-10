@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Checkbox.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="ConfigurationShapes.h" />
     <ClInclude Include="ConfigurationUI.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="Text.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Checkbox.cpp" />
     <ClCompile Include="DebugObject.cpp" />
     <ClCompile Include="IUIController.cpp" />
     <ClCompile Include="Text.cpp" />

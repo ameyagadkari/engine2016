@@ -1,5 +1,6 @@
 #include "DebugObject.h"
 
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Mesh.h"
@@ -558,3 +559,4 @@ namespace eae6320
 		}
 	}
 }
+#endif

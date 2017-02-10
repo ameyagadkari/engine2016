@@ -37,20 +37,20 @@ namespace eae6320
 			}
 		}
 
-		GameObject2D * GameObject2D::LoadGameObject2D(const char * const relativePath)
+		GameObject2D * GameObject2D::LoadGameObject2D(const char * const relativePath, const bool doNotUsePixelCoordinatesFromFile, const int16_t x, const int16_t y)
 		{
 			bool wereThereErrors = false;
 			GameObject2D *gameObject2D = new GameObject2D();
 
 			// Load the binary GameObject2D file
-			eae6320::Platform::sDataFromFile binaryGameObject2D;
+			Platform::sDataFromFile binaryGameObject2D;
 			{
 				std::string errorMessage;
-				if (!eae6320::Platform::LoadBinaryFile(relativePath, binaryGameObject2D, &errorMessage))
+				if (!LoadBinaryFile(relativePath, binaryGameObject2D, &errorMessage))
 				{
 					wereThereErrors = true;
 					EAE6320_ASSERTF(false, errorMessage.c_str());
-					eae6320::Logging::OutputError("Failed to load the gameobject2d mesh file \"%s\": %s", relativePath, errorMessage.c_str());
+					Logging::OutputError("Failed to load the gameobject2d mesh file \"%s\": %s", relativePath, errorMessage.c_str());
 					goto OnExit;
 				}
 			}
@@ -98,7 +98,11 @@ namespace eae6320
 						goto OnExit;
 					}
 				}
-
+				if (doNotUsePixelCoordinatesFromFile)
+				{
+					gameObject2D->rectTransform.pixelCoordinates.x = x;
+					gameObject2D->rectTransform.pixelCoordinates.y = y;
+				}
 				// Creating new Sprite
 				{
 					ProcessControlBits(controlBits, gameObject2D, gameObject2D->rectTransform);
@@ -108,6 +112,7 @@ namespace eae6320
 					gameObject2D->sprite = new Graphics::cSprite(screenPosition, textureCoordinates);
 				}
 			}
+			
 		OnExit:
 
 			binaryGameObject2D.Free();
@@ -161,7 +166,7 @@ namespace
 			//maintain width
 		case 0x80:
 			o_rectTransform.height = static_cast<uint16_t>(o_rectTransform.width / aspectRatioTexture);
-				break;
+			break;
 			//maintain height
 		case 0x40:
 			o_rectTransform.width = static_cast<uint16_t>(o_rectTransform.height * aspectRatioTexture);

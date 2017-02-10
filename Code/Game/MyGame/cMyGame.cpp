@@ -7,15 +7,14 @@
 #include "../Gameplay/GameObject.h"
 #include "../Gameplay/GameObject2D.h"
 #include "../Debug/DebugObject.h"
-#include "../Debug/ConfigurationShapes.h"
 #include "../Debug/Text.h"
-#include "../Debug/ConfigurationUI.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
 #include "../../Engine/Time/Time.h"
+#include "../Debug/Checkbox.h"
 
 // Interface
 //==========
@@ -101,9 +100,9 @@ bool eae6320::cMyGame::Initialize()
 	{
 #if defined(EAE6320_DEBUG_UI_AREENABLED)
 		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,300 }, "dfgdfg: ", { 1.0f,1.0f,0.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,250 }, "ufsdjfd  : ", { 1.0f,0.0f,1.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Checkbox({ -500,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 0.0f, 1.0f, 0.0f }));
+		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,250 }, "ufsdjfd  : ", { 1.0f,0.0f,1.0f }));
+		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
 
 		//After adding all debug UIs, doing this is must
 		Debug::UI::IUIController::UpdateUIElements();
@@ -129,7 +128,9 @@ bool eae6320::cMyGame::Initialize()
 
 void eae6320::cMyGame::ChangeCamera()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (!Debug::UI::isDebugMenuEnabled)
+#endif
 	{
 		Camera::cCamera::ChangeCurrentCamera();
 	}
@@ -137,7 +138,9 @@ void eae6320::cMyGame::ChangeCamera()
 
 void eae6320::cMyGame::UpdateCameraPostion()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (!Debug::UI::isDebugMenuEnabled)
+#endif
 	{
 		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraPosition();
 	}
@@ -149,14 +152,19 @@ void eae6320::cMyGame::UpdateDebugUI()
 	Debug::UI::IUIController::ProcessInput();
 	if (Debug::UI::isDebugMenuEnabled)
 	{
-		Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
+		if(Debug::UI::debugUIs[0])
+			Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
+		if (Debug::UI::debugUIs[1])
+			Debug::UI::debugUIs[1]->Update();
 	}
 #endif
 }
 
 void eae6320::cMyGame::UpdateCameraOrientation()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (!Debug::UI::isDebugMenuEnabled)
+#endif
 	{
 		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraOrientation();
 	}
@@ -179,7 +187,9 @@ void eae6320::cMyGame::SubmitCamera()
 
 void eae6320::cMyGame::UpdateGameObjectPosition()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (!Debug::UI::isDebugMenuEnabled)
+#endif
 	{
 		for (auto const& gameObject : gameObjects)
 		{
@@ -193,7 +203,9 @@ void eae6320::cMyGame::UpdateGameObjectPosition()
 
 void eae6320::cMyGame::UpdateGameObjectOrientation()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (!Debug::UI::isDebugMenuEnabled)
+#endif
 	{
 		for (auto const& gameObject : gameObjects)
 		{
@@ -218,15 +230,21 @@ void eae6320::cMyGame::SubmitDrawcallData3D()
 
 void eae6320::cMyGame::SubmitDebugShapeData3D()
 {
-	const size_t length = debugObjects.size();
-	for (size_t i = 0; i < length; i++)
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+	if(reinterpret_cast<Debug::UI::Checkbox*>(Debug::UI::debugUIs[1])->GetIsEnabled())
 	{
-		Graphics::SetDebugObject(debugObjects[i]);
+		const size_t length = debugObjects.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			Graphics::SetDebugObject(debugObjects[i]);
+		}
 	}
+#endif
 }
 
 void eae6320::cMyGame::SubmitDebugUIData2D()
 {
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	if (Debug::UI::isDebugMenuEnabled)
 	{
 		const size_t length = Debug::UI::debugUIs.size();
@@ -235,6 +253,7 @@ void eae6320::cMyGame::SubmitDebugUIData2D()
 			Graphics::SetDebugUI(Debug::UI::debugUIs[i]);
 		}
 	}
+#endif
 }
 
 void eae6320::cMyGame::SubmitDrawcallData2D()
@@ -265,6 +284,7 @@ bool eae6320::cMyGame::CleanUp()
 	}
 	// Deleting DebugObjects
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		const size_t length = debugObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{
@@ -272,15 +292,18 @@ bool eae6320::cMyGame::CleanUp()
 		}
 
 		debugObjects.clear();
+#endif
 	}
 	// Deleting Debug UI
 	{
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 		const size_t length = Debug::UI::debugUIs.size();
 		for (size_t i = 0; i < length; i++)
 		{
 			delete Debug::UI::debugUIs[i];
 		}
 		Debug::UI::debugUIs.clear();
+#endif
 	}
 	// Deleting GameObjects2D
 	{
@@ -320,6 +343,7 @@ namespace
 			{
 				if (!strcmp(search_data.cFileName, "."))continue;
 				else if (!strcmp(search_data.cFileName, ".."))continue;
+				else if (!strcmp(search_data.cFileName, "checkbox"))continue;
 				else
 				{
 					relativePaths.push_back((prefix + search_data.cFileName).c_str());

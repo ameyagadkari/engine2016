@@ -8,6 +8,7 @@ namespace eae6320
 		struct Color
 		{
 			float r, g, b;
+			Color() = default;
 			Color(float i_r, float i_g, float i_b) :
 				r(i_r), g(i_g), b(i_b)
 			{}

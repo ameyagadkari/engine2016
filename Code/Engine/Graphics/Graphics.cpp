@@ -65,9 +65,6 @@ namespace
 	HGLRC s_openGlRenderingContext = nullptr;
 	GLuint s_samplerState = 0;
 	bool CreateRenderingContext();
-	/*bool EnableBackFaceCulling();
-	bool EnableDepthTesting();
-	bool EnableDepthWriting();*/
 #endif
 	bool CreateBindSamplerStates();
 }
@@ -159,11 +156,12 @@ void eae6320::Graphics::RenderFrame()
 		sortedGameObjects.clear();
 	}
 
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 	// Draw Debug Shapes
 	{
 		size_t length = unsortedDebugObjects.size();
 		for (size_t i = 0; i < length; i++)
-		{		
+		{
 			ConstantBufferData::sDrawCall drawCallBufferData;
 			Material*material = Debug::Shapes::DebugObject::GetMaterial();
 			if (currentMaterialUUID != material->GetMaterialUUID())
@@ -180,26 +178,19 @@ void eae6320::Graphics::RenderFrame()
 		}
 		unsortedDebugObjects.clear();
 	}
+#endif
 
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
 	// Draw Debug UIs
 	{
 		size_t length = unsortedUIObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{
-			Material*material = Font::ms_material;
-			if (currentMaterialUUID != material->GetMaterialUUID())
-			{
-				material->BindMaterial();
-				currentMaterialUUID = material->GetMaterialUUID();
-			}
-			ConstantBufferData::sMaterial materialBuffer;
-			unsortedUIObjects[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
-			material->GetMaterialBuffer()->UpdateConstantBuffer(&materialBuffer, sizeof(materialBuffer));
 			unsortedUIObjects[i]->Draw();
 		}
 		unsortedUIObjects.clear();
 	}
-
+#endif
 	// Draw Submitted Gameobjects2D
 	{
 		size_t length = unsortedGameObjects2D.size();
@@ -253,7 +244,7 @@ bool eae6320::Graphics::Initialize(const sInitializationParameters& i_initializa
 }
 
 bool eae6320::Graphics::CleanUp()
-{	
+{
 	delete frameBuffer;
 	delete drawCallBuffer;
 
