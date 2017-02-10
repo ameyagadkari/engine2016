@@ -14,7 +14,7 @@ namespace eae6320
 		public:
 			virtual Math::cVector UpdatePosition() = 0;
 			virtual Math::cVector UpdateOrientation(RotationAxis axis) = 0;
-			virtual ~IGameObjectController(){}
+			virtual ~IGameObjectController() = default;
 		protected:
 			Math::cVector eularOffset;
 			Math::cVector postionOffset;

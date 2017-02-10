@@ -8,13 +8,15 @@
 #include "../Gameplay/GameObject2D.h"
 #include "../Debug/DebugObject.h"
 #include "../Debug/Text.h"
+#include "../Debug/Checkbox.h"
+#include "../Debug/Slider.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
 #include "../../Engine/Time/Time.h"
-#include "../Debug/Checkbox.h"
+
 
 // Interface
 //==========
@@ -74,6 +76,16 @@ bool eae6320::cMyGame::Initialize()
 		}
 	}
 	{
+#if defined(EAE6320_DEBUG_UI_AREENABLED)
+		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Checkbox({ -500,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 0.0f, 1.0f, 0.0f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Slider({ -500,250 }, "Radius: ", { 1.0f,0.0f,0.5f }, 10.0f, 100.0f));
+		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
+		//After adding all debug UIs, doing this is must
+		Debug::UI::IUIController::UpdateUIElements();
+#endif
+	}
+	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		//Debug Shape Lines
 		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), { 1.0f, 0.0f, 0.0f }));
@@ -87,7 +99,7 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);*/
 		//Debug Shape Spheres
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
-		debugObjects.back()->CreateSphere(50.0f, 20, 20);
+		debugObjects.back()->CreateSphere(reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue(), 20, 20);
 		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
 		debugObjects.back()->CreateSphere(20.0f, 20, 20);
 		//Debug Shape Cylinders
@@ -95,17 +107,6 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.back()->CreateCylinder(20.0f, 10.0f, 40.0f, 10, 10);
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(40.0f, -20.0f, -100.0f), { 0.5f, 1.0f, 0.0f }));
 		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);*/
-#endif
-	}
-	{
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Checkbox({ -500,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 0.0f, 1.0f, 0.0f }));
-		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,250 }, "ufsdjfd  : ", { 1.0f,0.0f,1.0f }));
-		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
-
-		//After adding all debug UIs, doing this is must
-		Debug::UI::IUIController::UpdateUIElements();
 #endif
 	}
 	//Make different cameras and pushback in cameras vector
@@ -156,6 +157,16 @@ void eae6320::cMyGame::UpdateDebugUI()
 			Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
 		if (Debug::UI::debugUIs[1])
 			Debug::UI::debugUIs[1]->Update();
+		if (Debug::UI::debugUIs[2])
+		{
+			const float valueBeforeUpdate = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
+			Debug::UI::debugUIs[2]->Update();
+			const float valueAfterUpdate = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
+			if (valueBeforeUpdate != valueAfterUpdate)
+			{
+				debugObjects[0]->UpdateSphere(valueAfterUpdate);
+			}
+		}
 	}
 #endif
 }
@@ -343,7 +354,7 @@ namespace
 			{
 				if (!strcmp(search_data.cFileName, "."))continue;
 				else if (!strcmp(search_data.cFileName, ".."))continue;
-				else if (!strcmp(search_data.cFileName, "checkbox"))continue;
+				else if (!strcmp(search_data.cFileName, "ui"))continue;
 				else
 				{
 					relativePaths.push_back((prefix + search_data.cFileName).c_str());

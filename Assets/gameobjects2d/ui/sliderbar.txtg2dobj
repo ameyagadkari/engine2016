@@ -1,0 +1,14 @@
+-- Gameobject2D Data for Score
+return
+{
+	rect_transform = 
+	{
+		pixel_coordinates = { 0, 0 },
+		width = 24,
+		height = 24,
+	},	
+	maintain_width = true,
+	maintain_height = true,
+	anchor = "top_left",
+	material_filepath = "materials/slider_material.txtmaterial",	
+}

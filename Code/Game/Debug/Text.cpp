@@ -71,6 +71,11 @@ void eae6320::Debug::UI::Text::CleanUp()
 	}
 }
 
+int16_t eae6320::Debug::UI::Text::GetRightTextPixelCoordinate() const
+{
+	return m_rightTextPixelCoordinate;
+}
+
 void eae6320::Debug::UI::Text::Initialize()
 {
 	CleanUp();
@@ -92,6 +97,7 @@ void eae6320::Debug::UI::Text::Initialize()
 		}
 		m_screenPositionForEachCharacter[i].right = m_screenPositionForEachCharacter[i].left + ((static_cast<int16_t>(Graphics::Font::widthArray[m_text[i] - 32]) + widthAdvance)*widthMultiplier);
 	}
+	m_rightTextPixelCoordinate = static_cast<int16_t>(m_screenPositionForEachCharacter[m_numberOfCharacters - 1].right*UserSettings::GetResolutionWidth()*0.5f);
 	m_meshData = new Graphics::MeshData(typeOfIndexData, static_cast<uint32_t>(verticesPerQuad*m_numberOfCharacters), static_cast<uint32_t>(indicesPerQuad*m_numberOfCharacters));
 	for (size_t i = 0; i < m_numberOfCharacters; i++)
 	{

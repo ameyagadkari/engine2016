@@ -34,16 +34,17 @@ namespace eae6320
 			{
 				return m_position;
 			}
-			void DebugObject::GetColor(float& i_r, float& i_g, float& i_b)const
+			void DebugObject::GetColor(float& o_r, float& o_g, float& o_b)const
 			{
-				i_r = m_color.r;
-				i_g = m_color.g;
-				i_b = m_color.b;
+				o_r = m_color.r;
+				o_g = m_color.g;
+				o_b = m_color.b;
 			}
 			DebugObject::DebugObject(const Math::cVector i_position, const Color i_color) :
-				m_mesh(new Graphics::Mesh()),
 				m_position(i_position),
-				m_color(i_color)
+				m_color(i_color),
+				m_mesh(new Graphics::Mesh()),
+				m_meshData(nullptr)
 			{
 				if (!ms_material)
 				{
@@ -58,13 +59,18 @@ namespace eae6320
 					delete m_mesh;
 					m_mesh = nullptr;
 				}
+				if (m_meshData)
+				{
+					delete m_meshData;
+					m_meshData = nullptr;
+				}
 				if (ms_material)
 				{
 					delete ms_material;
 					ms_material = nullptr;
 				}
 			}
-			void DebugObject::CreateBox(const float i_width, const float i_height, const float i_depth) const
+			void DebugObject::CreateBox(const float i_width, const float i_height, const float i_depth)
 			{
 				EAE6320_ASSERTF(i_width > 0.0f, "Specified width: %f is negative", i_width);
 				EAE6320_ASSERTF(i_height > 0.0f, "Specified height: %f is negative", i_height);
@@ -108,10 +114,10 @@ namespace eae6320
 					{ +1.0f, -1.0f, +1.0f },
 				};
 
-				Graphics::MeshData meshData(16, 24, 36);
-				for (size_t i = 0; i < meshData.numberOfVertices; i++)
+				m_meshData = new  Graphics::MeshData(16, 24, 36);
+				for (size_t i = 0; i < m_meshData->numberOfVertices; i++)
 				{
-					meshData.vertexData[i].AddVertexData(signs[i][0] * halfWidth, signs[i][1] * halfHeight, signs[i][2] * halfDepth);
+					m_meshData->vertexData[i].AddVertexData(signs[i][0] * halfWidth, signs[i][1] * halfHeight, signs[i][2] * halfDepth);
 				}
 
 				const uint16_t indices[36] =
@@ -123,40 +129,40 @@ namespace eae6320
 					16,17,18,16,18,19,
 					20,21,22,20,22,23
 				};
-				for (size_t i = 0; i < meshData.numberOfIndices; i++)
+				for (size_t i = 0; i < m_meshData->numberOfIndices; i++)
 				{
 #if defined( EAE6320_PLATFORM_D3D )
-					reinterpret_cast<uint16_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = indices[i];
+					reinterpret_cast<uint16_t*>(m_meshData->indexData)[m_meshData->numberOfIndices - 1 - i] = indices[i];
 #elif defined( EAE6320_PLATFORM_GL )
-					reinterpret_cast<uint16_t*>(meshData.indexData)[i] = indices[i];
+					reinterpret_cast<uint16_t*>(m_meshData->indexData)[i] = indices[i];
 #endif
 				}
 
-				if (!m_mesh->Initialize(meshData))
+				if (!m_mesh->Initialize(*m_meshData))
 				{
 					EAE6320_ASSERT(false);
 					Logging::OutputError("Failed to initialize debug box shape with %f width,%f height,%f depth", i_width, i_height, i_depth);
 				}
 			}
-			void DebugObject::CreateLine(const Math::cVector i_end) const
+			void DebugObject::CreateLine(const Math::cVector i_end)
 			{
-				Graphics::MeshData meshData(16, 3, 3);
+				m_meshData = new Graphics::MeshData(16, 3, 3);
 
-				meshData.vertexData[0].AddVertexData(0.0f, 0.0f, 0.0f);
-				meshData.vertexData[1].AddVertexData(i_end.x, i_end.y, i_end.z);
-				meshData.vertexData[2].AddVertexData(0.0f, 0.0f, 0.0f);
+				m_meshData->vertexData[0].AddVertexData(0.0f, 0.0f, 0.0f);
+				m_meshData->vertexData[1].AddVertexData(i_end.x, i_end.y, i_end.z);
+				m_meshData->vertexData[2].AddVertexData(0.0f, 0.0f, 0.0f);
 
-				reinterpret_cast<uint16_t*>(meshData.indexData)[0] = 0;
-				reinterpret_cast<uint16_t*>(meshData.indexData)[1] = 1;
-				reinterpret_cast<uint16_t*>(meshData.indexData)[2] = 2;
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[0] = 0;
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[1] = 1;
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[2] = 2;
 
-				if (!m_mesh->Initialize(meshData))
+				if (!m_mesh->Initialize(*m_meshData))
 				{
 					EAE6320_ASSERT(false);
 					Logging::OutputError("Failed to initialize debug line");
 				}
 			}
-			void DebugObject::CreateSphere(const float i_radius, const uint32_t i_sliceCount, const uint32_t i_stackCount) const
+			void DebugObject::CreateSphere(const float i_radius, const uint32_t i_sliceCount, const uint32_t i_stackCount)
 			{
 				EAE6320_ASSERTF(i_radius > 0.0f, "Specified radius: %f is negative", i_radius);
 				EAE6320_ASSERTF(i_sliceCount > 0, "Specified slice count: %d is negative", i_sliceCount);
@@ -175,11 +181,11 @@ namespace eae6320
 				{
 					typeOfIndexData = 16;
 				}
-				Graphics::MeshData meshData(typeOfIndexData, numberOfVertices, numberOfIndices);
+				m_meshData = new Graphics::MeshData(typeOfIndexData, numberOfVertices, numberOfIndices);
 				// Filling Vertex Data
 				{
 					size_t index = 1;
-					meshData.vertexData[0].AddVertexData(0.0f, i_radius, 0.0f);
+					m_meshData->vertexData[0].AddVertexData(0.0f, i_radius, 0.0f);
 					for (size_t i = 1; i <= i_stackCount - 1; i++)
 					{
 						float phi = i*phiStep;
@@ -191,11 +197,11 @@ namespace eae6320
 							float y = i_radius*cosf(phi);
 							float z = i_radius* sinf(phi)*sinf(theta);
 
-							meshData.vertexData[index].AddVertexData(x, y, z);
+							m_meshData->vertexData[index].AddVertexData(x, y, z);
 							++index;
 						}
 					}
-					meshData.vertexData[index].AddVertexData(0.0f, -i_radius, 0.0f);
+					m_meshData->vertexData[index].AddVertexData(0.0f, -i_radius, 0.0f);
 				}
 				//Filling Index Data
 				{
@@ -293,25 +299,25 @@ namespace eae6320
 							++index;
 						}
 					}
-					for (size_t i = 0; i < meshData.numberOfIndices; i++)
+					for (size_t i = 0; i < m_meshData->numberOfIndices; i++)
 					{
 #if defined( EAE6320_PLATFORM_D3D )
 						if (typeOfIndexData == 16)
 						{
-							reinterpret_cast<uint16_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = reinterpret_cast<uint16_t*>(indices)[i];
+							reinterpret_cast<uint16_t*>(m_meshData->indexData)[m_meshData->numberOfIndices - 1 - i] = reinterpret_cast<uint16_t*>(indices)[i];
 						}
 						else
 						{
-							reinterpret_cast<uint32_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = reinterpret_cast<uint32_t*>(indices)[i];
+							reinterpret_cast<uint32_t*>(m_meshData->indexData)[m_meshData->numberOfIndices - 1 - i] = reinterpret_cast<uint32_t*>(indices)[i];
 						}
 #elif defined( EAE6320_PLATFORM_GL )
 						if (typeOfIndexData == 16)
 						{
-							reinterpret_cast<uint16_t*>(meshData.indexData)[i] = reinterpret_cast<uint16_t*>(indices)[i];
+							reinterpret_cast<uint16_t*>(m_meshData->indexData)[i] = reinterpret_cast<uint16_t*>(indices)[i];
 						}
 						else
 						{
-							reinterpret_cast<uint32_t*>(meshData.indexData)[i] = reinterpret_cast<uint32_t*>(indices)[i];
+							reinterpret_cast<uint32_t*>(m_meshData->indexData)[i] = reinterpret_cast<uint32_t*>(indices)[i];
 						}
 #endif
 					}
@@ -321,13 +327,40 @@ namespace eae6320
 						indices = nullptr;
 					}
 				}
-				if (!m_mesh->Initialize(meshData))
+				if (!m_mesh->Initialize(*m_meshData))
 				{
 					EAE6320_ASSERT(false);
 					Logging::OutputError("Failed to initialize debug line");
 				}
 			}
-			void DebugObject::CreateCylinder(const float i_bottomRadius, const float i_topRadius, const float i_height, const uint32_t i_sliceCount, const uint32_t i_stackCount) const
+
+			void DebugObject::UpdateSphere(const float i_radius)
+			{
+				if (m_mesh)
+				{
+					delete m_mesh;
+					m_mesh = nullptr;
+				}
+				m_mesh = new Graphics::Mesh();
+
+				const float previousRadius = m_meshData->vertexData[0].y;
+				const float deltaRadius = i_radius / previousRadius;
+
+				for (size_t i = 0; i < m_meshData->numberOfVertices; i++)
+				{
+					m_meshData->vertexData[i].x *= deltaRadius;
+					m_meshData->vertexData[i].y *= deltaRadius;
+					m_meshData->vertexData[i].z *= deltaRadius;
+				}
+
+				if (!m_mesh->Initialize(*m_meshData))
+				{
+					EAE6320_ASSERT(false);
+					Logging::OutputError("Failed to update debug sphere");
+				}
+			}
+
+			void DebugObject::CreateCylinder(const float i_bottomRadius, const float i_topRadius, const float i_height, const uint32_t i_sliceCount, const uint32_t i_stackCount)
 			{
 				EAE6320_ASSERTF(i_bottomRadius > 0.0f, "Specified bottom radius: %f is negative", i_bottomRadius);
 				EAE6320_ASSERTF(i_topRadius > 0, "Specified top radius: %f is negative", i_topRadius);
@@ -346,7 +379,7 @@ namespace eae6320
 				{
 					typeOfIndexData = 16;
 				}
-				Graphics::MeshData meshData(typeOfIndexData, numberOfVertices, numberOfIndices);
+				m_meshData = new Graphics::MeshData(typeOfIndexData, numberOfVertices, numberOfIndices);
 				void * indices = nullptr;
 				if (typeOfIndexData == 16)
 				{
@@ -379,7 +412,7 @@ namespace eae6320
 								float x = r*c;
 								float z = r*s;
 
-								meshData.vertexData[vertices_index].AddVertexData(x, y, z);
+								m_meshData->vertexData[vertices_index].AddVertexData(x, y, z);
 								++vertices_index;
 							}
 						}
@@ -443,10 +476,10 @@ namespace eae6320
 							float x = i_topRadius*cosf(i*dTheta);
 							float z = i_topRadius*sinf(i*dTheta);
 
-							meshData.vertexData[vertices_index].AddVertexData(x, y, z);
+							m_meshData->vertexData[vertices_index].AddVertexData(x, y, z);
 							++vertices_index;
 						}
-						meshData.vertexData[vertices_index].AddVertexData(0.0f, y, 0.0f);
+						m_meshData->vertexData[vertices_index].AddVertexData(0.0f, y, 0.0f);
 						++vertices_index;
 					}
 					// Filling Index Data
@@ -491,10 +524,10 @@ namespace eae6320
 							float x = i_bottomRadius * cosf(i * dTheta);
 							float z = i_bottomRadius * sinf(i * dTheta);
 
-							meshData.vertexData[vertices_index].AddVertexData(x, y, z);
+							m_meshData->vertexData[vertices_index].AddVertexData(x, y, z);
 							++vertices_index;
 						}
-						meshData.vertexData[vertices_index].AddVertexData(0.0f, y, 0.0f);
+						m_meshData->vertexData[vertices_index].AddVertexData(0.0f, y, 0.0f);
 						++vertices_index;
 					}
 					// Filling Index Data
@@ -522,25 +555,25 @@ namespace eae6320
 							}
 						}
 					}
-					for (size_t i = 0; i < meshData.numberOfIndices; i++)
+					for (size_t i = 0; i < m_meshData->numberOfIndices; i++)
 					{
 #if defined( EAE6320_PLATFORM_D3D )
 						if (typeOfIndexData == 16)
 						{
-							reinterpret_cast<uint16_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = reinterpret_cast<uint16_t*>(indices)[i];
+							reinterpret_cast<uint16_t*>(m_meshData->indexData)[m_meshData->numberOfIndices - 1 - i] = reinterpret_cast<uint16_t*>(indices)[i];
 						}
 						else
 						{
-							reinterpret_cast<uint32_t*>(meshData.indexData)[meshData.numberOfIndices - 1 - i] = reinterpret_cast<uint32_t*>(indices)[i];
+							reinterpret_cast<uint32_t*>(m_meshData->indexData)[m_meshData->numberOfIndices - 1 - i] = reinterpret_cast<uint32_t*>(indices)[i];
 						}
 #elif defined( EAE6320_PLATFORM_GL )
 						if (typeOfIndexData == 16)
 						{
-							reinterpret_cast<uint16_t*>(meshData.indexData)[i] = reinterpret_cast<uint16_t*>(indices)[i];
+							reinterpret_cast<uint16_t*>(m_meshData->indexData)[i] = reinterpret_cast<uint16_t*>(indices)[i];
 						}
 						else
 						{
-							reinterpret_cast<uint32_t*>(meshData.indexData)[i] = reinterpret_cast<uint32_t*>(indices)[i];
+							reinterpret_cast<uint32_t*>(m_meshData->indexData)[i] = reinterpret_cast<uint32_t*>(indices)[i];
 						}
 #endif
 					}
@@ -550,7 +583,7 @@ namespace eae6320
 						indices = nullptr;
 					}
 				}
-				if (!m_mesh->Initialize(meshData))
+				if (!m_mesh->Initialize(*m_meshData))
 				{
 					EAE6320_ASSERT(false);
 					Logging::OutputError("Failed to initialize debug line");

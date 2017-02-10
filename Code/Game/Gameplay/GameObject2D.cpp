@@ -13,7 +13,6 @@
 namespace
 {
 	void ProcessControlBits(const uint8_t i_controlBits, const eae6320::Gameplay::GameObject2D* i_gameObject2D, eae6320::Gameplay::RectTransform& o_rectTransform);
-	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor);
 }
 
 namespace eae6320
@@ -112,7 +111,7 @@ namespace eae6320
 					gameObject2D->sprite = new Graphics::cSprite(screenPosition, textureCoordinates);
 				}
 			}
-			
+
 		OnExit:
 
 			binaryGameObject2D.Free();
@@ -138,6 +137,14 @@ namespace eae6320
 		{
 			return sprite;
 		}
+		RectTransform GameObject2D::GetRectTransform() const
+		{
+			return rectTransform;
+		}
+		Anchor GameObject2D::GetAnchor() const
+		{
+			return anchor;
+		}
 #pragma endregion
 
 #pragma region Sets
@@ -148,6 +155,14 @@ namespace eae6320
 		void GameObject2D::SetSprite(Graphics::cSprite * const sprite)
 		{
 			this->sprite = sprite;
+		}
+		void GameObject2D::SetRectTransform(const RectTransform rectTransform)
+		{
+			this->rectTransform = rectTransform;
+		}
+		void GameObject2D::SetAnchor(const Anchor anchor)
+		{
+			this->anchor = anchor;
 		}
 #pragma endregion
 	}
@@ -180,72 +195,72 @@ namespace
 			break;
 		}
 	}
-	eae6320::Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const eae6320::Gameplay::RectTransform i_rectTransform, const eae6320::Gameplay::Anchor i_anchor)
+}
+eae6320::Graphics::Sprite::ScreenPosition eae6320::Gameplay::ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const RectTransform i_rectTransform, const Anchor i_anchor)
+{
+	Graphics::Sprite::ScreenPosition returnValue;
+
+	const float widthMultiplier = 2.0f / UserSettings::GetResolutionWidth();
+	const float heightMultiplier = 2.0f / UserSettings::GetResolutionHeight();
+
+	switch (i_anchor)
 	{
-		eae6320::Graphics::Sprite::ScreenPosition returnValue;
-
-		const float widthMultiplier = 2.0f / eae6320::UserSettings::GetResolutionWidth();
-		const float heightMultiplier = 2.0f / eae6320::UserSettings::GetResolutionHeight();
-
-		switch (i_anchor)
-		{
-		case eae6320::Gameplay::Anchor::TOP_LEFT:
-			returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::BOTTOM_LEFT:
-			returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::TOP_RIGHT:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::BOTTOM_RIGHT:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
-			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::CENTER:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::LEFT_CENTER:
-			returnValue.left = i_rectTransform.pixelCoordinates.x *widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::BOTTOM_CENTER:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::TOP_CENTER:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
-			returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
-			break;
-		case eae6320::Gameplay::Anchor::RIGHT_CENTER:
-			returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
-			returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			returnValue.right = i_rectTransform.pixelCoordinates.x *widthMultiplier;
-			returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
-			break;
-		default:
-			break;
-		}
-		return returnValue;
+	case Anchor::TOP_LEFT:
+		returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
+		returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		break;
+	case Anchor::BOTTOM_LEFT:
+		returnValue.left = i_rectTransform.pixelCoordinates.x*widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		break;
+	case Anchor::TOP_RIGHT:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		break;
+	case Anchor::BOTTOM_RIGHT:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		returnValue.right = i_rectTransform.pixelCoordinates.x*widthMultiplier;
+		returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		break;
+	case Anchor::CENTER:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		break;
+	case Anchor::LEFT_CENTER:
+		returnValue.left = i_rectTransform.pixelCoordinates.x *widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		break;
+	case Anchor::BOTTOM_CENTER:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.bottom = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		break;
+	case Anchor::TOP_CENTER:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.top = i_rectTransform.pixelCoordinates.y*heightMultiplier;
+		returnValue.right = (i_rectTransform.pixelCoordinates.x + static_cast<int16_t>(i_rectTransform.width / 2))*widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height))*heightMultiplier;
+		break;
+	case Anchor::RIGHT_CENTER:
+		returnValue.left = (i_rectTransform.pixelCoordinates.x - static_cast<int16_t>(i_rectTransform.width))*widthMultiplier;
+		returnValue.top = (i_rectTransform.pixelCoordinates.y + static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		returnValue.right = i_rectTransform.pixelCoordinates.x *widthMultiplier;
+		returnValue.bottom = (i_rectTransform.pixelCoordinates.y - static_cast<int16_t>(i_rectTransform.height / 2))*heightMultiplier;
+		break;
+	default:
+		break;
 	}
+	return returnValue;
 }

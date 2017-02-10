@@ -50,6 +50,7 @@ namespace eae6320
 			cSprite(const Sprite::ScreenPosition i_screenPosition, const Sprite::TextureCoordinates i_textureCoordinates);
 			~cSprite();
 
+			void SetScreenPosition(const Sprite::ScreenPosition i_position_screen);
 			// Data
 			//=====
 

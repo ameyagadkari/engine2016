@@ -7,7 +7,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		class SnakeController final : public IGameObjectController
+		class SnakeController final : IGameObjectController
 		{
 		public:
 			static const uint32_t classUUID;

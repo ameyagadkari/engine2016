@@ -44,6 +44,11 @@ eae6320::Graphics::cSprite::cSprite(const Sprite::ScreenPosition i_screenPositio
 	}
 }
 
+void eae6320::Graphics::cSprite::SetScreenPosition(const Sprite::ScreenPosition i_position_screen)
+{
+	m_position_screen = i_position_screen;
+}
+
 eae6320::Graphics::cSprite::~cSprite()
 {
 	if (!iscSpriteCleanedUp && iscSpriteInitialized)

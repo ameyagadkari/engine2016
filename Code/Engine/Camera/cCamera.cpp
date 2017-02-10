@@ -37,7 +37,7 @@ namespace eae6320
 		{
 			return farPlaneDistance;
 		}
-		float cCamera::GetAspectRatio()
+		float cCamera::GetAspectRatio() const
 		{
 			return aspectRatio;
 		}

@@ -1,7 +1,5 @@
 #include "Checkbox.h"
 
-
-
 #if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "Text.h"
 #include "../../Game/Gameplay/GameObject2D.h"
@@ -11,13 +9,11 @@
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 
-
-
 namespace
 {
 	const int16_t xTextOffset = 48;
-	const std::string checkedFilePath = "data/gameobjects2d/checkbox/checked.bing2dobj";
-	const std::string uncheckedFilePath = "data/gameobjects2d/checkbox/unchecked.bing2dobj";
+	const std::string checkedFilePath = "data/gameobjects2d/ui/checked.bing2dobj";
+	const std::string uncheckedFilePath = "data/gameobjects2d/ui/unchecked.bing2dobj";
 }
 
 eae6320::Debug::UI::Checkbox::~Checkbox()
@@ -90,15 +86,17 @@ void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_materi
 {
 	if (m_isOn)
 	{
-		reinterpret_cast<IUIController*>(m_onText)->isSelected = isSelected;
-		reinterpret_cast<IUIController*>(m_onText)->Draw();
+		IUIController* text = reinterpret_cast<IUIController*>(m_onText);
+		text->isSelected = isSelected;
+		text->Draw();
 		IUIController::Draw(m_checked->GetMaterial());
 		m_checked->GetSprite()->Draw();
 	}
 	else
 	{
-		reinterpret_cast<IUIController*>(m_offText)->isSelected = isSelected;
-		reinterpret_cast<IUIController*>(m_offText)->Draw();
+		IUIController* text = reinterpret_cast<IUIController*>(m_offText);
+		text->isSelected = isSelected;
+		text->Draw();
 		IUIController::Draw(m_unchecked->GetMaterial());
 		m_unchecked->GetSprite()->Draw();
 	}

@@ -37,8 +37,9 @@ return
 	},
 	gameobjects2d =
 	{
-		"gameobjects2d/checkbox/checked.txtg2dobj",
-		"gameobjects2d/checkbox/unchecked.txtg2dobj",
+		"gameobjects2d/ui/checked.txtg2dobj",
+		"gameobjects2d/ui/unchecked.txtg2dobj",
+		"gameobjects2d/ui/sliderbar.txtg2dobj",
 	}, 
 	--[[gameobjects2d = 
 	{

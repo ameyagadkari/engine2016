@@ -2,6 +2,7 @@
 #define EAE6320_GAMEOBJECT2D_H
 
 #include <cstdint>
+#include "../../Engine/Graphics/SpriteData.h"
 
 // Forward Declarations
 //=====================
@@ -29,6 +30,8 @@ namespace eae6320
 			}pixelCoordinates;
 			uint16_t width, height;
 		};
+
+		Graphics::Sprite::ScreenPosition ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(const RectTransform i_rectTransform, const Anchor i_anchor);
 	}
 }
 
@@ -46,11 +49,15 @@ namespace eae6320
 #pragma region Gets
 			Graphics::Material* GetMaterial()const;
 			Graphics::cSprite* GetSprite()const;
+			RectTransform GetRectTransform()const;
+			Anchor GetAnchor()const;
 #pragma endregion
 
 #pragma region Sets
 			void SetMaterial(Graphics::Material* const effect);
 			void SetSprite(Graphics::cSprite* const sprite);
+			void SetRectTransform(const RectTransform rectTransform);
+			void SetAnchor(const Anchor anchor);
 #pragma endregion
 
 		private:

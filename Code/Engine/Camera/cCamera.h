@@ -32,7 +32,7 @@ namespace eae6320
 			float GetFieldOfView()const;
 			float GetNearPlaneDistance()const;
 			float GetFarPlaneDistance()const;
-			float GetAspectRatio();
+			float GetAspectRatio() const;
 			static cCamera* GetCurrentCamera();
 #pragma endregion
 

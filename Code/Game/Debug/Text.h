@@ -25,11 +25,12 @@ namespace eae6320
 	{
 		namespace UI
 		{
-			class Text :public IUIController
+			class Text final :public IUIController
 			{
 			public:
 				explicit Text(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_text = "", const Color i_color = { 1.0f,1.0f,1.0f });
-				~Text();			
+				~Text();
+				int16_t GetRightTextPixelCoordinate()const;
 			private:
 				void Update(std::string i_string = "") override;
 				void Draw(const Graphics::Material* const i_material = nullptr)const override;
@@ -40,6 +41,7 @@ namespace eae6320
 				Graphics::Sprite::ScreenPosition* m_screenPositionForEachCharacter;
 				PixelCoordinates m_pixelCoordinates;
 				Graphics::MeshData* m_meshData;
+				int16_t m_rightTextPixelCoordinate;
 			};
 		}
 	}

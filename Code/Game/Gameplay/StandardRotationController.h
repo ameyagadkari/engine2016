@@ -7,7 +7,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		class StandardRotationController final : public IGameObjectController
+		class StandardRotationController final : IGameObjectController
 		{
 		public:
 			static const uint32_t classUUID;
