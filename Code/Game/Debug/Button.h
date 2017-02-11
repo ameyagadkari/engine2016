@@ -1,5 +1,5 @@
-#ifndef EAE6320_SLIDER_H
-#define EAE6320_SLIDER_H
+#ifndef EAE6320_BUTTON_H
+#define EAE6320_BUTTON_H
 
 #include "ConfigurationUI.h"
 
@@ -33,29 +33,29 @@ namespace eae6320
 	{
 		namespace UI
 		{
-			class Slider final :public IUIController
+			class Button final :public IUIController
 			{
 			public:
-				explicit Slider(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_sliderName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float minValue = 0.0f, const float maxValue = 1.0f);
-				~Slider();
-				float GetValue()const;
-				void Reset(float i_resetValue);
+				explicit Button(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_buttonName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float i_backgroundTransperancy = 0.25f);
+				~Button();
+				void SetState(const bool i_state);
+				bool GetState()const;
 			private:
-				void RecalculateSliderbarWidth() const;
+				void RecalculateBackgroundWidth() const;
 				void Update(std::string i_string = "") override;
 				void Draw(const Graphics::Material* const i_material = nullptr, const float alpha = 1.0f, const bool invertColor = false)const override;
 				void Initialize() override;
 				void CleanUp()override;
-				Gameplay::GameObject2D* m_slider;
-				Text* m_sliderName;
-				float m_value, m_minValue, m_maxValue;
+				Gameplay::GameObject2D* m_background;
+				Text* m_buttonName;
+				float m_backgroundTransperancy;
 				PixelCoordinates m_pixelCoordinates;
+				bool m_pressed;
 			};
 		}
 	}
 }
 
-#endif // !EAE6320_SLIDER_H
+#endif // !EAE6320_BUTTON_H
 
 #endif
-

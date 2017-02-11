@@ -71,7 +71,7 @@ void eae6320::Debug::UI::Slider::CleanUp()
 	}
 }
 
-void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_material) const
+void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_material, const float alpha, const bool invertColor) const
 {
 	IUIController* text = reinterpret_cast<IUIController*>(m_sliderName);
 	text->isSelected = isSelected;
@@ -107,6 +107,12 @@ void eae6320::Debug::UI::Slider::RecalculateSliderbarWidth() const
 	rectTransform.width = minWidthForSlider + static_cast<uint16_t>(((m_value - m_minValue) / (m_maxValue - m_minValue)) * widthModifier);
 	const Graphics::Sprite::ScreenPosition screenPosition = ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(rectTransform, anchor);
 	m_slider->GetSprite()->SetScreenPosition(screenPosition);
+}
+
+void eae6320::Debug::UI::Slider::Reset(float i_resetValue)
+{
+	m_value = i_resetValue;
+	RecalculateSliderbarWidth();
 }
 
 #endif

@@ -40,7 +40,7 @@ namespace eae6320
 				bool GetIsEnabled()const;
 			private:
 				void Update(std::string i_string = "") override;
-				void Draw(const Graphics::Material* const i_material = nullptr)const override;
+				void Draw(const Graphics::Material* const i_material = nullptr, const float alpha = 1.0f, const bool invertColor = false)const override;
 				void Initialize() override;
 				void CleanUp()override;
 				PixelCoordinates m_pixelCoordinates;

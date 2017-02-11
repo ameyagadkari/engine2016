@@ -86,13 +86,20 @@ void eae6320::Debug::UI::IUIController::ProcessInput()
 	}
 }
 
-void eae6320::Debug::UI::IUIController::Draw(const Graphics::Material * const i_material)const
+void eae6320::Debug::UI::IUIController::Draw(const Graphics::Material * const i_material, const float alpha, const bool invertColor)const
 {
 	if (i_material)
 	{
 		i_material->BindMaterial();
 		Graphics::ConstantBufferData::sMaterial materialBuffer;
 		GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);
+		if (invertColor)
+		{
+			materialBuffer.g_color.r = 1.0f - materialBuffer.g_color.r;
+			materialBuffer.g_color.g = 1.0f - materialBuffer.g_color.g;
+			materialBuffer.g_color.b = 1.0f - materialBuffer.g_color.b;
+		}
+		materialBuffer.g_color.a = alpha;
 		i_material->GetMaterialBuffer()->UpdateConstantBuffer(&materialBuffer, sizeof(materialBuffer));
 	}
 }

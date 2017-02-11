@@ -45,7 +45,7 @@ eae6320::Debug::UI::Text::~Text()
 	Text::CleanUp();
 }
 
-void eae6320::Debug::UI::Text::Draw(const Graphics::Material* const i_material)const
+void eae6320::Debug::UI::Text::Draw(const Graphics::Material* const i_material, const float alpha, const bool invertColor)const
 {
 	IUIController::Draw(Graphics::Font::ms_material);
 	Graphics::Font::RenderText(*m_meshData);

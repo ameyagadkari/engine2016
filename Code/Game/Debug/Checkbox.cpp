@@ -76,13 +76,13 @@ void eae6320::Debug::UI::Checkbox::Update(std::string i_string)
 {
 	if (isDebugMenuEnabled)
 	{
-		if (UserInput::IsKeyPressedOnce(VK_RETURN) && isSelected)
+		if (isSelected && UserInput::IsKeyPressedOnce(VK_RETURN))
 		{
 			m_isOn = !m_isOn;
 		}
 	}
 }
-void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_material)const
+void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_material, const float alpha, const bool invertColor)const
 {
 	if (m_isOn)
 	{

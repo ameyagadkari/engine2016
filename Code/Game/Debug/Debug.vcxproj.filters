@@ -10,6 +10,7 @@
     <ClInclude Include="IUIController.h" />
     <ClInclude Include="Checkbox.h" />
     <ClInclude Include="Slider.h" />
+    <ClInclude Include="Button.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugObject.cpp" />
@@ -17,5 +18,6 @@
     <ClCompile Include="IUIController.cpp" />
     <ClCompile Include="Checkbox.cpp" />
     <ClCompile Include="Slider.cpp" />
+    <ClCompile Include="Button.cpp" />
   </ItemGroup>
 </Project>

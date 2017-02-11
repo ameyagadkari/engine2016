@@ -25,7 +25,7 @@ namespace eae6320
 			{
 			public:
 				virtual ~IUIController() = default;
-				virtual void Draw(const Graphics::Material* const i_material = nullptr)const;
+				virtual void Draw(const Graphics::Material* const i_material = nullptr, const float alpha = 1.0f, const bool invertColor = false)const;
 				virtual void Update(std::string i_string = "") = 0;
 				virtual void GetColor(float& o_r, float& o_g, float& o_b)const;
 				static void UpdateUIElements();

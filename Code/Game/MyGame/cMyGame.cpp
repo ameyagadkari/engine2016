@@ -10,12 +10,14 @@
 #include "../Debug/Text.h"
 #include "../Debug/Checkbox.h"
 #include "../Debug/Slider.h"
+#include "../Debug/Button.h"
 #include "cMyGame.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/cCamera.h"
 #include "../../Engine/Time/Time.h"
+
 
 
 // Interface
@@ -41,6 +43,7 @@ namespace
 	std::vector<std::string> fileNames;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
+	float resetRadius;
 }
 // Inherited Implementation
 //=========================
@@ -80,7 +83,8 @@ bool eae6320::cMyGame::Initialize()
 		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
 		Debug::UI::debugUIs.push_back(new Debug::UI::Checkbox({ -500,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 0.0f, 1.0f, 0.0f }));
 		Debug::UI::debugUIs.push_back(new Debug::UI::Slider({ -500,250 }, "Radius: ", { 1.0f,0.0f,0.5f }, 10.0f, 100.0f));
-		//Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,200 }, "ameya gadkari 15346463: ", { 0.5f,1.0f,0.5f }));
+		Debug::UI::debugUIs.push_back(new Debug::UI::Button({ -500,200 }, "Reset Radius", { 0.8f,1.0f,0.0f }));
+
 		//After adding all debug UIs, doing this is must
 		Debug::UI::IUIController::UpdateUIElements();
 #endif
@@ -98,8 +102,9 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(60.0f, 10.0f, -50.0f), { 1.0f, 1.0f, 0.0f }));
 		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);*/
 		//Debug Shape Spheres
+		resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
-		debugObjects.back()->CreateSphere(reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue(), 20, 20);
+		debugObjects.back()->CreateSphere(resetRadius, 20, 20);
 		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
 		debugObjects.back()->CreateSphere(20.0f, 20, 20);
 		//Debug Shape Cylinders
@@ -153,7 +158,7 @@ void eae6320::cMyGame::UpdateDebugUI()
 	Debug::UI::IUIController::ProcessInput();
 	if (Debug::UI::isDebugMenuEnabled)
 	{
-		if(Debug::UI::debugUIs[0])
+		if (Debug::UI::debugUIs[0])
 			Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
 		if (Debug::UI::debugUIs[1])
 			Debug::UI::debugUIs[1]->Update();
@@ -165,6 +170,16 @@ void eae6320::cMyGame::UpdateDebugUI()
 			if (valueBeforeUpdate != valueAfterUpdate)
 			{
 				debugObjects[0]->UpdateSphere(valueAfterUpdate);
+			}
+		}
+		if (Debug::UI::debugUIs[3])
+		{
+			Debug::UI::debugUIs[3]->Update();
+			if (reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->GetState())
+			{
+				debugObjects[0]->UpdateSphere(resetRadius);
+				reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->Reset(resetRadius);
+				reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->SetState(false);
 			}
 		}
 	}
@@ -242,7 +257,7 @@ void eae6320::cMyGame::SubmitDrawcallData3D()
 void eae6320::cMyGame::SubmitDebugShapeData3D()
 {
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-	if(reinterpret_cast<Debug::UI::Checkbox*>(Debug::UI::debugUIs[1])->GetIsEnabled())
+	if (reinterpret_cast<Debug::UI::Checkbox*>(Debug::UI::debugUIs[1])->GetIsEnabled())
 	{
 		const size_t length = debugObjects.size();
 		for (size_t i = 0; i < length; i++)
