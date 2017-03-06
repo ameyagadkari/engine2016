@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cCamera.h" />
+    <ClInclude Include="LocalAxes.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0DAB78B1-E1C4-4E31-A15F-C5CB57C1D272}</ProjectGuid>

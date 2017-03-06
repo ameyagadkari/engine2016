@@ -105,7 +105,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Time.lib;UserOutput.lib;UserSettings.lib;Windows.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Physics.lib;Time.lib;UserOutput.lib;UserSettings.lib;User32.lib;Windows.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Time.lib;UserOutput.lib;UserSettings.lib;Windows.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Physics.lib;Time.lib;UserOutput.lib;UserSettings.lib;User32.lib;Windows.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,7 +141,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Time.lib;UserOutput.lib;UserSettings.lib;Windows.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Physics.lib;Time.lib;UserOutput.lib;UserSettings.lib;User32.lib;Windows.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,7 +161,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Time.lib;UserOutput.lib;UserSettings.lib;Windows.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Asserts.lib;Graphics.lib;Logging.lib;Physics.lib;Time.lib;UserOutput.lib;UserSettings.lib;User32.lib;Windows.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

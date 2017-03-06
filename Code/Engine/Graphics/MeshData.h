@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <string>
 
 namespace eae6320
 {
@@ -13,6 +14,7 @@ namespace eae6320
 			struct Vertex
 			{
 				float x, y, z;
+				float nx, ny, nz;
 				uint16_t u, v;
 				uint8_t r, g, b, a;
 				void AddVertexData(const float i_x, const float i_y, const float i_z)

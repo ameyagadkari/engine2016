@@ -4,6 +4,7 @@
 #include "../Math/cVector.h"
 #include "../Math/cQuaternion.h"
 #include "../Math/Functions.h"
+#include "LocalAxes.h"
 #include <vector>
 
 namespace eae6320
@@ -13,12 +14,13 @@ namespace eae6320
 		class cCamera
 		{
 		public:
+			LocalAxes localAxes;
 			inline virtual ~cCamera();
 
 			void UpdateCurrentCameraPosition();
-			void UpdateCurrentCameraOrientation(bool constrainPitch = true);
+			void UpdateCurrentCameraOrientation();
 
-			static cCamera* Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position = Math::cVector::zero, float fieldOfView = Math::ConvertDegreesToRadians(45.0f), float nearPlaneDistance = 0.1f, float farPlaneDistance = 10000.0f);
+			static cCamera* Initialize(const bool isFlyCam, const bool isStatic, const Math::cVector eularAngles, const Math::cVector position = Math::cVector::zero, const float fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float nearPlaneDistance = 0.1f, const  float farPlaneDistance = 10000.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
@@ -46,20 +48,17 @@ namespace eae6320
 
 
 		private:
-			inline cCamera(bool isStatic, Math::cVector eularAngles, Math::cVector position, Math::cQuaternion orientation, float fieldOfView, float nearPlaneDistance, float farPlaneDistance);
+			inline cCamera(const bool isFlyCam, const bool isStatic, const Math::cVector eularAngles, const Math::cVector position, const Math::cQuaternion orientation, const float fieldOfView, const float nearPlaneDistance, const float farPlaneDistance);
 
 			Math::cVector position;
-			Math::cVector front;
-			Math::cVector up;
-			Math::cVector right;
 			Math::cQuaternion orientation;
+			Math::cVector eularAngles;
 			float fieldOfView;
 			float nearPlaneDistance;
 			float farPlaneDistance;
 			float aspectRatio;
 			bool isStatic;
-
-			Math::cVector eularAngles;
+			bool isFlyCam;
 
 			static std::vector<cCamera*> sCameras;
 			static cCamera* sCurrentCamera;

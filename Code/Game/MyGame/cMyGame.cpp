@@ -115,16 +115,10 @@ bool eae6320::cMyGame::Initialize()
 #endif
 	}
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *mainCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 0.0f, 500.0f));
-	Camera::cCamera::PushBackToVector(mainCamera);
-	Camera::cCamera *frontLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 25.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
-	Camera::cCamera::PushBackToVector(frontLeftCamera);
-	Camera::cCamera *frontRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -25.0f, 0.0f), Math::cVector(5.0f, 5.0f, 50.0f));
-	Camera::cCamera::PushBackToVector(frontRightCamera);
-	Camera::cCamera *backLeftCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, 165.0f, 0.0f), Math::cVector(-5.0f, 5.0f, -50.0f));
-	Camera::cCamera::PushBackToVector(backLeftCamera);
-	Camera::cCamera *backRightCamera = Camera::cCamera::Initialize(false, Math::cVector(0.0f, -165.0f, 0.0f), Math::cVector(5.0f, 5.0f, -50.0f));
-	Camera::cCamera::PushBackToVector(backRightCamera);
+	Camera::cCamera *fpsCam = Camera::cCamera::Initialize(false, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(5.0f, 500.0f, 5.0f));
+	Camera::cCamera::PushBackToVector(fpsCam);
+	Camera::cCamera *flyCam = Camera::cCamera::Initialize(true, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
+	Camera::cCamera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
 	Camera::cCamera::UpdateMaxCameras();

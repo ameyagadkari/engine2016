@@ -11,7 +11,7 @@
 
 namespace
 {
-	const float s_epsilon = 1.0e-9f;
+	const float s_epsilon = 1.0e-10f;
 }
 
 const eae6320::Math::cVector eae6320::Math::cVector::right(1.0f, 0.0f, 0.0f);

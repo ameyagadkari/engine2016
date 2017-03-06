@@ -3,15 +3,16 @@
 #include "../UserSettings/UserSettings.h"
 #include "../UserInput/UserInput.h"
 #include "../Time/Time.h"
+#include "../Physics/Physics.h"
 
 namespace eae6320
 {
 	namespace Camera
 	{
-		std::vector<eae6320::Camera::cCamera*> cCamera::sCameras;
-		cCamera* cCamera::sCurrentCamera = NULL;
+		std::vector<cCamera*> cCamera::sCameras;
+		cCamera* cCamera::sCurrentCamera = nullptr;
 		size_t cCamera::sCurrentCameraNumber = 0;
-		size_t cCamera::sMaxCameraNumber = cCamera::sCameras.size();
+		size_t cCamera::sMaxCameraNumber = sCameras.size();
 #pragma region Gets
 		Math::cVector cCamera::GetPosition()const
 		{
@@ -66,22 +67,24 @@ namespace eae6320
 		}
 #pragma endregion
 		cCamera::cCamera(
-			bool isStatic,
-			Math::cVector eularAngles,
-			Math::cVector position,
-			Math::cQuaternion orientation,
-			float fieldOfView,
-			float nearPlaneDistance,
-			float farPlaneDistance)
+			const bool isFlyCam,
+			const bool isStatic,
+			const Math::cVector eularAngles,
+			const Math::cVector position,
+			const Math::cQuaternion orientation,
+			const float fieldOfView,
+			const float nearPlaneDistance,
+			const float farPlaneDistance)
 			:
-			isStatic(isStatic),
-			eularAngles(eularAngles),
 			position(position),
 			orientation(orientation),
+			eularAngles(eularAngles),
 			fieldOfView(fieldOfView),
 			nearPlaneDistance(nearPlaneDistance),
 			farPlaneDistance(farPlaneDistance),
-			aspectRatio(static_cast<float>(UserSettings::GetResolutionWidth() / UserSettings::GetResolutionHeight()))
+			aspectRatio(static_cast<float>(UserSettings::GetResolutionWidth() / UserSettings::GetResolutionHeight())),
+			isStatic(isStatic),
+			isFlyCam(isFlyCam)
 		{
 			UpdateCameraAxes();
 		}
@@ -95,24 +98,24 @@ namespace eae6320
 			front.z = -(cos(Math::ConvertDegreesToRadians(eularAngles.y)) * cos(Math::ConvertDegreesToRadians(eularAngles.x)));
 			front.y = -sin(Math::ConvertDegreesToRadians(eularAngles.x));
 			front.x = sin(Math::ConvertDegreesToRadians(eularAngles.y)) * cos(Math::ConvertDegreesToRadians(eularAngles.x));
-			
-			this->front = front.CreateNormalized();
+
+			this->localAxes.front = front.CreateNormalized();
 			// Also re-calculate the Right and Up vector
-			right = (Math::Cross(this->front, Math::cVector::up)).CreateNormalized();  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-			up = (Math::Cross(right, this->front)).CreateNormalized();
+			localAxes.right = (Cross(this->localAxes.front, Math::cVector::up)).CreateNormalized();  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+			localAxes.up = (Cross(localAxes.right, this->localAxes.front)).CreateNormalized();
 		}
 
-		cCamera * cCamera::Initialize(bool isStatic, Math::cVector eularAngles, Math::cVector position, float fieldOfView, float nearPlaneDistance, float farPlaneDistance)
+		cCamera * cCamera::Initialize(const bool isFlyCam, const bool isStatic, const Math::cVector eularAngles, const Math::cVector position, const float fieldOfView, const float nearPlaneDistance, const float farPlaneDistance)
 		{
 			Math::cQuaternion orientationX = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.x), Math::cVector::right);
 			Math::cQuaternion orientationY = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.y), Math::cVector::up);
 			//Math::cQuaternion orientationZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
 			Math::cQuaternion orientation = orientationX*orientationY;// *orientationZ;
-			cCamera *camera = new cCamera(isStatic, eularAngles, position, orientation, fieldOfView, nearPlaneDistance, farPlaneDistance);
+			cCamera *camera = new cCamera(isFlyCam, isStatic, eularAngles, position, orientation, fieldOfView, nearPlaneDistance, farPlaneDistance);
 			return camera;
 		}
 
-		bool eae6320::Camera::cCamera::CleanUp()
+		bool cCamera::CleanUp()
 		{
 			bool wereThereErrors = false;
 			for (size_t i = 0; i < sMaxCameraNumber; i++)
@@ -137,27 +140,40 @@ namespace eae6320
 				Math::cVector localOffset = Math::cVector::zero;
 
 				if (UserInput::IsKeyPressed('W'))
-					localOffset += front;
+					localOffset += localAxes.front;
 				if (UserInput::IsKeyPressed('S'))
-					localOffset -= front;
+					localOffset -= localAxes.front;
 				if (UserInput::IsKeyPressed('D'))
-					localOffset += right;
+					localOffset += localAxes.right;
 				if (UserInput::IsKeyPressed('A'))
-					localOffset -= right;
+					localOffset -= localAxes.right;
 				//if (UserInput::IsKeyPressed(0x4A))//J
 				//	localOffset.x -= 1.0f;
 				//if (UserInput::IsKeyPressed(0x4C))//L
 				//	localOffset.x += 1.0f;
 
-				const float speed_unitsPerSecond = 100.0f;
-				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				localOffset *= offsetModifier;
+				/*if (!isFlyCam)
+				{
+					localOffset.y = 0.0f;
+					if (!Physics::isPlayerOnGround)
+					{
+						localOffset -= localAxes.up;
+					}
+				}*/
 
+				const float speed_unitsPerSecond = 50.0f;
+				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
+				//localOffset *= offsetModifier;
+				if (!isFlyCam)
+				{
+					Physics::CheckCollision(position + localOffset, localAxes, localOffset);
+				}
+				localOffset *= offsetModifier;
 				position += localOffset;
 			}
 		}
 
-		void cCamera::UpdateCurrentCameraOrientation(bool constrainPitch)
+		void cCamera::UpdateCurrentCameraOrientation()
 		{
 
 			if (!isStatic)
@@ -182,7 +198,7 @@ namespace eae6320
 				localOffset *= offsetModifier;
 				eularAngles += localOffset;
 
-				if (constrainPitch)
+				if (!isFlyCam)
 				{
 					if (eularAngles.x > 89.0f)
 					{
@@ -199,7 +215,7 @@ namespace eae6320
 				//Math::cQuaternion orientationAroundZ = Math::cQuaternion(Math::ConvertDegreesToRadians(eularAngles.z), Math::cVector::forward);
 
 				orientation = orientationAroundX*orientationAroundY;// *orientationAroundZ;
-				
+
 			}
 		}
 
@@ -246,7 +262,7 @@ namespace eae6320
 			{
 				return sCurrentCamera;
 			}
-			return NULL;
+			return nullptr;
 		}
 
 		void cCamera::PushBackToVector(cCamera *camera)

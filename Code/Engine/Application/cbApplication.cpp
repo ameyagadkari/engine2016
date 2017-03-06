@@ -10,6 +10,7 @@
 #include "../Time/Time.h"
 #include "../UserOutput/UserOutput.h"
 #include "../Graphics/CommonData.h"
+#include "../Physics/Physics.h"
 
 // Interface
 //==========
@@ -139,6 +140,12 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 			return false;
 		}
 	}
+	// Physics
+	if (!Physics::Initialize())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
 	return true;
 }
 
@@ -177,6 +184,13 @@ bool eae6320::Application::cbApplication::CleanUp_all()
 bool eae6320::Application::cbApplication::CleanUp_engine()
 {
 	bool wereThereErrors = false;
+
+	// Graphics
+	if (!Physics::CleanUp())
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+	}
 
 	// Graphics
 	if ( !Graphics::CleanUp() )

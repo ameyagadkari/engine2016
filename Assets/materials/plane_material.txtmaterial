@@ -1,0 +1,8 @@
+-- Apple Material File
+return
+{
+	constant_buffer_data = 
+	{
+	},
+	effect_filepath = "effects/bothsidevisible_effect.txteffect",
+}
