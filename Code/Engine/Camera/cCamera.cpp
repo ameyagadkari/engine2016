@@ -161,9 +161,8 @@ namespace eae6320
 					}
 				}*/
 
-				const float speed_unitsPerSecond = 50.0f;
+				const float speed_unitsPerSecond = 250.0f;
 				const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-				//localOffset *= offsetModifier;
 				if (!isFlyCam)
 				{
 					Physics::CheckCollision(position + localOffset, localAxes, localOffset);
