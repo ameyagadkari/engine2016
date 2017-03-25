@@ -13,7 +13,7 @@
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Game/Debug/DebugObject.h"
 #include "../../Game/Debug/IUIController.h"
-#include "../Camera/cCamera.h"
+#include "../Camera/Camera.h"
 #include "../Graphics/CommonData.h"
 #include "cSprite.h"
 #include "Font.h"
@@ -44,7 +44,7 @@ namespace
 	ConstantBufferData::sFrame frameBufferData;
 	ConstantBuffer *frameBuffer = nullptr;
 	ConstantBuffer *drawCallBuffer = nullptr;
-	eae6320::Camera::cCamera* camera;
+	eae6320::Camera::Camera* camera;
 	HWND s_renderingWindow = nullptr;
 
 	void SortGameObjects();
@@ -69,7 +69,7 @@ namespace
 	bool CreateBindSamplerStates();
 }
 
-void eae6320::Graphics::SetCamera(Camera::cCamera * Camera)
+void eae6320::Graphics::SetCamera(Camera::Camera * Camera)
 {
 	camera = Camera;
 }

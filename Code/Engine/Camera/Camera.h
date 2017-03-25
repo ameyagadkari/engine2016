@@ -1,5 +1,5 @@
-#ifndef EAE6320_CCAMERA_H
-#define EAE6320_CCAMERA_H
+#ifndef EAE6320_CAMERA_H
+#define EAE6320_CAMERA_H
 
 #include "../Math/cVector.h"
 #include "../Math/cQuaternion.h"
@@ -11,21 +11,27 @@ namespace eae6320
 {
 	namespace Camera
 	{
-		class cCamera
+		class ICameraController;
+	}
+}
+
+namespace eae6320
+{
+	namespace Camera
+	{
+		class Camera
 		{
 		public:
-			LocalAxes localAxes;
-			inline virtual ~cCamera();
-
-			void UpdateCurrentCameraPosition();
-			void UpdateCurrentCameraOrientation();
-
-			static cCamera* Initialize(const bool isFlyCam, const bool isStatic, const Math::cVector eularAngles, const Math::cVector position = Math::cVector::zero, const float fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float nearPlaneDistance = 0.1f, const  float farPlaneDistance = 10000.0f);
+			
+			~Camera();
+			void UpdateCameraPosition();
+			void UpdateCameraOrientation();
+			static Camera* Initialize(const ICameraController* controller = nullptr, const Math::cVector position = Math::cVector::zero, const Math::cVector eularAngles = Math::cVector::zero, const float fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float nearPlaneDistance = 0.1f, const  float farPlaneDistance = 10000.0f);
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
 			static void ChangeCurrentCamera();
-			static void PushBackToVector(cCamera *camera);
+			static void PushBackToVector(Camera *camera);
 
 #pragma region Gets
 			Math::cVector GetPosition()const;
@@ -35,7 +41,8 @@ namespace eae6320
 			float GetNearPlaneDistance()const;
 			float GetFarPlaneDistance()const;
 			float GetAspectRatio() const;
-			static cCamera* GetCurrentCamera();
+			static Camera* GetCurrentCamera();
+			//LocalAxes GetLocalAxes()const;
 #pragma endregion
 
 #pragma region Sets
@@ -48,20 +55,20 @@ namespace eae6320
 
 
 		private:
-			inline cCamera(const bool isFlyCam, const bool isStatic, const Math::cVector eularAngles, const Math::cVector position, const Math::cQuaternion orientation, const float fieldOfView, const float nearPlaneDistance, const float farPlaneDistance);
+			Camera(const ICameraController* controller, const Math::cVector position, const Math::cVector eularAngles, const Math::cQuaternion orientation, const float fieldOfView, const float nearPlaneDistance, const float farPlaneDistance);
 
-			Math::cVector position;
+			LocalAxes localAxes;
 			Math::cQuaternion orientation;
+			Math::cVector position;
 			Math::cVector eularAngles;
+			const ICameraController* controller;
 			float fieldOfView;
 			float nearPlaneDistance;
 			float farPlaneDistance;
 			float aspectRatio;
-			bool isStatic;
-			bool isFlyCam;
-
-			static std::vector<cCamera*> sCameras;
-			static cCamera* sCurrentCamera;
+			
+			static std::vector<Camera*> sCameras;
+			static Camera* sCurrentCamera;
 			static size_t sCurrentCameraNumber;
 			static size_t sMaxCameraNumber;
 
@@ -69,4 +76,4 @@ namespace eae6320
 		};
 	}
 }
-#endif // !EAE6320_CCAMERA_H
+#endif // !EAE6320_CAMERA_H

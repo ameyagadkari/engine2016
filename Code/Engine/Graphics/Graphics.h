@@ -22,7 +22,7 @@ namespace eae6320
 {
 	namespace Camera
 	{
-		class cCamera;
+		class Camera;
 	}
 	namespace Gameplay
 	{
@@ -54,7 +54,7 @@ namespace eae6320
 		void SetGameObject(Gameplay::GameObject*gameObject);
 		void SetGameObject2D(Gameplay::GameObject2D*gameObject2d);
 		void SetDebugObject(Debug::Shapes::DebugObject*debugObject);
-		void SetCamera(Camera::cCamera* camera);
+		void SetCamera(Camera::Camera* camera);
 		void SetDebugUI(Debug::UI::IUIController*uiObject);
 		void RenderFrame();
 		

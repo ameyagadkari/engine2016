@@ -15,7 +15,9 @@
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
-#include "../../Engine/Camera/cCamera.h"
+#include "../../Engine/Camera/Camera.h"
+#include "../../Engine/Camera/FPSCameraController.h"
+#include "../../Engine/Camera/FlyCameraController.h"
 #include "../../Engine/Time/Time.h"
 
 
@@ -91,13 +93,13 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *fpsCam = Camera::cCamera::Initialize(false, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 100.0f, 400.0f));
-	Camera::cCamera::PushBackToVector(fpsCam);
-	Camera::cCamera *flyCam = Camera::cCamera::Initialize(true, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
-	Camera::cCamera::PushBackToVector(flyCam);
+	Camera::Camera *fpsCam = Camera::Camera::Initialize(Camera::FPSCameraController::Initialize(),Math::cVector(0.0f, 100.0f, 400.0f));
+	Camera::Camera::PushBackToVector(fpsCam);
+	Camera::Camera *flyCam = Camera::Camera::Initialize(Camera::FlyCameraController::Initialize(), Math::cVector(-5.0f, 5.0f, 50.0f));
+	Camera::Camera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
-	Camera::cCamera::UpdateMaxCameras();
+	Camera::Camera::UpdateMaxCameras();
 
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
@@ -142,7 +144,7 @@ void eae6320::cMyGame::ChangeCamera()
 	if (!Debug::UI::isDebugMenuEnabled)
 #endif
 	{
-		Camera::cCamera::ChangeCurrentCamera();
+		Camera::Camera::ChangeCurrentCamera();
 	}
 }
 
@@ -152,7 +154,7 @@ void eae6320::cMyGame::UpdateCameraPostion()
 	if (!Debug::UI::isDebugMenuEnabled)
 #endif
 	{
-		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraPosition();
+		Camera::Camera::GetCurrentCamera()->UpdateCameraPosition();
 	}
 }
 
@@ -196,14 +198,14 @@ void eae6320::cMyGame::UpdateCameraOrientation()
 	if (!Debug::UI::isDebugMenuEnabled)
 #endif
 	{
-		Camera::cCamera::GetCurrentCamera()->UpdateCurrentCameraOrientation();
+		Camera::Camera::GetCurrentCamera()->UpdateCameraOrientation();
 	}
 }
 
 
 void eae6320::cMyGame::SubmitCamera()
 {
-	Camera::cCamera *currentCamera = Camera::cCamera::GetCurrentCamera();
+	Camera::Camera *currentCamera = Camera::Camera::GetCurrentCamera();
 	if (currentCamera)
 	{
 		Graphics::SetCamera(currentCamera);
@@ -346,7 +348,7 @@ bool eae6320::cMyGame::CleanUp()
 		}
 		gameObjects2D.clear();
 	}
-	if (!Camera::cCamera::CleanUp())
+	if (!Camera::Camera::CleanUp())
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERT(false);

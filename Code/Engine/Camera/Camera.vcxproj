@@ -19,10 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cCamera.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FlyCameraController.cpp" />
+    <ClCompile Include="FPSCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cCamera.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="FlyCameraController.h" />
+    <ClInclude Include="FPSCameraController.h" />
+    <ClInclude Include="ICameraController.h" />
     <ClInclude Include="LocalAxes.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

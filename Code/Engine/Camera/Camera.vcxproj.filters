@@ -1,10 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="cCamera.cpp" />
+    <ClInclude Include="LocalAxes.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ICameraController.h" />
+    <ClInclude Include="FlyCameraController.h" />
+    <ClInclude Include="FPSCameraController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cCamera.h" />
-    <ClInclude Include="LocalAxes.h" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FlyCameraController.cpp" />
+    <ClCompile Include="FPSCameraController.cpp" />
   </ItemGroup>
 </Project>

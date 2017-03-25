@@ -90,7 +90,7 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const C
 			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, p1, p2, p3, u, v, w, t);
 			if (isPlayerOnGround) break;
 		}
-		!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
+		//!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
 	}
 }
 

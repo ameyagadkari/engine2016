@@ -8,9 +8,10 @@ namespace eae6320
 	{
 		struct LocalAxes
 		{
-			Math::cVector front;
-			Math::cVector up;
-			Math::cVector right;
+			Math::cVector m_forward;
+			Math::cVector m_up;
+			Math::cVector m_right;
+			LocalAxes():m_forward(Math::cVector::forward),m_up(Math::cVector::up),m_right(Math::cVector::right){}
 		};
 	}
 }
