@@ -10,8 +10,8 @@ return
 	gameobjects =
 	{
 		-- The actual assets can be defined simply as relative path strings (the common case)
-		"gameobjects/plane.txtgobj",
-		--[["gameobjects/center.txtgobj",
+		--"gameobjects/plane.txtgobj",
+		"gameobjects/center.txtgobj",
 		"gameobjects/ceiling.txtgobj",
 		"gameobjects/floor.txtgobj",
 		"gameobjects/frontwall.txtgobj",
@@ -26,7 +26,7 @@ return
 		"gameobjects/insidewalls.txtgobj",
 		"gameobjects/boxes.txtgobj",
 		"gameobjects/flags.txtgobj",
-		"gameobjects/wallbraceinner.txtgobj",]]
+		"gameobjects/wallbraceinner.txtgobj",
 	},
 	materials =
 	{
@@ -38,7 +38,7 @@ return
 	},
 	meshes =
 	{
-		"meshes/plane.txtmesh",
+		"meshes/collisiondata.txtmesh",
 	},
 	gameobjects2d =
 	{

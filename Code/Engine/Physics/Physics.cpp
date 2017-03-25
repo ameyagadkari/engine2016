@@ -4,17 +4,11 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 
-
 namespace
 {
-	const float s_epsilon = 1.0e-9f;
-	char const * const collsionDataPath = "data/meshes/plane.binmesh";
+	char const * const collsionDataPath = "data/meshes/collisiondata.binmesh";
 	eae6320::Platform::sDataFromFile binaryMesh;
-	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, eae6320::Math::cVector n1, eae6320::Math::cVector n2, eae6320::Math::cVector n3, float &u, float &v, float &w, float &t);
-
-	
-	//std::vector<bool> check;
-	//std::vector<size_t>indexes;
+	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, float &u, float &v, float &w, float &t);
 }
 
 namespace eae6320
@@ -76,40 +70,27 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const C
 	float u, v, w, t;
 	// Is grounded check
 	{
-		const Math::cVector q = i_newPosition - (i_localAxes.up*100.0f);
+		const Math::cVector q = i_newPosition - Math::cVector::up*100.0f;
+		uint32_t j1,j2,j3;
 		for (size_t i = 0; i < collisionData->numberOfIndices; i += 3)
 		{
-			const Math::cVector p1(collisionData->vertexData[i].x, collisionData->vertexData[i].y, collisionData->vertexData[i].z);
-			const Math::cVector p2(collisionData->vertexData[i + 1].x, collisionData->vertexData[i + 1].y, collisionData->vertexData[i + 1].z);
-			const Math::cVector p3(collisionData->vertexData[i + 2].x, collisionData->vertexData[i + 2].y, collisionData->vertexData[i + 2].z);
+#if defined( EAE6320_PLATFORM_D3D )
+			j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - i];
+			j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (i + 1)];
+			j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (i + 2)];
+#elif defined( EAE6320_PLATFORM_GL )
+			j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i];
+			j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i + 1];
+			j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i + 2];
+#endif
+			const Math::cVector p1(collisionData->vertexData[j1].x, collisionData->vertexData[j1].y, collisionData->vertexData[j1].z);
+			const Math::cVector p2(collisionData->vertexData[j2].x, collisionData->vertexData[j2].y, collisionData->vertexData[j2].z);
+			const Math::cVector p3(collisionData->vertexData[j3].x, collisionData->vertexData[j3].y, collisionData->vertexData[j3].z);
 
-			const Math::cVector n1(collisionData->vertexData[i].nx, collisionData->vertexData[i].ny, collisionData->vertexData[i].nz);
-			const Math::cVector n2(collisionData->vertexData[i + 1].nx, collisionData->vertexData[i + 1].ny, collisionData->vertexData[i + 1].nz);
-			const Math::cVector n3(collisionData->vertexData[i + 2].nx, collisionData->vertexData[i + 2].ny, collisionData->vertexData[i + 2].nz);
-
-			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, p1, p2, p3, n1, n2, n3, u, v, w, t);
-			//check.push_back(isPlayerOnGround);
-			if (isPlayerOnGround)
-			{
-				break;
-			}
+			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, p1, p2, p3, u, v, w, t);
+			if (isPlayerOnGround) break;
 		}
-		/*size_t length = check.size();
-		for (size_t i = 0; i < length; i++)
-		{
-			if (check[i])indexes.push_back(i);
-		}*/
-		//!isPlayerOnGround) ? o_localOffset -= o_localOffset.up : o_localOffset.y = 0.0f;
-		if (!isPlayerOnGround)
-		{
-			o_localOffset -= o_localOffset.up;
-		}
-		else
-		{
-			o_localOffset.y = 0.0f;
-		}
-		//check.clear();
-		//indexes.clear();
+		!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
 	}
 }
 
@@ -128,7 +109,7 @@ bool eae6320::Physics::CleanUp()
 
 namespace
 {
-	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, eae6320::Math::cVector n1, eae6320::Math::cVector n2, eae6320::Math::cVector n3, float &u, float &v, float &w, float &t)
+	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, float &u, float &v, float &w, float &t)
 	{
 		eae6320::Math::cVector ab = b - a;
 		eae6320::Math::cVector ac = c - a;
@@ -136,41 +117,29 @@ namespace
 
 		// Compute triangle normal. Can be precalculated or cached if
 		// intersecting multiple segments against the same triangle
-		/*eae6320::Math::cVector n = Cross(ab, ac);
-		//if (n.GetLength() > 1.0e-9f)
-		if (n != eae6320::Math::cVector::zero)
-		{
-			n = n.CreateNormalized();
-		}*/
-
-		eae6320::Math::cVector n = n1;
-		/*if (Dot(n, vertexNormal) < s_epsilon)
-		{
-			n = -n;
-		}*/
+		eae6320::Math::cVector n = Cross(ab, ac);
 
 		// Compute denominator d. If d <= 0, segment is parallel to or points
 		// away from triangle, so exit early
 		float d = Dot(qp, n);
-		if (d <= s_epsilon) return false;
+		if (d <= 0.0f) return false;
 
 		// Compute intersection t value of pq with plane of triangle. A ray
-		// intersects if 0 <= t. Segment intersects if 0 <= t <= 1. Delay
+		// intersects iff 0 <= t. Segment intersects iff 0 <= t <= 1. Delay
 		// dividing by d until intersection has been found to pierce triangle
 		eae6320::Math::cVector ap = p - a;
 		t = Dot(ap, n);
-		if (t < s_epsilon) return false;
+		if (t < 0.0f) return false;
 		if (t > d) return false; // For segment; exclude this code line for a ray test
 
 		// Compute barycentric coordinate components and test if within bounds
 		eae6320::Math::cVector e = Cross(qp, ap);
 		v = Dot(ac, e);
-		if (v < s_epsilon || v > d) return false;
+		if (v < 0.0f || v > d) return false;
 		w = -Dot(ab, e);
-		if (w < s_epsilon || v + w > d) return false;
+		if (w < 0.0f || v + w > d) return false;
 
-		// Segment/ray intersects triangle. Perform delayed division and
-		// compute the last barycentric coordinate component
+		// Segment/ray intersects triangle. Perform delayed division and compute the last barycentric coordinate component
 		float ood = 1.0f / d;
 		t *= ood;
 		v *= ood;

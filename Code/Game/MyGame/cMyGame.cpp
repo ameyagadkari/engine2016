@@ -89,8 +89,26 @@ bool eae6320::cMyGame::Initialize()
 		Debug::UI::IUIController::UpdateUIElements();
 #endif
 	}
+
+	//Make different cameras and pushback in cameras vector
+	Camera::cCamera *fpsCam = Camera::cCamera::Initialize(false, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(0.0f, 100.0f, 400.0f));
+	Camera::cCamera::PushBackToVector(fpsCam);
+	Camera::cCamera *flyCam = Camera::cCamera::Initialize(true, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
+	Camera::cCamera::PushBackToVector(flyCam);
+
+	//After adding all cameras, doing this is must
+	Camera::cCamera::UpdateMaxCameras();
+
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition(), { 1.0f, 0.0f, 0.0f }));
+		//debugObjects.back()->CreateLine(Camera::cCamera::GetCurrentCamera()->GetPosition()+Math::cVector(0.0f,-1.0f,0.0f));
+		//resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
+		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition(), { 0.0f, 1.0f, 1.0f }));
+		//debugObjects.back()->CreateSphere(1, 20, 20);
+
+		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition() - (Camera::cCamera::GetCurrentCamera()->localAxes.up*10.0f), { 1.0f, 0.0f, 1.0f }));
+		//debugObjects.back()->CreateSphere(1, 20, 20);
 		//Debug Shape Lines
 		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), { 1.0f, 0.0f, 0.0f }));
 		debugObjects.back()->CreateLine(Math::cVector(10.0f, 10.0f, 10.0f));
@@ -102,9 +120,9 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(60.0f, 10.0f, -50.0f), { 1.0f, 1.0f, 0.0f }));
 		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);*/
 		//Debug Shape Spheres
-		resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
-		debugObjects.back()->CreateSphere(resetRadius, 20, 20);
+		//resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
+		//debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
+		//debugObjects.back()->CreateSphere(resetRadius, 20, 20);
 		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
 		debugObjects.back()->CreateSphere(20.0f, 20, 20);
 		//Debug Shape Cylinders
@@ -114,14 +132,6 @@ bool eae6320::cMyGame::Initialize()
 		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);*/
 #endif
 	}
-	//Make different cameras and pushback in cameras vector
-	Camera::cCamera *fpsCam = Camera::cCamera::Initialize(false, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(5.0f, 500.0f, 5.0f));
-	Camera::cCamera::PushBackToVector(fpsCam);
-	Camera::cCamera *flyCam = Camera::cCamera::Initialize(true, false, Math::cVector(0.0f, 0.0f, 0.0f), Math::cVector(-5.0f, 5.0f, 50.0f));
-	Camera::cCamera::PushBackToVector(flyCam);
-
-	//After adding all cameras, doing this is must
-	Camera::cCamera::UpdateMaxCameras();
 
 	return !wereThereErrors;
 }

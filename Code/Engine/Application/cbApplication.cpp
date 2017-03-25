@@ -239,10 +239,10 @@ void eae6320::Application::cbApplication::OnNewFrame()
 	ChangeCamera();
 	UpdateCameraPostion();
 	UpdateCameraOrientation();
-	SubmitCamera();
 	UpdateGameObjectPosition();
 	UpdateGameObjectOrientation();
 	UpdateDebugUI();
+	SubmitCamera();
 	SubmitDrawcallData3D();
 	SubmitDebugShapeData3D();
 	SubmitDebugUIData2D();
