@@ -162,6 +162,7 @@ void eae6320::Graphics::RenderFrame()
 		size_t length = unsortedDebugObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{
+			if (!unsortedDebugObjects[i]->GetIsDisplayed())continue;
 			ConstantBufferData::sDrawCall drawCallBufferData;
 			Material*material = Debug::Shapes::DebugObject::GetMaterial();
 			if (currentMaterialUUID != material->GetMaterialUUID())

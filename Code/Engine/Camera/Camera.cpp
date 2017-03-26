@@ -3,6 +3,7 @@
 #include "../UserSettings/UserSettings.h"
 #include "../UserInput/UserInput.h"
 #include "ICameraController.h"
+#include "../../Game/Debug/DebugObject.h"
 
 
 std::vector<eae6320::Camera::Camera*> eae6320::Camera::Camera::sCameras;
@@ -91,6 +92,10 @@ eae6320::Camera::Camera::Camera
 	aspectRatio(static_cast<float>(UserSettings::GetResolutionWidth() / UserSettings::GetResolutionHeight()))
 {
 	UpdateCameraAxes();
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+	m_sphere = new Debug::Shapes::DebugObject(true, position, { 1.0f,0.5f,0.0f });
+	m_sphere->CreateSphere(20.0f, 20, 20);
+#endif
 }
 
 eae6320::Camera::Camera::~Camera() { if (controller)delete controller; }
@@ -159,6 +164,9 @@ void eae6320::Camera::Camera::UpdateMaxCameras()
 	if (sMaxCameraNumber > 0 && !sCurrentCamera)
 	{
 		sCurrentCamera = sCameras[0];
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+#endif
 	}
 }
 
@@ -166,6 +174,10 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 {
 	if (UserInput::IsKeyPressedOnce('C'))
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		sCurrentCamera->m_sphere->SetIsDisplayed(true);
+		sCurrentCamera->m_sphere->SetPosition(sCurrentCamera->position);
+#endif
 		if (sCurrentCameraNumber == sMaxCameraNumber - 1)
 		{
 			sCurrentCameraNumber = 0;
@@ -175,9 +187,16 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 			sCurrentCameraNumber++;
 		}
 		sCurrentCamera = sCameras[sCurrentCameraNumber];
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+#endif
 	}
 	if (UserInput::IsKeyPressedOnce('V'))
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		sCurrentCamera->m_sphere->SetIsDisplayed(true);
+		sCurrentCamera->m_sphere->SetPosition(sCurrentCamera->position);
+#endif
 		if (sCurrentCameraNumber == 0)
 		{
 			sCurrentCameraNumber = sMaxCameraNumber - 1;
@@ -187,6 +206,9 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 			sCurrentCameraNumber--;
 		}
 		sCurrentCamera = sCameras[sCurrentCameraNumber];
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+#endif
 	}
 }
 
@@ -203,4 +225,3 @@ void eae6320::Camera::Camera::PushBackToVector(Camera* camera)
 {
 	sCameras.push_back(camera);
 }
-

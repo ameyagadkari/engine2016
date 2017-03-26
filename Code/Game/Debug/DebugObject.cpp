@@ -22,6 +22,18 @@ namespace eae6320
 		namespace Shapes
 		{
 			Graphics::Material* DebugObject::ms_material = nullptr;
+#pragma region Sets
+			void DebugObject::SetPosition(const Math::cVector i_position)
+			{
+				m_position = i_position;
+			}
+			void DebugObject::SetIsDisplayed(const bool i_isDisplayed)
+			{
+				m_isDisplayed = i_isDisplayed;
+			}
+#pragma endregion 
+
+#pragma region Gets
 			Graphics::Material* DebugObject::GetMaterial()
 			{
 				return ms_material;
@@ -34,17 +46,23 @@ namespace eae6320
 			{
 				return m_position;
 			}
+			bool DebugObject::GetIsDisplayed() const
+			{
+				return m_isDisplayed;
+			}
 			void DebugObject::GetColor(float& o_r, float& o_g, float& o_b)const
 			{
 				o_r = m_color.r;
 				o_g = m_color.g;
 				o_b = m_color.b;
 			}
-			DebugObject::DebugObject(const Math::cVector i_position, const Color i_color) :
+#pragma endregion 
+			DebugObject::DebugObject(const bool i_isDisplayed,const Math::cVector i_position, const Color i_color) :
 				m_position(i_position),
 				m_color(i_color),
 				m_mesh(new Graphics::Mesh()),
-				m_meshData(nullptr)
+				m_meshData(nullptr),
+				m_isDisplayed(i_isDisplayed)
 			{
 				if (!ms_material)
 				{

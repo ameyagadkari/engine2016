@@ -103,35 +103,8 @@ bool eae6320::cMyGame::Initialize()
 
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition(), { 1.0f, 0.0f, 0.0f }));
-		//debugObjects.back()->CreateLine(Camera::cCamera::GetCurrentCamera()->GetPosition()+Math::cVector(0.0f,-1.0f,0.0f));
-		//resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
-		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition(), { 0.0f, 1.0f, 1.0f }));
-		//debugObjects.back()->CreateSphere(1, 20, 20);
-
-		//debugObjects.push_back(new Debug::Shapes::DebugObject(Camera::cCamera::GetCurrentCamera()->GetPosition() - (Camera::cCamera::GetCurrentCamera()->localAxes.up*10.0f), { 1.0f, 0.0f, 1.0f }));
-		//debugObjects.back()->CreateSphere(1, 20, 20);
-		//Debug Shape Lines
-		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-10.0f, 0.0f, 0.0f), { 1.0f, 0.0f, 0.0f }));
-		debugObjects.back()->CreateLine(Math::cVector(10.0f, 10.0f, 10.0f));
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, 0.0f, 0.0f), { 0.0f, 1.0f, 0.0f }));
-		debugObjects.back()->CreateLine(Math::cVector(10.0f, 20.0f, 40.0f));
-		//Debug Shape Boxes
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-60.0f, 10.0f, -50.0f), { 0.0f, 0.0f, 1.0f }));
-		debugObjects.back()->CreateBox(10.0f, 10.0f, 10.0f);
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(60.0f, 10.0f, -50.0f), { 1.0f, 1.0f, 0.0f }));
-		debugObjects.back()->CreateBox(10.0f, 20.0f, 40.0f);*/
-		//Debug Shape Spheres
-		//resetRadius = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
-		//debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(0.0f, -100.0f, 0.0f), { 0.0f, 1.0f, 1.0f }));
-		//debugObjects.back()->CreateSphere(resetRadius, 20, 20);
-		/*debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(30.0f, -70.0f, -75.0f), { 1.0f, 0.0f, 1.0f }));
-		debugObjects.back()->CreateSphere(20.0f, 20, 20);
-		//Debug Shape Cylinders
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(-40.0f, -20.0f, -100.0f), { 1.0f, 0.5f, 0.0f }));
-		debugObjects.back()->CreateCylinder(20.0f, 10.0f, 40.0f, 10, 10);
-		debugObjects.push_back(new Debug::Shapes::DebugObject(Math::cVector(40.0f, -20.0f, -100.0f), { 0.5f, 1.0f, 0.0f }));
-		debugObjects.back()->CreateCylinder(10.0f, 20.0f, 40.0f, 10, 10);*/
+		debugObjects.push_back(fpsCam->m_sphere);
+		debugObjects.push_back(flyCam->m_sphere);
 #endif
 	}
 
@@ -175,7 +148,7 @@ void eae6320::cMyGame::UpdateDebugUI()
 			const float valueAfterUpdate = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
 			if (valueBeforeUpdate != valueAfterUpdate)
 			{
-				debugObjects[0]->UpdateSphere(valueAfterUpdate);
+				//debugObjects[0]->UpdateSphere(valueAfterUpdate);
 			}
 		}
 		if (Debug::UI::debugUIs[3])
@@ -183,7 +156,7 @@ void eae6320::cMyGame::UpdateDebugUI()
 			Debug::UI::debugUIs[3]->Update();
 			if (reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->GetState())
 			{
-				debugObjects[0]->UpdateSphere(resetRadius);
+				//debugObjects[0]->UpdateSphere(resetRadius);
 				reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->Reset(resetRadius);
 				reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->SetState(false);
 			}

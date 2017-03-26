@@ -28,12 +28,20 @@ namespace eae6320
 			class DebugObject
 			{
 			public:
+#pragma region Sets
+				void SetPosition(const Math::cVector i_position);
+				void SetIsDisplayed(const bool i_isDisplayed);
+#pragma endregion 
+
+#pragma region Gets
 				static Graphics::Material* GetMaterial();
 				Graphics::Mesh* GetMesh()const;
 				Math::cVector GetPosition()const;
 				void GetColor(float& o_r, float& o_g, float& o_b)const;
+				bool GetIsDisplayed()const;
+#pragma endregion 
 
-				explicit DebugObject(const Math::cVector i_position = Math::cVector::zero, const Color i_color = { 1.0f,1.0f,1.0f });
+				explicit DebugObject(const bool i_isDisplayed = true, const Math::cVector i_position = Math::cVector::zero, const Color i_color = { 1.0f,1.0f,1.0f });
 				~DebugObject();
 
 				void CreateLine(const Math::cVector i_end);
@@ -49,6 +57,7 @@ namespace eae6320
 				static Graphics::Material* ms_material;
 				Graphics::Mesh* m_mesh;				
 				Graphics::MeshData* m_meshData;
+				bool m_isDisplayed;
 			};		
 		}
 	}

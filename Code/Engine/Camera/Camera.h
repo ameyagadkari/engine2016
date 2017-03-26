@@ -17,12 +17,23 @@ namespace eae6320
 
 namespace eae6320
 {
+	namespace Debug
+	{
+		namespace Shapes
+		{
+			class DebugObject;
+		}
+	}
+}
+
+namespace eae6320
+{
 	namespace Camera
 	{
 		class Camera
 		{
 		public:
-			
+			Debug::Shapes::DebugObject* m_sphere;
 			~Camera();
 			void UpdateCameraPosition();
 			void UpdateCameraOrientation();
