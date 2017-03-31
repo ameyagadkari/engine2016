@@ -3,6 +3,7 @@
 #include "../Time/Time.h"
 #include "../StringHandler/HashedString.h"
 #include "../Physics/Physics.h"
+#include "../Physics/HitData.h"
 
 uint32_t const eae6320::Camera::FPSCameraController::classUUID = StringHandler::HashedString("FPSCameraController").GetHash();
 
@@ -28,8 +29,20 @@ void eae6320::Camera::FPSCameraController::UpdateCameraPosition(const LocalAxes 
 	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 	localOffset *= offsetModifier;
 	localOffset.y = 0.0f;
-	Physics::CheckCollision(o_position + localOffset, i_localAxes, localOffset);
-	if (!Physics::isPlayerOnGround)localOffset -= Math::cVector::up*25.0f;
+	Physics::HitData forwardHitData;
+	CheckCollision(o_position + localOffset, i_localAxes, &forwardHitData);
+	if (!Physics::isPlayerOnGround)localOffset -= Math::cVector::up*10.0f;
+	if (Physics::isPlayerFowardHit)
+	{	
+		float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
+		float dist = Dot(forwardHitData.normal, o_position + localOffset) + d;
+		Math::cVector currentProjection = (o_position + localOffset) - (forwardHitData.normal*dist);
+		Math::cVector newForward = (forwardHitData.intersectionPoint - currentProjection);
+		localOffset -= i_localAxes.m_forward*offsetModifier;
+		localOffset += newForward*10.0f;
+	}
+	Physics::isPlayerOnGround = true;
+	Physics::isPlayerFowardHit = false;
 	o_position += localOffset;
 }
 

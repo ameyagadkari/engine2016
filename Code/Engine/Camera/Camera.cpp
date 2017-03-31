@@ -5,11 +5,17 @@
 #include "ICameraController.h"
 #include "../../Game/Debug/DebugObject.h"
 
+#define NUMBER_OF_SPHERES 3
 
 std::vector<eae6320::Camera::Camera*> eae6320::Camera::Camera::sCameras;
 eae6320::Camera::Camera* eae6320::Camera::Camera::sCurrentCamera = nullptr;
 size_t eae6320::Camera::Camera::sCurrentCameraNumber = 0;
 size_t eae6320::Camera::Camera::sMaxCameraNumber = sCameras.size();
+
+namespace
+{
+	bool sphereState = true;
+}
 
 #pragma region Gets
 eae6320::Math::cVector eae6320::Camera::Camera::GetPosition()const
@@ -93,12 +99,23 @@ eae6320::Camera::Camera::Camera
 {
 	UpdateCameraAxes();
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-	m_sphere = new Debug::Shapes::DebugObject(true, position, { 1.0f,0.5f,0.0f });
-	m_sphere->CreateSphere(20.0f, 20, 20);
+	m_sphere = reinterpret_cast<Debug::Shapes::DebugObject**>(malloc(NUMBER_OF_SPHERES * sizeof(Debug::Shapes::DebugObject)));
+	//*m_sphere = Debug::Shapes::DebugObject(true, position, { 1.0f,0.5f,0.0f });
+	for (size_t i = 0; i < NUMBER_OF_SPHERES; i++)
+	{
+		m_sphere[i] = new Debug::Shapes::DebugObject(true, position, { 1.0f,0.5f,0.0f });
+	}
+	m_sphere[0]->CreateSphere(20.0f, 20, 20);
+	m_sphere[1]->CreateLine(Math::cVector::zero);
+	m_sphere[2]->CreateLine(Math::cVector::zero);
 #endif
 }
 
-eae6320::Camera::Camera::~Camera() { if (controller)delete controller; }
+eae6320::Camera::Camera::~Camera() 
+{ 
+	if (controller)delete controller;
+	if (m_sphere)delete[]m_sphere;
+}
 
 void eae6320::Camera::Camera::UpdateCameraAxes()
 {
@@ -142,7 +159,11 @@ bool eae6320::Camera::Camera::CleanUp()
 
 void eae6320::Camera::Camera::UpdateCameraPosition()
 {
-	if (controller)controller->UpdateCameraPosition(localAxes,position);	
+	if (controller)controller->UpdateCameraPosition(localAxes, position);
+	sCurrentCamera->m_sphere[1]->SetPosition(sCurrentCamera->position);
+	sCurrentCamera->m_sphere[2]->SetPosition(sCurrentCamera->position);
+	sCurrentCamera->m_sphere[1]->UpdateLine(sCurrentCamera->position - Math::cVector::up*100.0f);
+	sCurrentCamera->m_sphere[2]->UpdateLine(sCurrentCamera->position + localAxes.m_forward*100.0f);
 }
 
 void eae6320::Camera::Camera::UpdateCameraOrientation()
@@ -165,7 +186,7 @@ void eae6320::Camera::Camera::UpdateMaxCameras()
 	{
 		sCurrentCamera = sCameras[0];
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+		sCurrentCamera->ChangeSphereState();
 #endif
 	}
 }
@@ -175,8 +196,8 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 	if (UserInput::IsKeyPressedOnce('C'))
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		sCurrentCamera->m_sphere->SetIsDisplayed(true);
-		sCurrentCamera->m_sphere->SetPosition(sCurrentCamera->position);
+		sCurrentCamera->ChangeSphereState();
+		sCurrentCamera->m_sphere[0]->SetPosition(sCurrentCamera->position);
 #endif
 		if (sCurrentCameraNumber == sMaxCameraNumber - 1)
 		{
@@ -188,14 +209,14 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 		}
 		sCurrentCamera = sCameras[sCurrentCameraNumber];
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+		sCurrentCamera->ChangeSphereState();
 #endif
 	}
 	if (UserInput::IsKeyPressedOnce('V'))
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		sCurrentCamera->m_sphere->SetIsDisplayed(true);
-		sCurrentCamera->m_sphere->SetPosition(sCurrentCamera->position);
+		sCurrentCamera->ChangeSphereState();
+		sCurrentCamera->m_sphere[0]->SetPosition(sCurrentCamera->position);
 #endif
 		if (sCurrentCameraNumber == 0)
 		{
@@ -207,7 +228,7 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 		}
 		sCurrentCamera = sCameras[sCurrentCameraNumber];
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		sCurrentCamera->m_sphere->SetIsDisplayed(false);
+		sCurrentCamera->ChangeSphereState();
 #endif
 	}
 }
@@ -224,4 +245,14 @@ eae6320::Camera::Camera* eae6320::Camera::Camera::GetCurrentCamera()
 void eae6320::Camera::Camera::PushBackToVector(Camera* camera)
 {
 	sCameras.push_back(camera);
+}
+
+void eae6320::Camera::Camera::ChangeSphereState() const
+{
+	m_sphere[0]->SetIsDisplayed(sphereState);
+	for (size_t i = 1; i < NUMBER_OF_SPHERES; i++)
+	{
+		m_sphere[i]->SetIsDisplayed(sphereState);
+	}
+	//sphereState = !sphereState;
 }

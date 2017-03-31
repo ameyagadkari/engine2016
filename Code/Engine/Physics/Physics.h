@@ -16,11 +16,20 @@ namespace eae6320
 {
 	namespace Physics
 	{
+		struct HitData;
+	}
+}
+
+namespace eae6320
+{
+	namespace Physics
+	{
 		bool Initialize();
 		bool CleanUp();
-		void CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, Math::cVector& o_localOffset);
+		void CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, HitData* o_forwardHitData);
 
 		extern bool isPlayerOnGround;
+		extern bool isPlayerFowardHit;
 		extern Graphics::MeshData* collisionData;
 	}
 }

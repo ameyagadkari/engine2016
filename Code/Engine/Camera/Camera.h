@@ -33,7 +33,7 @@ namespace eae6320
 		class Camera
 		{
 		public:
-			Debug::Shapes::DebugObject* m_sphere;
+			Debug::Shapes::DebugObject** m_sphere;
 			~Camera();
 			void UpdateCameraPosition();
 			void UpdateCameraOrientation();
@@ -84,6 +84,7 @@ namespace eae6320
 			static size_t sMaxCameraNumber;
 
 			void UpdateCameraAxes();
+			void ChangeSphereState() const;
 		};
 	}
 }

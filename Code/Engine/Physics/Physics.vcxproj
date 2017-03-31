@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HitData.h" />
     <ClInclude Include="Physics.h" />
   </ItemGroup>
   <ItemGroup>

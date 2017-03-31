@@ -103,8 +103,14 @@ bool eae6320::cMyGame::Initialize()
 
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		debugObjects.push_back(fpsCam->m_sphere);
-		debugObjects.push_back(flyCam->m_sphere);
+		for (size_t i = 0; i < 3; i++)
+		{
+			debugObjects.push_back(fpsCam->m_sphere[i]);
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			debugObjects.push_back(flyCam->m_sphere[i]);
+		}
 #endif
 	}
 
@@ -347,13 +353,10 @@ namespace
 			do
 			{
 				if (!strcmp(search_data.cFileName, "."))continue;
-				else if (!strcmp(search_data.cFileName, ".."))continue;
-				else if (!strcmp(search_data.cFileName, "ui"))continue;
-				else
-				{
-					relativePaths.push_back((prefix + search_data.cFileName).c_str());
-					fileNames.push_back(std::regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
-				}
+				if (!strcmp(search_data.cFileName, ".."))continue;
+				if (!strcmp(search_data.cFileName, "ui"))continue;
+				relativePaths.push_back((prefix + search_data.cFileName).c_str());
+				fileNames.push_back(std::regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);

@@ -3,12 +3,21 @@
 #include "../Platform/Platform.h"
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
+#include "HitData.h"
 
 namespace
 {
 	char const * const collsionDataPath = "data/meshes/collisiondata.binmesh";
-	eae6320::Platform::sDataFromFile binaryMesh;
+
 	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, float &u, float &v, float &w, float &t);
+
+	// Helper Struct 
+	struct Triangle
+	{
+		eae6320::Math::cVector a, b, c;
+	};
+	Triangle* triangles = nullptr;
+	size_t numberOfTriangles = 0;
 }
 
 namespace eae6320
@@ -16,13 +25,14 @@ namespace eae6320
 	namespace Physics
 	{
 		bool isPlayerOnGround = false;
+		bool isPlayerFowardHit = false;
 		Graphics::MeshData* collisionData = nullptr;
 	}
 }
 bool eae6320::Physics::Initialize()
 {
 	bool wereThereErrors = false;
-
+	Platform::sDataFromFile binaryMesh;
 	// Load the binary mesh file
 	{
 		std::string errorMessage;
@@ -61,49 +71,71 @@ bool eae6320::Physics::Initialize()
 		collisionData->indexData = data;
 	}
 
-OnExit:
-	return !wereThereErrors;
-}
-
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, Math::cVector& o_localOffset)
-{
-	float u, v, w, t;
-	// Is grounded check
+	numberOfTriangles = collisionData->numberOfIndices / 3;
+	triangles = reinterpret_cast<Triangle*>(malloc(numberOfTriangles * sizeof(Triangle)));
+	uint32_t j1, j2, j3;
+	for (size_t i = 0, k = 0; i < numberOfTriangles; i++, k += 3)
 	{
-		const Math::cVector q = i_newPosition - Math::cVector::up*100.0f;
-		uint32_t j1,j2,j3;
-		for (size_t i = 0; i < collisionData->numberOfIndices; i += 3)
-		{
 #if defined( EAE6320_PLATFORM_D3D )
-			j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - i];
-			j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (i + 1)];
-			j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (i + 2)];
+		j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - k];
+		j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (k + 1)];
+		j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[collisionData->numberOfIndices - 1 - (k + 2)];
 #elif defined( EAE6320_PLATFORM_GL )
-			j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i];
-			j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i + 1];
-			j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[i + 2];
+		j1 = reinterpret_cast<uint32_t*>(collisionData->indexData)[k];
+		j2 = reinterpret_cast<uint32_t*>(collisionData->indexData)[k + 1];
+		j3 = reinterpret_cast<uint32_t*>(collisionData->indexData)[k + 2];
 #endif
-			const Math::cVector p1(collisionData->vertexData[j1].x, collisionData->vertexData[j1].y, collisionData->vertexData[j1].z);
-			const Math::cVector p2(collisionData->vertexData[j2].x, collisionData->vertexData[j2].y, collisionData->vertexData[j2].z);
-			const Math::cVector p3(collisionData->vertexData[j3].x, collisionData->vertexData[j3].y, collisionData->vertexData[j3].z);
-
-			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, p1, p2, p3, u, v, w, t);
-			if (isPlayerOnGround) break;
-		}
-		//!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
+		triangles[i].a = Math::cVector(collisionData->vertexData[j1].x, collisionData->vertexData[j1].y, collisionData->vertexData[j1].z);
+		triangles[i].b = Math::cVector(collisionData->vertexData[j2].x, collisionData->vertexData[j2].y, collisionData->vertexData[j2].z);
+		triangles[i].c = Math::cVector(collisionData->vertexData[j3].x, collisionData->vertexData[j3].y, collisionData->vertexData[j3].z);
 	}
-}
 
-bool eae6320::Physics::CleanUp()
-{
+OnExit:
 	if (collisionData)
 	{
-		binaryMesh.Free();
 		collisionData->vertexData = nullptr;
 		collisionData->indexData = nullptr;
 		delete collisionData;
 		collisionData = nullptr;
 	}
+	binaryMesh.Free();
+	return !wereThereErrors;
+}
+
+void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, HitData* o_forwardHitData)
+{
+	float u, v, w, t;
+	// Is grounded check
+	{
+		const Math::cVector q = i_newPosition - Math::cVector::up*100.0f;
+		for (size_t i = 0; i < numberOfTriangles; i++)
+		{
+			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
+			if (isPlayerOnGround) break;
+		}
+		//!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
+	}
+	// Forward check
+	{
+		const Math::cVector q = i_newPosition + i_localAxes.m_forward*100.0f;
+		for (size_t i = 0; i < numberOfTriangles; i++)
+		{
+			isPlayerFowardHit = IntersectSegmentTriangle(i_newPosition, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
+			if (isPlayerFowardHit)
+			{
+				Math::cVector ab = triangles[i].b - triangles[i].a;
+				Math::cVector ac = triangles[i].c - triangles[i].a;
+				o_forwardHitData->normal = Cross(ab, ac).CreateNormalized();
+				o_forwardHitData->intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
+				break;
+			}
+		}
+	}
+}
+
+bool eae6320::Physics::CleanUp()
+{
+	if (triangles)free(triangles);
 	return true;
 }
 

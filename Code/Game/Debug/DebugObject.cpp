@@ -378,6 +378,23 @@ namespace eae6320
 				}
 			}
 
+			void DebugObject::UpdateLine(const Math::cVector i_newEnd)
+			{
+				if (m_mesh)
+				{
+					delete m_mesh;
+					m_mesh = nullptr;
+				}
+				m_mesh = new Graphics::Mesh();
+				m_meshData->vertexData[1].AddVertexData(i_newEnd.x, i_newEnd.y, i_newEnd.z);
+
+				if (!m_mesh->Initialize(*m_meshData))
+				{
+					EAE6320_ASSERT(false);
+					Logging::OutputError("Failed to update debug line");
+				}
+			}
+
 			void DebugObject::CreateCylinder(const float i_bottomRadius, const float i_topRadius, const float i_height, const uint32_t i_sliceCount, const uint32_t i_stackCount)
 			{
 				EAE6320_ASSERTF(i_bottomRadius > 0.0f, "Specified bottom radius: %f is negative", i_bottomRadius);

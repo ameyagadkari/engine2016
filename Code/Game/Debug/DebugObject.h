@@ -49,6 +49,7 @@ namespace eae6320
 				void CreateSphere(const float i_radius, const uint32_t i_sliceCount, const uint32_t i_stackCount);
 				void CreateCylinder(const float i_bottomRadius, const float i_topRadius, const float i_height, const uint32_t i_sliceCount, const uint32_t i_stackCount);
 
+				void UpdateLine(const Math::cVector i_newEnd);
 				void UpdateSphere(const float i_radius);
 
 			private:
