@@ -1,10 +1,10 @@
 #ifndef EAE6320_LOCALAXES_H
 #define EAE6320_LOCALAXES_H
-#include "../Math/cVector.h"
+#include "../../Engine/Math/cVector.h"
 
 namespace eae6320
 {
-	namespace Camera
+	namespace Gameplay
 	{
 		struct LocalAxes
 		{

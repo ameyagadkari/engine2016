@@ -69,7 +69,8 @@ eae6320::Math::cVector& eae6320::Math::cVector::operator *=( const float i_rhs )
 	z *= i_rhs;
 	return *this;
 }
-eae6320::Math::cVector operator *( const float i_lhs, const eae6320::Math::cVector& i_rhs )
+
+eae6320::Math::cVector eae6320::Math::operator *( const float i_lhs, const cVector& i_rhs )
 {
 	return i_rhs * i_lhs;
 }
@@ -94,21 +95,29 @@ eae6320::Math::cVector& eae6320::Math::cVector::operator /=( const float i_rhs )
 // Length / Normalization
 float eae6320::Math::cVector::GetLength() const
 {
-	return std::sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
+	return sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
 }
-float eae6320::Math::cVector::Normalize()
+
+void eae6320::Math::cVector::Normalize()
 {
 	const float length = GetLength();
 	EAE6320_ASSERTF( length > s_epsilon, "Can't divide by zero" );
 	operator /=( length );
-	return length;
 }
+
 eae6320::Math::cVector eae6320::Math::cVector::CreateNormalized() const
 {
 	const float length = GetLength();
 	EAE6320_ASSERTF( length > s_epsilon, "Can't divide by zero" );
 	const float length_reciprocal = 1.0f / length;
 	return cVector( x * length_reciprocal, y * length_reciprocal, z * length_reciprocal );
+}
+
+eae6320::Math::cVector eae6320::Math::cVector::ClampMagnitude(const float i_maxLength) const
+{
+	const float currentLength = GetLength();
+	if(currentLength > s_epsilon) return *this*(i_maxLength / currentLength);
+	return  *this;
 }
 
 // Products

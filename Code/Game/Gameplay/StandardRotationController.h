@@ -1,22 +1,22 @@
 #ifndef EAE6320_STANDARD_ROTATION_CONTROLLER_H
 #define EAE6320_STANDARD_ROTATION_CONTROLLER_H
 
-#include "IGameObjectController.h"
+#include "cbController.h"
 #include <cstdint>
 namespace eae6320
 {
 	namespace Gameplay
 	{
-		class StandardRotationController final : IGameObjectController
+		class StandardRotationController final : cbController
 		{
 		public:
 			static const uint32_t classUUID;
-			static StandardRotationController* Initialize();
+			static StandardRotationController* Initialize(const float i_speed = 0.0f) { return new StandardRotationController(i_speed); }
 		private:
-			StandardRotationController();
-			Math::cVector UpdatePosition()override;
-			Math::cVector UpdateOrientation(RotationAxis axis)override;
-			float rotationSpeed;
+			explicit StandardRotationController(const float i_speed) : m_speed(i_speed) {}
+			void UpdatePosition(const LocalAxes i_localAxes, Math::cVector& o_position) override;
+			void UpdateOrientation(Math::cVector& o_eularAngles)const override;
+			const float m_speed;
 		};
 	}
 }

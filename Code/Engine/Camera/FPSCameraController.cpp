@@ -2,17 +2,13 @@
 #include "../UserInput/UserInput.h"
 #include "../Time/Time.h"
 #include "../StringHandler/HashedString.h"
+#include "../../Game/Gameplay/LocalAxes.h"
 #include "../Physics/Physics.h"
 #include "../Physics/HitData.h"
 
 uint32_t const eae6320::Camera::FPSCameraController::classUUID = StringHandler::HashedString("FPSCameraController").GetHash();
 
-eae6320::Camera::FPSCameraController* eae6320::Camera::FPSCameraController::Initialize()
-{
-	return new FPSCameraController();
-}
-
-void eae6320::Camera::FPSCameraController::UpdateCameraPosition(const LocalAxes i_localAxes, Math::cVector& o_position)const
+void eae6320::Camera::FPSCameraController::UpdatePosition(const Gameplay::LocalAxes i_localAxes, Math::cVector& o_position)
 {
 	Math::cVector localOffset = Math::cVector::zero;
 
@@ -46,7 +42,7 @@ void eae6320::Camera::FPSCameraController::UpdateCameraPosition(const LocalAxes 
 	o_position += localOffset;
 }
 
-void eae6320::Camera::FPSCameraController::UpdateCameraOrientation(Math::cVector& o_eularAngles)const
+void eae6320::Camera::FPSCameraController::UpdateOrientation(Math::cVector & o_eularAngles) const
 {
 	Math::cVector localOffset = Math::cVector::zero;
 	if (UserInput::IsKeyPressed('H'))

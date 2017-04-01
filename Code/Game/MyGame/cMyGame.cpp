@@ -93,9 +93,9 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	Camera::Camera *fpsCam = Camera::Camera::Initialize(Camera::FPSCameraController::Initialize(),Math::cVector(0.0f, 100.0f, 400.0f));
+	Camera::Camera *fpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(0.0f, 100.0f, 400.0f));
 	Camera::Camera::PushBackToVector(fpsCam);
-	Camera::Camera *flyCam = Camera::Camera::Initialize(Camera::FlyCameraController::Initialize(), Math::cVector(-5.0f, 5.0f, 50.0f));
+	Camera::Camera *flyCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::Camera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
@@ -105,11 +105,11 @@ bool eae6320::cMyGame::Initialize()
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		for (size_t i = 0; i < 3; i++)
 		{
-			debugObjects.push_back(fpsCam->m_sphere[i]);
+			//debugObjects.push_back(fpsCam->m_sphere[i]);
 		}
 		for (size_t i = 0; i < 3; i++)
 		{
-			debugObjects.push_back(flyCam->m_sphere[i]);
+			//debugObjects.push_back(flyCam->m_sphere[i]);
 		}
 #endif
 	}

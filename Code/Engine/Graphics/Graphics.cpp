@@ -131,7 +131,7 @@ void eae6320::Graphics::RenderFrame()
 	ClearScreen();
 	// Update the constant buffer
 	{
-		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetOrientation(), camera->GetPosition());
+		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetTransform().GetOrientation(), camera->GetTransform().m_position);
 		frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 		frameBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
 		frameBuffer->UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
@@ -149,7 +149,7 @@ void eae6320::Graphics::RenderFrame()
 				material->BindMaterial();
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetOrientation(), (*it)->GetPosition());
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetTransform().GetOrientation(), (*it)->GetTransform().m_position);
 			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			(*it)->GetMesh()->RenderMesh();
 		}

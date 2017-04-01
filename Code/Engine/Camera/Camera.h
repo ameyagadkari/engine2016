@@ -1,17 +1,14 @@
 #ifndef EAE6320_CAMERA_H
 #define EAE6320_CAMERA_H
 
-#include "../Math/cVector.h"
-#include "../Math/cQuaternion.h"
-#include "../Math/Functions.h"
-#include "LocalAxes.h"
 #include <vector>
+#include "../../Game/Gameplay/Transform.h"
 
 namespace eae6320
 {
-	namespace Camera
+	namespace Gameplay
 	{
-		class ICameraController;
+		class cbController;
 	}
 }
 
@@ -33,57 +30,49 @@ namespace eae6320
 		class Camera
 		{
 		public:
-			Debug::Shapes::DebugObject** m_sphere;
+			//Debug::Shapes::DebugObject** m_sphere;
+
 			~Camera();
+			explicit Camera( Gameplay::cbController const * const i_controller = nullptr, const Math::cVector i_position = Math::cVector::zero, const Math::cVector i_orientationEular = Math::cVector::zero, const float i_fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float i_nearPlaneDistance = 0.1f, const  float i_farPlaneDistance = 10000.0f);
+
 			void UpdateCameraPosition();
 			void UpdateCameraOrientation();
-			static Camera* Initialize(const ICameraController* controller = nullptr, const Math::cVector position = Math::cVector::zero, const Math::cVector eularAngles = Math::cVector::zero, const float fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float nearPlaneDistance = 0.1f, const  float farPlaneDistance = 10000.0f);
+
 			static bool CleanUp();
 
 			static void UpdateMaxCameras();
 			static void ChangeCurrentCamera();
-			static void PushBackToVector(Camera *camera);
+			static void PushBackToVector(Camera *i_camera);
+			static Camera* GetCurrentCamera();
 
 #pragma region Gets
-			Math::cVector GetPosition()const;
-			Math::cVector GetOrientationEular()const;
-			Math::cQuaternion GetOrientation()const;
+			Gameplay::Transform GetTransform()const;
 			float GetFieldOfView()const;
 			float GetNearPlaneDistance()const;
 			float GetFarPlaneDistance()const;
 			float GetAspectRatio() const;
-			static Camera* GetCurrentCamera();
-			//LocalAxes GetLocalAxes()const;
 #pragma endregion
 
 #pragma region Sets
-			void SetPosition(const Math::cVector position);
-			void SetOrientationEular(const Math::cVector eularAngles);
-			void SetFieldOfView(const float fieldOfView);
-			void SetNearPlaneDistance(const float nearPlaneDistance);
-			void SetFarPlaneDistance(const float farPlaneDistance);
+			void SetFieldOfView(const float i_fieldOfView);
+			void SetNearPlaneDistance(const float i_nearPlaneDistance);
+			void SetFarPlaneDistance(const float i_farPlaneDistance);
 #pragma endregion
 
 
 		private:
-			Camera(const ICameraController* controller, const Math::cVector position, const Math::cVector eularAngles, const Math::cQuaternion orientation, const float fieldOfView, const float nearPlaneDistance, const float farPlaneDistance);
-
-			LocalAxes localAxes;
-			Math::cQuaternion orientation;
-			Math::cVector position;
-			Math::cVector eularAngles;
-			const ICameraController* controller;
-			float fieldOfView;
-			float nearPlaneDistance;
-			float farPlaneDistance;
-			float aspectRatio;
+			Gameplay::Transform m_transform;
+			Gameplay::cbController* m_controller;
+			float m_fieldOfView;
+			float m_nearPlaneDistance;
+			float m_farPlaneDistance;
+			float m_aspectRatio;
 			
-			static std::vector<Camera*> sCameras;
-			static Camera* sCurrentCamera;
-			static size_t sCurrentCameraNumber;
-			static size_t sMaxCameraNumber;
+			static std::vector<Camera*> s_cameras;
+			static Camera* s_currentCamera;
+			static size_t s_currentCameraNumber;
+			static size_t s_maxCameraNumber;
 
-			void UpdateCameraAxes();
 			void ChangeSphereState() const;
 		};
 	}

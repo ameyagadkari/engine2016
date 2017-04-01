@@ -19,19 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CubeController.cpp" />
+    <ClCompile Include="DefaultController.cpp" />
     <ClCompile Include="GameObject2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="SnakeController.cpp" />
+    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CubeController.h" />
+    <ClInclude Include="DefaultController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject2D.h" />
-    <ClInclude Include="IGameObjectController.h" />
-    <ClInclude Include="SnakeController.h" />
+    <ClInclude Include="cbController.h" />
+    <ClInclude Include="LocalAxes.h" />
+    <ClInclude Include="PlayerController.h" />
     <ClInclude Include="StandardRotationController.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F34CE434-9D44-4FCE-AED5-A4AC959E95DB}</ProjectGuid>

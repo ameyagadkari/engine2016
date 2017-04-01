@@ -22,9 +22,6 @@ namespace
 	eae6320::Math::cVector position = eae6320::Math::cVector::zero;
 	eae6320::Math::cVector orientation = eae6320::Math::cVector::zero;
 	const char * controllerName = NULL;
-	uint8_t rotationAxis = 0;
-	uint8_t isStatic = 0;
-	uint8_t isRotating = 0;
 	const char * materialPath = NULL;
 	const char * meshPath = NULL;
 
@@ -169,30 +166,6 @@ bool eae6320::AssetBuild::cGameobjectBuilder::Build(const std::vector<std::strin
 		if (ferror(outputFile))
 		{
 			fprintf_s(stderr, "Error writing classUUID to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-		// Writing the RotationAxis in the form of uint8_t
-		fwrite(&rotationAxis, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing rotation axis to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-		// Writing IsStatic bool as uint8_t
-		fwrite(&isStatic, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing isStatic bool to %s \n", m_path_target);
-			wereThereErrors = true;
-			goto OnExit;
-		}
-		// Writing IsRotating bool as uint8_t
-		fwrite(&isRotating, sizeof(uint8_t), 1, outputFile);
-		if (ferror(outputFile))
-		{
-			fprintf_s(stderr, "Error writing isRotating bool to %s \n", m_path_target);
 			wereThereErrors = true;
 			goto OnExit;
 		}
@@ -359,51 +332,6 @@ namespace
 			}
 		}
 
-		//Loading rotation axis
-		{
-			const char* key = "rotation_axis";
-			lua_pushstring(&io_luaState, key);
-			lua_gettable(&io_luaState, -2);
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TSTRING)
-			{
-				const char * const axis = lua_tostring(&io_luaState, -1);
-				if (strcmp(axis, "x_axis") == 0)
-				{
-					rotationAxis = 0;
-				}
-				else if (strcmp(axis, "y_axis") == 0)
-				{
-					rotationAxis = 1;
-				}
-				else if (strcmp(axis, "z_axis") == 0)
-				{
-					rotationAxis = 2;
-				}
-				else
-				{
-					wereThereErrors = true;
-					fprintf_s(stderr, "Invalid rotation axis: %s", axis);
-					lua_pop(&io_luaState, 1);
-					return !wereThereErrors;
-				}
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a string (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-		}
-
 		//Loading position
 		{
 			const char* key = "position";
@@ -534,57 +462,6 @@ namespace
 			}
 		}
 
-		//Loading isstatic value
-		{
-			const char* key = "is_static";
-			lua_pushstring(&io_luaState, key);
-			lua_gettable(&io_luaState, -2);
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
-			{
-				isStatic = lua_toboolean(&io_luaState, -1);
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-		}
-
-		//Loading isrotating value
-		{
-			const char* key = "is_rotating";
-			lua_pushstring(&io_luaState, key);
-			lua_gettable(&io_luaState, -2);
-			if (lua_isnil(&io_luaState, -1))
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "No value for key:\"%s\" was found in the table", key);
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-			if (lua_type(&io_luaState, -1) == LUA_TBOOLEAN)
-			{
-				isRotating = lua_toboolean(&io_luaState, -1);
-				lua_pop(&io_luaState, 1);
-			}
-			else
-			{
-				wereThereErrors = true;
-				fprintf_s(stderr, "The value at \"%s\" must be a boolean (instead of a %s) ", key, luaL_typename(&io_luaState, -1));
-				lua_pop(&io_luaState, 1);
-				return !wereThereErrors;
-			}
-		}
 		return !wereThereErrors;
 	}
 }

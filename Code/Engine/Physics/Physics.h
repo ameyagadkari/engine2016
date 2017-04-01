@@ -1,7 +1,7 @@
 #ifndef EAE6320_PHYSICS_H
 #define EAE6320_PHYSICS_H
 #include "../Math/cVector.h"
-#include "../Camera/LocalAxes.h"
+#include "../../Game/Gameplay/LocalAxes.h"
 
 
 namespace eae6320
@@ -26,7 +26,7 @@ namespace eae6320
 	{
 		bool Initialize();
 		bool CleanUp();
-		void CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, HitData* o_forwardHitData);
+		void CheckCollision(const Math::cVector i_newPosition, const Gameplay::LocalAxes i_localAxes, HitData* o_forwardHitData);
 
 		extern bool isPlayerOnGround;
 		extern bool isPlayerFowardHit;

@@ -9,8 +9,7 @@ return
 	-- that you have defined in AssetBuildSystem.lua
 	gameobjects =
 	{
-		-- The actual assets can be defined simply as relative path strings (the common case)
-		--"gameobjects/plane.txtgobj",
+		-- The actual assets can be defined simply as relative path strings (the common case
 		"gameobjects/center.txtgobj",
 		"gameobjects/ceiling.txtgobj",
 		"gameobjects/floor.txtgobj",
@@ -27,6 +26,7 @@ return
 		"gameobjects/boxes.txtgobj",
 		"gameobjects/flags.txtgobj",
 		"gameobjects/wallbraceinner.txtgobj",
+		"gameobjects/player.txtgobj",
 	},
 	materials =
 	{

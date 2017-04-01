@@ -102,7 +102,7 @@ OnExit:
 	return !wereThereErrors;
 }
 
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Camera::LocalAxes i_localAxes, HitData* o_forwardHitData)
+void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Gameplay::LocalAxes i_localAxes, HitData* o_forwardHitData)
 {
 	float u, v, w, t;
 	// Is grounded check
