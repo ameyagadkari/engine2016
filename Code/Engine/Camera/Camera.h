@@ -30,7 +30,8 @@ namespace eae6320
 		class Camera
 		{
 		public:
-			//Debug::Shapes::DebugObject** m_sphere;
+			Debug::Shapes::DebugObject* m_forward;
+			Debug::Shapes::DebugObject* m_sphere;
 
 			~Camera();
 			explicit Camera( Gameplay::cbController const * const i_controller = nullptr, const Math::cVector i_position = Math::cVector::zero, const Math::cVector i_orientationEular = Math::cVector::zero, const float i_fieldOfView = Math::ConvertDegreesToRadians(45.0f), const float i_nearPlaneDistance = 0.1f, const  float i_farPlaneDistance = 10000.0f);
@@ -40,7 +41,7 @@ namespace eae6320
 
 			static bool CleanUp();
 
-			static void UpdateMaxCameras();
+			static void UpdateMaxCameras(std::vector<Debug::Shapes::DebugObject*>& debugObjects);
 			static void ChangeCurrentCamera();
 			static void PushBackToVector(Camera *i_camera);
 			static Camera* GetCurrentCamera();
@@ -62,7 +63,9 @@ namespace eae6320
 
 		private:
 			Gameplay::Transform m_transform;
+		public:
 			Gameplay::cbController* m_controller;
+		private:
 			float m_fieldOfView;
 			float m_nearPlaneDistance;
 			float m_farPlaneDistance;
@@ -72,8 +75,6 @@ namespace eae6320
 			static Camera* s_currentCamera;
 			static size_t s_currentCameraNumber;
 			static size_t s_maxCameraNumber;
-
-			void ChangeSphereState() const;
 		};
 	}
 }

@@ -3,17 +3,9 @@
 
 namespace eae6320
 {
-	namespace Math
-	{
-		class cVector;
-	}
-}
-
-namespace eae6320
-{
 	namespace Gameplay
 	{
-		struct LocalAxes;
+		struct Transform;
 	}
 }
 
@@ -24,8 +16,8 @@ namespace eae6320
 		class cbController
 		{
 		public:
-			virtual void UpdatePosition(const LocalAxes i_localAxes, Math::cVector& o_position) = 0;
-			virtual void UpdateOrientation(Math::cVector& o_eularAngles)const = 0;
+			virtual void UpdatePosition(Transform& io_transform) = 0;
+			virtual void UpdateOrientation(Transform& io_transform)const = 0;
 			virtual ~cbController() = default;
 		};
 	}

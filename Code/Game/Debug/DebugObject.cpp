@@ -22,6 +22,7 @@ namespace eae6320
 		namespace Shapes
 		{
 			Graphics::Material* DebugObject::ms_material = nullptr;
+			std::vector<DebugObject*> DebugObject::ms_debugObjects;
 #pragma region Sets
 			void DebugObject::SetPosition(const Math::cVector i_position)
 			{
@@ -94,6 +95,8 @@ namespace eae6320
 				EAE6320_ASSERTF(i_height > 0.0f, "Specified height: %f is negative", i_height);
 				EAE6320_ASSERTF(i_depth > 0.0f, "Specified depth: %f is negative", i_depth);
 
+				m_type = Shapes::BOX;
+
 				const float halfWidth = 0.5f*i_width;
 				const float halfHeight = 0.5f*i_height;
 				const float halfDepth = 0.5f*i_depth;
@@ -164,11 +167,16 @@ namespace eae6320
 			}
 			void DebugObject::CreateLine(const Math::cVector i_end)
 			{
+				m_type = Shapes::LINE;
 				m_meshData = new Graphics::MeshData(16, 3, 3);
 
-				m_meshData->vertexData[0].AddVertexData(0.0f, 0.0f, 0.0f);
+				m_meshData->vertexData[0].AddVertexData(m_position.x, m_position.y, m_position.z);
 				m_meshData->vertexData[1].AddVertexData(i_end.x, i_end.y, i_end.z);
-				m_meshData->vertexData[2].AddVertexData(0.0f, 0.0f, 0.0f);
+				m_meshData->vertexData[2].AddVertexData(m_position.x, m_position.y, m_position.z);
+
+				/*m_meshData->vertexData[0].AddVertexData(0.0f, 0.0f, 0.0f);
+				m_meshData->vertexData[1].AddVertexData(i_end.x, i_end.y, i_end.z);
+				m_meshData->vertexData[2].AddVertexData(0.0f, 0.0f, 0.0f);*/
 
 				reinterpret_cast<uint16_t*>(m_meshData->indexData)[0] = 0;
 				reinterpret_cast<uint16_t*>(m_meshData->indexData)[1] = 1;
@@ -185,6 +193,8 @@ namespace eae6320
 				EAE6320_ASSERTF(i_radius > 0.0f, "Specified radius: %f is negative", i_radius);
 				EAE6320_ASSERTF(i_sliceCount > 0, "Specified slice count: %d is negative", i_sliceCount);
 				EAE6320_ASSERTF(i_stackCount > 0, "Specified stack count: %d is negative", i_stackCount);
+
+				m_type = Shapes::SPHERE;
 
 				const float phiStep = Math::Pi / i_stackCount;
 				const float thetaStep = 2.0f * Math::Pi / i_sliceCount;
@@ -386,7 +396,14 @@ namespace eae6320
 					m_mesh = nullptr;
 				}
 				m_mesh = new Graphics::Mesh();
+
+				m_meshData->vertexData[0].AddVertexData(m_position.x, m_position.y, m_position.z);
 				m_meshData->vertexData[1].AddVertexData(i_newEnd.x, i_newEnd.y, i_newEnd.z);
+				m_meshData->vertexData[2].AddVertexData(m_position.x, m_position.y, m_position.z);
+
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[0] = 0;
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[1] = 1;
+				reinterpret_cast<uint16_t*>(m_meshData->indexData)[2] = 2;
 
 				if (!m_mesh->Initialize(*m_meshData))
 				{
@@ -402,6 +419,8 @@ namespace eae6320
 				EAE6320_ASSERTF(i_height > 0, "Specified height: %f is negative", i_height);
 				EAE6320_ASSERTF(i_sliceCount > 0, "Specified slice count: %d is negative", i_sliceCount);
 				EAE6320_ASSERTF(i_stackCount > 0, "Specified stack count: %d is negative", i_stackCount);
+
+				m_type = Shapes::CYLINDER;
 
 				const int numberOfVertices = ((i_stackCount + 1)*(i_sliceCount + 1)) + (i_sliceCount + 1) + (i_sliceCount + 1) + 2;
 				const int numberOfIndices = (i_stackCount * i_sliceCount * 6) + (i_sliceCount * 3) + (i_sliceCount * 3);

@@ -49,6 +49,16 @@ eae6320::Math::cMatrix_transformation eae6320::Math::cMatrix_transformation::Cre
 #endif
 }
 
+eae6320::Math::cMatrix_transformation eae6320::Math::cMatrix_transformation::Transpose(const cMatrix_transformation & i_matrix)
+{
+	return cMatrix_transformation(
+		i_matrix.m_00, i_matrix.m_01, i_matrix.m_02, i_matrix.m_03,
+		i_matrix.m_10, i_matrix.m_11, i_matrix.m_12, i_matrix.m_13,
+		i_matrix.m_20, i_matrix.m_21, i_matrix.m_22, i_matrix.m_23,
+		i_matrix.m_30, i_matrix.m_31, i_matrix.m_32, i_matrix.m_33
+	);
+}
+
 // Initialization / Shut Down
 //---------------------------
 

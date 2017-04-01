@@ -49,16 +49,16 @@ namespace eae6320
 				// Extracting Controller Name Hash and initializing the right controller
 				data += sizeof(Math::cVector);
 				{
-					const uint32_t classUUID = *reinterpret_cast<uint32_t *>(data);
-					if (classUUID == PlayerController::classUUID)
+					gameObject->m_controllerUUID = *reinterpret_cast<uint32_t *>(data);
+					if (gameObject->m_controllerUUID == PlayerController::classUUID)
 					{
-						gameObject->m_controller = reinterpret_cast<cbController*>(PlayerController::Initialize(1000.0f));
+						gameObject->m_controller = reinterpret_cast<cbController*>(PlayerController::Initialize(1000.0f, 105.0f));
 					}
-					else if (classUUID == DefaultController::classUUID)
+					else if (gameObject->m_controllerUUID == DefaultController::classUUID)
 					{
 						gameObject->m_controller = reinterpret_cast<cbController*>(DefaultController::Initialize());
 					}
-					else if (classUUID == StandardRotationController::classUUID)
+					else if (gameObject->m_controllerUUID == StandardRotationController::classUUID)
 					{
 						gameObject->m_controller = reinterpret_cast<cbController*>(StandardRotationController::Initialize(250.0f));
 					}
@@ -119,12 +119,12 @@ namespace eae6320
 		GameObject::GameObject() : m_transform(),
 			m_mesh(new Graphics::Mesh()),
 			m_material(new Graphics::Material()),
-			m_controller(nullptr){}
+			m_controller(nullptr) {}
 
 		GameObject::~GameObject()
 		{
-			if (m_mesh)delete m_mesh;			
-			if (m_material)delete m_material;			
+			if (m_mesh)delete m_mesh;
+			if (m_material)delete m_material;
 			if (m_controller)delete m_controller;
 		}
 
@@ -144,25 +144,17 @@ namespace eae6320
 #pragma endregion
 
 #pragma region Sets
-		/*void GameObject::SetMaterial(Graphics::Material * const i_material)
-		{
-			this->m_material = i_material;
-		}
-		void GameObject::SetMesh(Graphics::Mesh * const i_mesh)
-		{
-			this->m_mesh = i_mesh;
-		}*/
 #pragma endregion
 
 
 		void GameObject::UpdateGameObjectPosition()
 		{
-			if (m_controller)m_controller->UpdatePosition(m_transform.m_localAxes, m_transform.m_position);
+			if (m_controller)m_controller->UpdatePosition(m_transform);
 		}
 
 		void GameObject::UpdateGameObjectOrientation()
 		{
-			if (m_controller)m_controller->UpdateOrientation(m_transform.m_orientationEular);
+			if (m_controller)m_controller->UpdateOrientation(m_transform);
 			m_transform.UpdateLocalAxes();
 		}
 	}

@@ -29,7 +29,7 @@ namespace eae6320
 	{		
 		class GameObject
 		{
-		public:
+		public:			
 			
 			~GameObject();
 			static GameObject* LoadGameObject(const char * const relativePath);
@@ -44,8 +44,7 @@ namespace eae6320
 #pragma endregion
 
 #pragma region Sets
-			/*void SetMaterial(Graphics::Material* const effect);
-			void SetMesh(Graphics::Mesh* const mesh);*/
+
 #pragma endregion
 			
 		private:
@@ -54,10 +53,9 @@ namespace eae6320
 
 			Graphics::Mesh* m_mesh;
 			Graphics::Material* m_material;
+		public:
 			cbController* m_controller;
-
-			/*Math::cVector initialPositionOffset;
-			Math::cVector initialEularOffset;*/
+			uint32_t m_controllerUUID;
 		};
 	}
 }

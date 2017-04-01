@@ -4,6 +4,6 @@ return
 	material_filepath = "materials/std_material.txtmaterial",
 	mesh_filepath = "meshes/player.txtmesh",
 	controller_name = "PlayerController",
-	position = {0.0,-100.0,0.0},
+	position = {0.0,100.0,100.0},
 	eular_angles = {0.0,0.0,0.0},	
 }

@@ -42,6 +42,7 @@ namespace eae6320
 			void Normalize();
 			cVector CreateNormalized() const;
 			cVector ClampMagnitude(const float i_maxLength) const;
+			float DistanceBetween(const cVector& i_other) const;
 
 			// Products
 			friend float Dot( const cVector& i_lhs, const cVector& i_rhs );

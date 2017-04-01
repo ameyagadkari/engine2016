@@ -18,8 +18,9 @@
 #include "../../Engine/Camera/Camera.h"
 #include "../../Engine/Camera/FPSCameraController.h"
 #include "../../Engine/Camera/FlyCameraController.h"
+#include "../../Engine/Camera/TPSCameraController.h"
 #include "../../Engine/Time/Time.h"
-
+#include "../Gameplay/PlayerController.h"
 
 
 // Interface
@@ -39,7 +40,6 @@ namespace
 {
 	void GenerateRelativePaths(std::string prefix);
 	std::map<const std::string, eae6320::Gameplay::GameObject*> gameObjects;
-	std::vector<eae6320::Debug::Shapes::DebugObject*> debugObjects;
 	std::map<const std::string, eae6320::Gameplay::GameObject2D*> gameObjects2D;
 	std::vector<std::string> relativePaths;
 	std::vector<std::string> fileNames;
@@ -93,24 +93,28 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	Camera::Camera *fpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(0.0f, 100.0f, 400.0f));
-	Camera::Camera::PushBackToVector(fpsCam);
+	Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(800.0f)), Math::cVector(0.0, 100.0, 200.0));
+	Camera::Camera::PushBackToVector(tpsCam);
 	Camera::Camera *flyCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::Camera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
-	Camera::Camera::UpdateMaxCameras();
+	Camera::Camera::UpdateMaxCameras(Debug::Shapes::DebugObject::ms_debugObjects);
+
+	for (auto const& gameObject : gameObjects)
+	{
+		if (gameObject.second)
+		{
+			if (gameObject.second->m_controllerUUID == Gameplay::PlayerController::classUUID)
+			{
+				reinterpret_cast<Gameplay::PlayerController*>(gameObject.second->m_controller)->SetCameraController(reinterpret_cast<Camera::TPSCameraController*>(tpsCam->m_controller));
+			}
+		}
+	}
 
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		for (size_t i = 0; i < 3; i++)
-		{
-			//debugObjects.push_back(fpsCam->m_sphere[i]);
-		}
-		for (size_t i = 0; i < 3; i++)
-		{
-			//debugObjects.push_back(flyCam->m_sphere[i]);
-		}
+
 #endif
 	}
 
@@ -244,10 +248,10 @@ void eae6320::cMyGame::SubmitDebugShapeData3D()
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 	if (reinterpret_cast<Debug::UI::Checkbox*>(Debug::UI::debugUIs[1])->GetIsEnabled())
 	{
-		const size_t length = debugObjects.size();
+		const size_t length = Debug::Shapes::DebugObject::ms_debugObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{
-			Graphics::SetDebugObject(debugObjects[i]);
+			Graphics::SetDebugObject(Debug::Shapes::DebugObject::ms_debugObjects[i]);
 		}
 	}
 #endif
@@ -296,13 +300,14 @@ bool eae6320::cMyGame::CleanUp()
 	// Deleting DebugObjects
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		const size_t length = debugObjects.size();
+		const size_t length = Debug::Shapes::DebugObject::ms_debugObjects.size();
 		for (size_t i = 0; i < length; i++)
 		{
-			delete debugObjects[i];
+			delete Debug::Shapes::DebugObject::ms_debugObjects[i];
+			Debug::Shapes::DebugObject::ms_debugObjects[i] = nullptr;
 		}
 
-		debugObjects.clear();
+		Debug::Shapes::DebugObject::ms_debugObjects.clear();
 #endif
 	}
 	// Deleting Debug UI
@@ -312,6 +317,7 @@ bool eae6320::cMyGame::CleanUp()
 		for (size_t i = 0; i < length; i++)
 		{
 			delete Debug::UI::debugUIs[i];
+			Debug::UI::debugUIs[i] = nullptr;
 		}
 		Debug::UI::debugUIs.clear();
 #endif

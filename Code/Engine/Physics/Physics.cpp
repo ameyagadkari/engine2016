@@ -102,16 +102,23 @@ OnExit:
 	return !wereThereErrors;
 }
 
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Gameplay::LocalAxes i_localAxes, HitData* o_forwardHitData)
+void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Gameplay::LocalAxes i_localAxes, const float i_playerHeight, HitData* o_forwardHitData, HitData* o_downHitData)
 {
 	float u, v, w, t;
 	// Is grounded check
 	{
-		const Math::cVector q = i_newPosition - Math::cVector::up*100.0f;
+		const Math::cVector q = i_newPosition - Math::cVector::up*i_playerHeight;
 		for (size_t i = 0; i < numberOfTriangles; i++)
 		{
 			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
-			if (isPlayerOnGround) break;
+			if (isPlayerOnGround)
+			{
+				Math::cVector ab = triangles[i].b - triangles[i].a;
+				Math::cVector ac = triangles[i].c - triangles[i].a;
+				o_downHitData->normal = Cross(ab, ac).CreateNormalized();
+				o_downHitData->intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
+				break;
+			}
 		}
 		//!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
 	}

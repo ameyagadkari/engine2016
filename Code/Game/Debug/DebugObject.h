@@ -4,11 +4,13 @@
 #include "ConfigurationShapes.h"
 
 
+
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 
 #include "../../Engine/Math/cVector.h"
 #include "Color.h"
 #include <cstdint>
+#include <vector>
 namespace eae6320
 {
 	namespace Graphics
@@ -24,10 +26,13 @@ namespace eae6320
 	namespace Debug
 	{
 		namespace Shapes
-		{		
+		{
+			enum struct Shapes { LINE, BOX, SPHERE, CYLINDER };
 			class DebugObject
 			{
 			public:
+				Shapes m_type;
+				static std::vector<DebugObject*> ms_debugObjects;
 #pragma region Sets
 				void SetPosition(const Math::cVector i_position);
 				void SetIsDisplayed(const bool i_isDisplayed);

@@ -14,8 +14,9 @@ namespace eae6320
 			static DefaultController* Initialize() { return new DefaultController(); }
 		private:
 			explicit DefaultController() {}
-			void UpdatePosition(const LocalAxes i_localAxes, Math::cVector& o_position) override;
-			void UpdateOrientation(Math::cVector& o_eularAngles)const override;
+
+			void UpdatePosition(Transform& io_transform) override;
+			void UpdateOrientation(Transform& io_transform)const override;
 		};
 	}
 }

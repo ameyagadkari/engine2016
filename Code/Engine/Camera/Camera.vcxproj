@@ -22,11 +22,13 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FlyCameraController.cpp" />
     <ClCompile Include="FPSCameraController.cpp" />
+    <ClCompile Include="TPSCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FlyCameraController.h" />
     <ClInclude Include="FPSCameraController.h" />
+    <ClInclude Include="TPSCameraController.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0DAB78B1-E1C4-4E31-A15F-C5CB57C1D272}</ProjectGuid>

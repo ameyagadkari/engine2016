@@ -33,9 +33,9 @@ namespace eae6320
 				m_localAxes.m_up = Cross(m_localAxes.m_right, m_localAxes.m_forward).CreateNormalized();
 
 				m_orientationQuaternion =
-					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.x), m_localAxes.m_right)*
-					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.y), m_localAxes.m_up)*
-					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.z), m_localAxes.m_forward);
+					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.x), Math::cVector::right)*
+					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.y), Math::cVector::up)*
+					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.z), Math::cVector::forward);
 			}
 
 			explicit Transform(const Math::cVector i_position = Math::cVector::zero, const Math::cVector i_orientationEular = Math::cVector::zero)

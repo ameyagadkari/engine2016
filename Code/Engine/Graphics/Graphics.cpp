@@ -170,7 +170,14 @@ void eae6320::Graphics::RenderFrame()
 				material->BindMaterial();
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObjects[i]->GetPosition());
+			if(unsortedDebugObjects[i]->m_type == Debug::Shapes::Shapes::LINE)
+			{
+				drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), Math::cVector::zero);
+			}
+			else
+			{
+				drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation(Math::cQuaternion(), unsortedDebugObjects[i]->GetPosition());
+			}
 			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			ConstantBufferData::sMaterial materialBuffer;
 			unsortedDebugObjects[i]->GetColor(materialBuffer.g_color.r, materialBuffer.g_color.g, materialBuffer.g_color.b);

@@ -15,8 +15,8 @@ namespace eae6320
 			static FlyCameraController* Initialize(){ return new FlyCameraController(); }
 		private:
 			FlyCameraController() = default;
-			void UpdatePosition(const Gameplay::LocalAxes i_localAxes, Math::cVector& o_position) override;
-			void UpdateOrientation(Math::cVector& o_eularAngles)const override;
+			void UpdatePosition(Gameplay::Transform& io_transform) override;
+			void UpdateOrientation(Gameplay::Transform& io_transform)const override;
 		};
 	}
 }

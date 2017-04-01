@@ -4,10 +4,12 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FlyCameraController.h" />
     <ClInclude Include="FPSCameraController.h" />
+    <ClInclude Include="TPSCameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FlyCameraController.cpp" />
     <ClCompile Include="FPSCameraController.cpp" />
+    <ClCompile Include="TPSCameraController.cpp" />
   </ItemGroup>
 </Project>

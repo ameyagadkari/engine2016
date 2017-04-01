@@ -52,6 +52,8 @@ namespace eae6320
 				const float i_fieldOfView_y, const float i_aspectRatio,
 				const float i_z_nearPlane, const float i_z_farPlane );
 
+			static cMatrix_transformation Transpose(const cMatrix_transformation& i_matrix);
+
 			// Initialization / Shut Down
 			//---------------------------
 
@@ -72,7 +74,7 @@ namespace eae6320
 			// Implementation
 			//===============
 
-		private:
+		public:
 
 			// Initialization / Shut Down
 			//---------------------------

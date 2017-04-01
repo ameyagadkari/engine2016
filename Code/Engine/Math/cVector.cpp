@@ -95,7 +95,7 @@ eae6320::Math::cVector& eae6320::Math::cVector::operator /=( const float i_rhs )
 // Length / Normalization
 float eae6320::Math::cVector::GetLength() const
 {
-	return sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
+	return sqrtf( ( x * x ) + ( y * y ) + ( z * z ) );
 }
 
 void eae6320::Math::cVector::Normalize()
@@ -118,6 +118,14 @@ eae6320::Math::cVector eae6320::Math::cVector::ClampMagnitude(const float i_maxL
 	const float currentLength = GetLength();
 	if(currentLength > s_epsilon) return *this*(i_maxLength / currentLength);
 	return  *this;
+}
+
+float eae6320::Math::cVector::DistanceBetween(const cVector & i_other) const
+{
+	return sqrtf(
+		(x - i_other.x)*(x - i_other.x) + 
+		(y - i_other.y)*(y - i_other.y) + 
+		(z - i_other.z)*(z - i_other.z));
 }
 
 // Products
