@@ -99,7 +99,7 @@ bool eae6320::cMyGame::Initialize()
 	Camera::Camera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
-	Camera::Camera::UpdateMaxCameras(Debug::Shapes::DebugObject::ms_debugObjects);
+	Camera::Camera::UpdateMaxCameras();
 
 	for (auto const& gameObject : gameObjects)
 	{

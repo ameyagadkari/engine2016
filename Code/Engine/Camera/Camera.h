@@ -41,7 +41,7 @@ namespace eae6320
 
 			static bool CleanUp();
 
-			static void UpdateMaxCameras(std::vector<Debug::Shapes::DebugObject*>& debugObjects);
+			static void UpdateMaxCameras();
 			static void ChangeCurrentCamera();
 			static void PushBackToVector(Camera *i_camera);
 			static Camera* GetCurrentCamera();

@@ -5,12 +5,13 @@
 #include "../../Game/Gameplay/LocalAxes.h"
 #include "../../Game/Gameplay/Transform.h"
 
-#define MAX_VELOCITY 500.0f
-#define SLOWING_RADIUS 50.0f
-
 namespace
 {
+#ifdef _DEBUG
 	const float rotateSpeed = 1000.0f;
+#else
+	const float rotateSpeed = 10000.0f;
+#endif
 	const float damping = 2.5f;
 	float oldEularY;
 	eae6320::Math::cVector offset;

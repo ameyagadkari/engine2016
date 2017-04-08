@@ -100,8 +100,10 @@ void eae6320::Camera::Camera::UpdateCameraPosition()
 {
 	if (m_controller)m_controller->UpdatePosition(m_transform);
 
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 	m_forward->SetPosition(m_transform.m_position);
 	m_forward->UpdateLine(m_transform.m_position + m_transform.m_localAxes.m_forward*100.0f);
+#endif
 }
 
 void eae6320::Camera::Camera::UpdateCameraOrientation()
@@ -109,7 +111,7 @@ void eae6320::Camera::Camera::UpdateCameraOrientation()
 	if (m_controller)m_controller->UpdateOrientation(m_transform);
 }
 
-void eae6320::Camera::Camera::UpdateMaxCameras(std::vector<Debug::Shapes::DebugObject*>& debugObjects)
+void eae6320::Camera::Camera::UpdateMaxCameras()
 {
 	s_maxCameraNumber = s_cameras.size();
 	if (s_maxCameraNumber > 0 && !s_currentCamera)
@@ -121,8 +123,10 @@ void eae6320::Camera::Camera::UpdateMaxCameras(std::vector<Debug::Shapes::DebugO
 	}
 	for (size_t i = 0; i < s_maxCameraNumber; i++)
 	{
-		debugObjects.push_back(s_cameras[i]->m_sphere);
-		debugObjects.push_back(s_cameras[i]->m_forward);
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
+		Debug::Shapes::DebugObject::ms_debugObjects.push_back(s_cameras[i]->m_sphere);
+		Debug::Shapes::DebugObject::ms_debugObjects.push_back(s_cameras[i]->m_forward);
+#endif
 	}
 }
 

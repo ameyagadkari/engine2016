@@ -66,27 +66,35 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 
 	if (!m_forward)
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
 		m_forward->CreateLine(io_transform.m_position + io_transform.m_localAxes.m_forward*100.0f);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_forward);
+#endif
 	}
 	else
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward->SetPosition(io_transform.m_position);
 		m_forward->UpdateLine(io_transform.m_position + io_transform.m_localAxes.m_forward*100.0f);
+#endif
 	}
 
 
 	if (!m_down)
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_down = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
 		m_down->CreateLine(io_transform.m_position - Math::cVector::up*m_height);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_down);
+#endif
 	}
 	else
 	{
+#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_down->SetPosition(tempPosition);
 		m_down->UpdateLine(tempPosition - Math::cVector::up*m_height);
+#endif
 	}
 	/*if (Physics::isPlayerFowardHit)
 	{

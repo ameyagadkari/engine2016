@@ -4,6 +4,7 @@
 #include "../../Engine/Math/cQuaternion.h"
 #include "LocalAxes.h"
 #include "../../Engine/Math/Functions.h"
+#include <cmath>
 
 namespace
 {

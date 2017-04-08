@@ -5,7 +5,8 @@
 //=============
 
 #include "../Asserts/Asserts.h"
-
+#include <cstdint>
+#include <cmath>
 // Helper Struct
 //=============
 union Float_t
