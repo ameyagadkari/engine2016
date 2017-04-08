@@ -31,7 +31,16 @@ namespace eae6320
 		public:
 
 			// Concatenation
-			cQuaternion operator *( const cQuaternion& i_rhs ) const;
+			cQuaternion operator *(const cQuaternion& i_rhs) const;
+
+			// Addition
+			cQuaternion operator+ (const cQuaternion& i_rhs) const;
+
+			// Multiplication
+			cQuaternion operator* (float i_rhs) const;
+
+			// Division
+			cQuaternion operator/ (float i_rhs) const;
 
 			// Inversion
 			void Invert();
@@ -42,14 +51,21 @@ namespace eae6320
 			cQuaternion CreateNormalized() const;
 
 			// Products
-			friend float Dot( const cQuaternion& i_lhs, const cQuaternion& i_rhs );
+			friend float Dot(const cQuaternion& i_lhs, const cQuaternion& i_rhs);
 
 			// Initialization / Shut Down
 			//---------------------------
 
 			cQuaternion();	// Identity
-			cQuaternion( const float i_angleInRadians, const cVector& i_axisOfRotation_normalized );			
+			cQuaternion(const float i_angleInRadians, const cVector& i_axisOfRotation_normalized);
 
+			// Negation
+			cQuaternion operator-()const;
+
+			// Interpolation
+			static cQuaternion Slerp(const cQuaternion& q1, const cQuaternion& q2, float t);
+			static cQuaternion Lerp(const cQuaternion& q1, const cQuaternion& q2, float t);
+			static cQuaternion SlerpNoInvert(const cQuaternion& q1, const cQuaternion& q2, float t);
 			// Data
 			//=====
 
@@ -65,7 +81,7 @@ namespace eae6320
 			// Initialization / Shut Down
 			//---------------------------
 
-			cQuaternion( const float i_w, const float i_x, const float i_y, const float i_z );
+			cQuaternion(const float i_w, const float i_x, const float i_y, const float i_z);
 
 			// Friend Classes
 			//===============

@@ -44,6 +44,9 @@ namespace eae6320
 			cVector ClampMagnitude(const float i_maxLength) const;
 			float DistanceBetween(const cVector& i_other) const;
 
+			// Interpolation
+			static cVector Slerp(const cVector i_start, const cVector i_end, const float i_t);
+
 			// Products
 			friend float Dot( const cVector& i_lhs, const cVector& i_rhs );
 			friend cVector Cross( const cVector& i_lhs, const cVector& i_rhs );

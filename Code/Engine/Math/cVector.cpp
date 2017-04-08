@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include "../Asserts/Asserts.h"
+#include "Functions.h"
 
 // Static Data Initialization
 //===========================
@@ -128,6 +129,31 @@ float eae6320::Math::cVector::DistanceBetween(const cVector & i_other) const
 		(z - i_other.z)*(z - i_other.z));
 }
 
+// Interpolation
+eae6320::Math::cVector eae6320::Math::cVector::Slerp(const cVector i_start, const cVector i_end, const float i_t)
+{
+	EAE6320_ASSERTF((i_t >= 0.0f && i_t <= 1.0f), "Specify t between [0,100]");
+	// Dot product - the cosine of the angle between 2 vectors.
+	float dot = Dot(i_start.CreateNormalized(), i_end.CreateNormalized());
+	// Clamp it to be in the range of Acos()
+	// This may be unnecessary, but floating point
+	// precision can be a fickle mistress.
+	dot = Clamp(dot, -1.0f, 1.0f);
+	// Acos(dot) returns the angle between start and end,
+	// And multiplying that by percent returns the angle between
+	// start and the final result.
+	float theta = acosf(dot)*i_t;
+	cVector relativeVector = i_end - i_start*dot;
+	relativeVector = relativeVector.CreateNormalized();// Orthonormal basis							 
+	return i_start*cosf(theta) + relativeVector*sinf(theta);// The final result.
+
+	/*const float dot = Dot(i_start, i_end);
+	const float alpha = ConvertDegreesToRadians(dot);
+	const float theta = acosf(alpha);
+	const cVector t1 = (sinf(1.0f - i_t)*theta / sinf(alpha))*i_start;
+	const cVector t2 = (sinf(i_t)*theta / sinf(alpha))*i_end;
+	return  t1 + t2;*/
+}
 // Products
 float eae6320::Math::Dot( const cVector& i_lhs, const cVector& i_rhs )
 {

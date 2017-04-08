@@ -32,6 +32,10 @@ float eae6320::Camera::Camera::GetAspectRatio() const
 	return m_aspectRatio;
 }
 
+eae6320::Gameplay::cbController& eae6320::Camera::Camera::GetController() const
+{
+	return *m_controller;
+}
 #pragma endregion
 
 #pragma region Sets

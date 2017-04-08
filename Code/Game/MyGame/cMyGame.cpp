@@ -93,7 +93,7 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(800.0f)), Math::cVector(0.0, 100.0, 200.0));
+	Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
 	Camera::Camera::PushBackToVector(tpsCam);
 	Camera::Camera *flyCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::Camera::PushBackToVector(flyCam);
@@ -107,7 +107,8 @@ bool eae6320::cMyGame::Initialize()
 		{
 			if (gameObject.second->m_controllerUUID == Gameplay::PlayerController::classUUID)
 			{
-				reinterpret_cast<Gameplay::PlayerController*>(gameObject.second->m_controller)->SetCameraController(reinterpret_cast<Camera::TPSCameraController*>(tpsCam->m_controller));
+				reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
+				break;
 			}
 		}
 	}

@@ -12,5 +12,6 @@ void eae6320::Gameplay::StandardRotationController::UpdateOrientation(Transform&
 {
 	const float offsetModifier = m_speed * Time::GetElapsedSecondCount_duringPreviousFrame();
 	io_transform.m_orientationEular.y += offsetModifier;
+	io_transform.UpdateLocalAxes();
 }
 

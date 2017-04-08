@@ -7,14 +7,13 @@
 #include "../Debug/DebugObject.h"
 #include "../../Engine/Physics/HitData.h"
 #include "../../Engine/Physics/Physics.h"
-#include "../../Engine/Camera/TPSCameraController.h"
 #include "Transform.h"
 
 namespace
 {
 	const float s_epsilon = 1.0e-10f;
-	const double s_epsilon2 = 1.0e-4f;
-	bool isSet = false;
+	const float s_epsilon2 = 1.0e-4f;
+	const float s_maxVelocity = 250.0f;
 }
 
 uint32_t const eae6320::Gameplay::PlayerController::classUUID(StringHandler::HashedString("PlayerController").GetHash());
@@ -25,8 +24,8 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 
 	if (UserInput::IsKeyPressed('W'))
 		localOffset += io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed('S'))
-		localOffset -= io_transform.m_localAxes.m_forward;
+	//if (UserInput::IsKeyPressed('S'))
+	//	localOffset -= io_transform.m_localAxes.m_forward;
 	if (UserInput::IsKeyPressed('D'))
 		localOffset += io_transform.m_localAxes.m_right;
 	if (UserInput::IsKeyPressed('A'))
@@ -37,7 +36,7 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity = m_velocity.ClampMagnitude(250.0f);
+		m_velocity = m_velocity.ClampMagnitude(s_maxVelocity);
 	}
 	else
 	{
@@ -53,14 +52,14 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 	if (!Physics::isPlayerOnGround)
 	{
 		m_velocity2 -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity2 = m_velocity2.ClampMagnitude(250.0f);
+		m_velocity2 = m_velocity2.ClampMagnitude(s_maxVelocity);
 	}
 	else
 	{
 		m_velocity2 = Math::cVector::zero;
-		if (distance > s_epsilon2)
+		if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
 		{
-			io_transform.m_position.y += distance;
+			io_transform.m_position.y += distance - s_epsilon2*2.0f;
 		}
 	}
 	io_transform.m_position += (m_velocity + m_velocity2) * Time::GetElapsedSecondCount_duringPreviousFrame();
@@ -89,11 +88,6 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 		m_down->SetPosition(tempPosition);
 		m_down->UpdateLine(tempPosition - Math::cVector::up*m_height);
 	}
-	if (!isSet)
-	{
-		m_cameraController->SetPlayerTransform(&io_transform);
-		isSet = true;
-	}
 	/*if (Physics::isPlayerFowardHit)
 	{
 		float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
@@ -111,14 +105,22 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 void eae6320::Gameplay::PlayerController::UpdateOrientation(Transform& io_transform) const
 {
 	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::IsKeyPressed('E'))
+	if (UserInput::IsKeyPressed('D'))
 		localOffset.y += 1.0f;
-	if (UserInput::IsKeyPressed('Q'))
+	if (UserInput::IsKeyPressed('A'))
 		localOffset.y -= 1.0f;
+	if (UserInput::IsKeyPressedOnce('S'))
+	{
+		io_transform.m_localAxes.m_forward = -io_transform.m_localAxes.m_forward;
+		io_transform.m_orientationEular.y += 180.0f;
+		io_transform.UpdateLocalAxes(false, io_transform.m_localAxes.m_forward);
+		return;
+	}
 
 	const float speed_unitsPerSecond = 200.0f;
 	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 	localOffset *= offsetModifier;
 
 	io_transform.m_orientationEular += localOffset;
+	io_transform.UpdateLocalAxes();
 }

@@ -141,6 +141,10 @@ namespace eae6320
 		{
 			return m_transform;
 		}
+		Transform& GameObject::GetTransformAddress()
+		{
+			return m_transform;
+		}
 #pragma endregion
 
 #pragma region Sets
@@ -155,7 +159,6 @@ namespace eae6320
 		void GameObject::UpdateGameObjectOrientation()
 		{
 			if (m_controller)m_controller->UpdateOrientation(m_transform);
-			m_transform.UpdateLocalAxes();
 		}
 	}
 }

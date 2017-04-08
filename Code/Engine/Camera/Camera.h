@@ -52,6 +52,7 @@ namespace eae6320
 			float GetNearPlaneDistance()const;
 			float GetFarPlaneDistance()const;
 			float GetAspectRatio() const;
+			Gameplay::cbController& GetController()const;
 #pragma endregion
 
 #pragma region Sets
@@ -63,9 +64,7 @@ namespace eae6320
 
 		private:
 			Gameplay::Transform m_transform;
-		public:
 			Gameplay::cbController* m_controller;
-		private:
 			float m_fieldOfView;
 			float m_nearPlaneDistance;
 			float m_farPlaneDistance;

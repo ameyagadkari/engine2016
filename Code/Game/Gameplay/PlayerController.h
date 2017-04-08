@@ -7,14 +7,6 @@
 
 namespace eae6320
 {
-	namespace Camera
-	{
-		class TPSCameraController;
-	}
-}
-
-namespace eae6320
-{
 	namespace Debug
 	{
 		namespace Shapes
@@ -33,10 +25,6 @@ namespace eae6320
 		public:
 			static const uint32_t classUUID;
 			static PlayerController* Initialize(const float i_acceleration = 0.0f, const float i_height = 0.0f) { return new PlayerController(i_acceleration, i_height); }
-			void SetCameraController(Camera::TPSCameraController* i_cameraController)
-			{
-				m_cameraController = i_cameraController;
-			}
 		private:
 			explicit PlayerController(const float i_acceleration, const float i_height)
 				:
@@ -44,7 +32,6 @@ namespace eae6320
 				m_velocity2(Math::cVector::zero),
 				m_forward(nullptr),
 				m_down(nullptr),
-				m_cameraController(nullptr),
 				m_acceleration(i_acceleration),
 				m_height(i_height)
 			{
@@ -56,7 +43,6 @@ namespace eae6320
 			Math::cVector m_velocity2;
 			Debug::Shapes::DebugObject* m_forward;
 			Debug::Shapes::DebugObject* m_down;
-			Camera::TPSCameraController* m_cameraController;
 			const float m_acceleration;
 			const float m_height;
 		};

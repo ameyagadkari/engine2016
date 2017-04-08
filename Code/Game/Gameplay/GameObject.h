@@ -41,6 +41,7 @@ namespace eae6320
 			Graphics::Material* GetMaterial()const;
 			Graphics::Mesh* GetMesh()const;
 			Transform GetTransform()const;
+			Transform& GetTransformAddress();
 #pragma endregion
 
 #pragma region Sets
