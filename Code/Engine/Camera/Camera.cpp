@@ -107,7 +107,6 @@ void eae6320::Camera::Camera::UpdateCameraPosition()
 void eae6320::Camera::Camera::UpdateCameraOrientation()
 {
 	if (m_controller)m_controller->UpdateOrientation(m_transform);
-	m_transform.UpdateLocalAxes();
 }
 
 void eae6320::Camera::Camera::UpdateMaxCameras(std::vector<Debug::Shapes::DebugObject*>& debugObjects)
@@ -129,7 +128,7 @@ void eae6320::Camera::Camera::UpdateMaxCameras(std::vector<Debug::Shapes::DebugO
 
 void eae6320::Camera::Camera::ChangeCurrentCamera()
 {
-	if (UserInput::IsKeyPressedOnce('C'))
+	if (UserInput::GetKeyDown('C'))
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		s_currentCamera->m_sphere->SetIsDisplayed(true);
@@ -148,7 +147,7 @@ void eae6320::Camera::Camera::ChangeCurrentCamera()
 		s_currentCamera->m_sphere->SetIsDisplayed(false);
 #endif
 	}
-	if (UserInput::IsKeyPressedOnce('V'))
+	if (UserInput::GetKeyDown('V'))
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		s_currentCamera->m_sphere->SetIsDisplayed(true);

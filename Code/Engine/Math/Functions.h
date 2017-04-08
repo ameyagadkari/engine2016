@@ -17,6 +17,9 @@ namespace eae6320
 
 		float ConvertDegreesToRadians(const float i_degrees);
 		float ConvertRadiansToDegrees(const float i_radians);
+		float LerpDegrees(const float i_start, const float i_end, const float i_amount);
+		float Repeat(const float i_value, const float i_length);
+		float Clamp01(const float i_value);
 		template<typename tUnsignedInteger>
 		tUnsignedInteger RoundUpToMultiple(const tUnsignedInteger i_value, const tUnsignedInteger i_multiple);
 		template<typename tUnsignedInteger>

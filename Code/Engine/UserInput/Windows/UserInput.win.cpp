@@ -2,6 +2,7 @@
 //=============
 
 #include "../UserInput.h"
+#include <bitset>
 
 // Helper Function Declarations
 //=============================
@@ -10,21 +11,27 @@ namespace
 {
 	bool IsVirtualKeyPressed(const int i_virtualKeyCode);
 	bool IsVirtualKeyPressedOnce(const int i_virtualKeyCode);
-	bool isKeyPressedOnce = false;
-	int keyThatIsPressedAndNotReleased = 0;
+	bool IsVirtualKeyPressedAndReleased(const int i_virtualKeyCode);
+	std::bitset<512>keyPress;
+	std::bitset<512>keyRelease;
 }
 
 // Interface
 //==========
 
-bool eae6320::UserInput::IsKeyPressed(const int i_virtualKeyCode)
+bool eae6320::UserInput::GetKey(const int i_virtualKeyCode)
 {
 	return IsVirtualKeyPressed(i_virtualKeyCode);
 }
 
-bool eae6320::UserInput::IsKeyPressedOnce(const int i_virtualKeyCode)
+bool eae6320::UserInput::GetKeyDown(const int i_virtualKeyCode)
 {
 	return IsVirtualKeyPressedOnce(i_virtualKeyCode);
+}
+
+bool eae6320::UserInput::GetKeyUp(const int i_virtualKeyCode)
+{
+	return IsVirtualKeyPressedAndReleased(i_virtualKeyCode);
 }
 
 bool eae6320::UserInput::IsMouseButtonPressed(const int i_virtualButtonCode)
@@ -39,23 +46,39 @@ namespace
 {
 	bool IsVirtualKeyPressed(const int i_virtualKeyCode)
 	{
-		short keyState = GetAsyncKeyState(i_virtualKeyCode);
+		const short keyState = GetAsyncKeyState(i_virtualKeyCode);
 		const short isKeyDownMask = ~1;
 		return (keyState & isKeyDownMask) != 0;
 	}
 
 	bool IsVirtualKeyPressedOnce(const int i_virtualKeyCode)
 	{
-		if ((GetAsyncKeyState(i_virtualKeyCode) & 0xfffe) && !isKeyPressedOnce)
+		const short keyState = GetAsyncKeyState(i_virtualKeyCode);
+		const short isKeyDownMask = ~1;
+		if ((keyState & isKeyDownMask) != 0 && !keyPress[i_virtualKeyCode])
 		{
-			keyThatIsPressedAndNotReleased = i_virtualKeyCode;
-			isKeyPressedOnce = true;
+			keyPress.set(i_virtualKeyCode);
 			return true;
 		}
-		else if (!(GetAsyncKeyState(keyThatIsPressedAndNotReleased) & 0xfffe))
+		if((keyState & isKeyDownMask) != 0)return false;
+		if ((keyState & isKeyDownMask) == 0 && keyPress[i_virtualKeyCode])keyPress.reset(i_virtualKeyCode);
+		return false;
+	}
+
+	bool IsVirtualKeyPressedAndReleased(const int i_virtualKeyCode)
+	{
+		const short keyState = GetAsyncKeyState(i_virtualKeyCode);
+		const short isKeyDownMask = ~1;
+		if ((keyState & isKeyDownMask) != 0 && !keyRelease[i_virtualKeyCode])
 		{
-			keyThatIsPressedAndNotReleased = 0;
-			isKeyPressedOnce = false;
+			keyRelease.set(i_virtualKeyCode);
+			return false;
+		}
+		if ((keyState & isKeyDownMask) != 0)return false;
+		if ((keyState & isKeyDownMask) == 0 && keyRelease[i_virtualKeyCode])
+		{
+			keyRelease.reset(i_virtualKeyCode);
+			return true;
 		}
 		return false;
 	}

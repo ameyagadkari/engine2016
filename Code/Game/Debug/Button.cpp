@@ -81,7 +81,7 @@ void eae6320::Debug::UI::Button::Update(std::string i_string)
 {
 	if (isDebugMenuEnabled)
 	{
-		if (isSelected && UserInput::IsKeyPressedOnce(VK_RETURN))
+		if (isSelected && UserInput::GetKeyDown(VK_RETURN))
 		{
 			m_pressed = true;
 		}

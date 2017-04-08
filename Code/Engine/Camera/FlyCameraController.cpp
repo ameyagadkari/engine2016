@@ -10,13 +10,13 @@ void eae6320::Camera::FlyCameraController::UpdatePosition(Gameplay::Transform& i
 {
 	Math::cVector localOffset = Math::cVector::zero;
 
-	if (UserInput::IsKeyPressed(VK_UP))
+	if (UserInput::GetKey(VK_UP))
 		localOffset += io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed(VK_DOWN))
+	if (UserInput::GetKey(VK_DOWN))
 		localOffset -= io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed(VK_RIGHT))
+	if (UserInput::GetKey(VK_RIGHT))
 		localOffset += io_transform.m_localAxes.m_right;
-	if (UserInput::IsKeyPressed(VK_LEFT))
+	if (UserInput::GetKey(VK_LEFT))
 		localOffset -= io_transform.m_localAxes.m_right;
 
 	const float speed_unitsPerSecond = 100.0f;
@@ -28,17 +28,19 @@ void eae6320::Camera::FlyCameraController::UpdatePosition(Gameplay::Transform& i
 void eae6320::Camera::FlyCameraController::UpdateOrientation(Gameplay::Transform& io_transform)const
 {
 	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::IsKeyPressed('H'))
+	if (UserInput::GetKey('H'))
 		localOffset.y += 1.0f;
-	if (UserInput::IsKeyPressed('F'))
+	if (UserInput::GetKey('F'))
 		localOffset.y -= 1.0f;
-	if (UserInput::IsKeyPressed('G'))
+	if (UserInput::GetKey('G'))
 		localOffset.x += 1.0f;
-	if (UserInput::IsKeyPressed('T'))
+	if (UserInput::GetKey('T'))
 		localOffset.x -= 1.0f;
 
 	const float speed_unitsPerSecond = 100.0f;
 	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 	localOffset *= offsetModifier;
-	io_transform.m_orientationEular += localOffset;
+	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
+
+	io_transform.UpdateLocalAxes();
 }

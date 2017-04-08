@@ -43,7 +43,7 @@ namespace eae6320
 
 				// Extracting and setting the initial orientation
 				data += sizeof(Math::cVector);
-				gameObject->m_transform.m_orientationEular = *reinterpret_cast<Math::cVector*>(data);
+				gameObject->m_transform.SetOrientationEular(*reinterpret_cast<Math::cVector*>(data));
 				gameObject->m_transform.UpdateLocalAxes();
 
 				// Extracting Controller Name Hash and initializing the right controller

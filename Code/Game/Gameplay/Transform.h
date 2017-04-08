@@ -5,6 +5,12 @@
 #include "LocalAxes.h"
 #include "../../Engine/Math/Functions.h"
 
+namespace
+{
+	const float MaxRange = 360.0f;
+	const float MaxRange2 = 360.0f;
+}
+
 namespace eae6320
 {
 	namespace Gameplay
@@ -13,8 +19,45 @@ namespace eae6320
 		{
 			LocalAxes m_localAxes;
 			Math::cVector m_position;
-			Math::cVector m_orientationEular;
-			Math::cQuaternion m_orientationQuaternion;
+			void SetOrientationEular(const Math::cVector i_orientationEular)
+			{
+				if (i_orientationEular.x > MaxRange)m_orientationEular.x = i_orientationEular.x - MaxRange2;
+				else if (i_orientationEular.x < MaxRange)m_orientationEular.x = i_orientationEular.x + MaxRange2;
+				else m_orientationEular.x = i_orientationEular.x;
+
+				if (i_orientationEular.y > MaxRange)m_orientationEular.y = i_orientationEular.y - MaxRange2;
+				else if (i_orientationEular.y < MaxRange)m_orientationEular.y = i_orientationEular.y + MaxRange2;
+				else m_orientationEular.y = i_orientationEular.y;
+
+
+				if (i_orientationEular.z > MaxRange)m_orientationEular.z = i_orientationEular.z - MaxRange2;
+				else if (i_orientationEular.z < MaxRange)m_orientationEular.z = i_orientationEular.z + MaxRange2;
+				else m_orientationEular.z = i_orientationEular.z;
+			}
+
+			void SetOrientationEular(const float i_x, const float i_y, const float i_z)
+			{
+				if (i_x > MaxRange)m_orientationEular.x = i_x - MaxRange2;
+				else if (i_x < MaxRange)m_orientationEular.x = i_x + MaxRange2;
+				else m_orientationEular.x = i_x;
+
+				if (i_y > MaxRange)m_orientationEular.y = i_y - MaxRange2;
+				else if (i_y < MaxRange)m_orientationEular.y = i_y + MaxRange2;
+				else m_orientationEular.y = i_y;
+
+
+				if (i_z > MaxRange)m_orientationEular.z = i_z - MaxRange2;
+				else if (i_z < MaxRange)m_orientationEular.z = i_z + MaxRange2;
+				else m_orientationEular.z = i_z;
+			}
+			Math::cVector GetOrientationEular()const
+			{
+				return m_orientationEular;
+			}
+			Math::cQuaternion GetOrientationQuarternion()const
+			{
+				return m_orientationQuaternion;
+			}
 			void UpdateLocalAxes(bool UpdateForward = true, Math::cVector i_forward = Math::cVector::zero)
 			{
 				Math::cVector forward;
@@ -49,6 +92,9 @@ namespace eae6320
 			{
 				UpdateLocalAxes();
 			}
+		private:
+			Math::cQuaternion m_orientationQuaternion;
+			Math::cVector m_orientationEular;
 		};
 	}
 }

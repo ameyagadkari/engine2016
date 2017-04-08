@@ -22,13 +22,13 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 {
 	Math::cVector localOffset = Math::cVector::zero;
 
-	if (UserInput::IsKeyPressed('W'))
+	if (UserInput::GetKey('W'))
 		localOffset += io_transform.m_localAxes.m_forward;
 	//if (UserInput::IsKeyPressed('S'))
 	//	localOffset -= io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed('D'))
+	if (UserInput::GetKey('D'))
 		localOffset += io_transform.m_localAxes.m_right;
-	if (UserInput::IsKeyPressed('A'))
+	if (UserInput::GetKey('A'))
 		localOffset -= io_transform.m_localAxes.m_right;
 
 	Math::cVector acceleration = localOffset * m_acceleration;
@@ -105,15 +105,15 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 void eae6320::Gameplay::PlayerController::UpdateOrientation(Transform& io_transform) const
 {
 	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::IsKeyPressed('D'))
+	if (UserInput::GetKey('D'))
 		localOffset.y += 1.0f;
-	if (UserInput::IsKeyPressed('A'))
+	if (UserInput::GetKey('A'))
 		localOffset.y -= 1.0f;
-	if (UserInput::IsKeyPressedOnce('S'))
+	if (UserInput::GetKeyDown('S'))
 	{
-		io_transform.m_localAxes.m_forward = -io_transform.m_localAxes.m_forward;
-		io_transform.m_orientationEular.y += 180.0f;
-		io_transform.UpdateLocalAxes(false, io_transform.m_localAxes.m_forward);
+		//io_transform.m_localAxes.m_forward = -io_transform.m_localAxes.m_forward;
+		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
+		io_transform.UpdateLocalAxes(/*false, io_transform.m_localAxes.m_forward*/);
 		return;
 	}
 
@@ -121,6 +121,6 @@ void eae6320::Gameplay::PlayerController::UpdateOrientation(Transform& io_transf
 	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 	localOffset *= offsetModifier;
 
-	io_transform.m_orientationEular += localOffset;
+	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
 	io_transform.UpdateLocalAxes();
 }

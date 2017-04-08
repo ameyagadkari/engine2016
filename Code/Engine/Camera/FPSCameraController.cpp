@@ -12,13 +12,13 @@ void eae6320::Camera::FPSCameraController::UpdatePosition(Gameplay::Transform& i
 {
 	Math::cVector localOffset = Math::cVector::zero;
 
-	if (UserInput::IsKeyPressed('W'))
+	if (UserInput::GetKey('W'))
 		localOffset += io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed('S'))
+	if (UserInput::GetKey('S'))
 		localOffset -= io_transform.m_localAxes.m_forward;
-	if (UserInput::IsKeyPressed('D'))
+	if (UserInput::GetKey('D'))
 		localOffset += io_transform.m_localAxes.m_right;
-	if (UserInput::IsKeyPressed('A'))
+	if (UserInput::GetKey('A'))
 		localOffset -= io_transform.m_localAxes.m_right;
 
 	const float speed_unitsPerSecond = 250.0f;
@@ -29,7 +29,7 @@ void eae6320::Camera::FPSCameraController::UpdatePosition(Gameplay::Transform& i
 	//CheckCollision(o_position + localOffset, i_localAxes, &forwardHitData);
 	if (!Physics::isPlayerOnGround)localOffset -= Math::cVector::up*10.0f;
 	if (Physics::isPlayerFowardHit)
-	{	
+	{
 		float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
 		float dist = Dot(forwardHitData.normal, io_transform.m_position + localOffset) + d;
 		Math::cVector currentProjection = (io_transform.m_position + localOffset) - (forwardHitData.normal*dist);
@@ -45,20 +45,21 @@ void eae6320::Camera::FPSCameraController::UpdatePosition(Gameplay::Transform& i
 void eae6320::Camera::FPSCameraController::UpdateOrientation(Gameplay::Transform& io_transform) const
 {
 	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::IsKeyPressed('H'))
+	if (UserInput::GetKey('H'))
 		localOffset.y += 1.0f;
-	if (UserInput::IsKeyPressed('F'))
+	if (UserInput::GetKey('F'))
 		localOffset.y -= 1.0f;
-	if (UserInput::IsKeyPressed('G'))
+	if (UserInput::GetKey('G'))
 		localOffset.x += 1.0f;
-	if (UserInput::IsKeyPressed('T'))
+	if (UserInput::GetKey('T'))
 		localOffset.x -= 1.0f;
 
 	const float speed_unitsPerSecond = 200.0f;
 	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 	localOffset *= offsetModifier;
 
-	io_transform.m_orientationEular += localOffset;
-	if (io_transform.m_orientationEular.x > 89.0f)io_transform.m_orientationEular.x = 89.0f;
-	if (io_transform.m_orientationEular.x < -89.0f)io_transform.m_orientationEular.x = -89.0f;
+	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
+	Math::cVector currentEularOrientation(io_transform.GetOrientationEular());
+	if (currentEularOrientation.x > 89.0f)io_transform.SetOrientationEular(89.0f, currentEularOrientation.y, currentEularOrientation.z);
+	if (currentEularOrientation.x < -89.0f)io_transform.SetOrientationEular(-89.0f, currentEularOrientation.y, currentEularOrientation.z);
 }

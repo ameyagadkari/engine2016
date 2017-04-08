@@ -49,13 +49,13 @@ void eae6320::Debug::UI::IUIController::GetColor(float & o_r, float & o_g, float
 
 void eae6320::Debug::UI::IUIController::ProcessInput()
 {
-	if (UserInput::IsKeyPressedOnce(VK_OEM_3))
+	if (UserInput::GetKeyDown(VK_OEM_3))
 	{
 		isDebugMenuEnabled = !isDebugMenuEnabled;
 	}
 	if (isDebugMenuEnabled)
 	{
-		if (UserInput::IsKeyPressedOnce(VK_DOWN))
+		if (UserInput::GetKeyDown(VK_DOWN))
 		{
 			currentSelectedUI->isSelected = false;
 			if (currentSelectedUINumber == maxUIElements - 1)
@@ -69,7 +69,7 @@ void eae6320::Debug::UI::IUIController::ProcessInput()
 			currentSelectedUI = debugUIs[currentSelectedUINumber];
 			currentSelectedUI->isSelected = true;
 		}
-		if (UserInput::IsKeyPressedOnce(VK_UP))
+		if (UserInput::GetKeyDown(VK_UP))
 		{
 			currentSelectedUI->isSelected = false;
 			if (currentSelectedUINumber == 0)

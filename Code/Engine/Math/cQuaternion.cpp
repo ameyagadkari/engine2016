@@ -6,6 +6,7 @@
 #include <cmath>
 #include "cVector.h"
 #include "../Asserts/Asserts.h"
+#include "Functions.h"
 
 // Static Data Initialization
 //===========================
@@ -164,4 +165,79 @@ eae6320::Math::cQuaternion eae6320::Math::cQuaternion::SlerpNoInvert(const cQuat
 		return (q1*sinf(angle*(1 - t)) + q2*sinf(angle*t)) / sinf(angle);
 	}
 	return Lerp(q1, q2, t);  // if the angle is small, use linear interpolation	
+}
+
+// RotateVector
+eae6320::Math::cVector eae6320::Math::cQuaternion::operator*(const cVector & i_rhs) const
+{
+	float num = m_x * 2.0f;
+	float num2 = m_y * 2.0f;
+	float num3 = m_z * 2.0f;
+	float num4 = m_x * num;
+	float num5 = m_y * num2;
+	float num6 = m_z * num3;
+	float num7 = m_x * num2;
+	float num8 = m_x * num3;
+	float num9 = m_y * num3;
+	float num10 = m_w * num;
+	float num11 = m_w * num2;
+	float num12 = m_w * num3;
+	cVector result;
+	result.x = (1.0f - (num5 + num6)) * i_rhs.x + (num7 - num12) * i_rhs.y + (num8 + num11) * i_rhs.z;
+	result.y = (num7 + num12) * i_rhs.x + (1.0f - (num4 + num6)) * i_rhs.y + (num9 - num10) * i_rhs.z;
+	result.z = (num8 - num11) * i_rhs.x + (num9 + num10) * i_rhs.y + (1.0f - (num4 + num5)) * i_rhs.z;
+	return result;
+}
+
+eae6320::Math::cQuaternion eae6320::Math::cQuaternion::LookRotation(cVector source, cVector destination)
+{
+	cVector difference = destination - source;
+	difference.y = 0.0;
+	cVector forwardVector(difference.CreateNormalized());
+
+	float dot = Dot(cVector::back, forwardVector);
+
+	if (fabs(dot + 1.0f) < s_epsilon)
+	{
+		return cQuaternion(Pi, 0, 1, 0);
+	}
+	if (fabs(dot - 1.0f) < s_epsilon)
+	{
+		return cQuaternion();
+	}
+
+	float rotationAngle = acosf(dot);
+	cVector rotationAxis = Cross(cVector::back, forwardVector);
+	rotationAxis.Normalize();
+	rotationAxis.Normalize();
+	return cQuaternion(rotationAngle, rotationAxis);
+}
+
+eae6320::Math::cVector eae6320::Math::cQuaternion::ToEular() const
+{
+	cVector eularAngles;
+	float sqw = m_w*m_w;
+	float sqx = m_x*m_x;
+	float sqy = m_y*m_y;
+	float sqz = m_z*m_z;
+	float unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+	float test = m_x*m_y + m_z*m_w;
+	if (test > 0.499f*unit) 
+	{ // singularity at north pole
+		eularAngles.y = -ConvertRadiansToDegrees(2 * atan2f(m_x, m_w));
+		eularAngles.z = -ConvertRadiansToDegrees(Pi / 2);
+		eularAngles.x = 0;
+		return eularAngles;
+	}
+	if (test < -0.499f*unit) 
+	{ // singularity at south pole
+		eularAngles.y = -ConvertRadiansToDegrees(-2 * atan2f(m_x, m_w));
+		eularAngles.z = -ConvertRadiansToDegrees(-Pi / 2);
+		eularAngles.x = 0;
+		return eularAngles;
+	}
+	eularAngles.y = -ConvertRadiansToDegrees(atan2f(2 * m_y*m_w - 2 * m_x*m_z, sqx - sqy - sqz + sqw));
+	eularAngles.z = -ConvertRadiansToDegrees(asinf(2 * test / unit));
+	eularAngles.x = ConvertRadiansToDegrees(atan2f(2 * m_x*m_w - 2 * m_y*m_z, -sqx + sqy - sqz + sqw));
+	return eularAngles;
 }

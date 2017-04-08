@@ -85,13 +85,13 @@ void eae6320::Debug::UI::Slider::Update(std::string i_string)
 	if (isDebugMenuEnabled && isSelected)
 	{
 		float offsetModifier;
-		if (UserInput::IsKeyPressed(VK_LEFT))
+		if (UserInput::GetKey(VK_LEFT))
 		{
 			offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 			m_value = (m_value > m_minValue) ? m_value - offsetModifier : m_minValue;
 			RecalculateSliderbarWidth();
 		}
-		if (UserInput::IsKeyPressed(VK_RIGHT))
+		if (UserInput::GetKey(VK_RIGHT))
 		{
 			offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 			m_value = (m_value < m_maxValue) ? m_value + offsetModifier : m_maxValue;

@@ -131,7 +131,7 @@ void eae6320::Graphics::RenderFrame()
 	ClearScreen();
 	// Update the constant buffer
 	{
-		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetTransform().m_orientationQuaternion, camera->GetTransform().m_position);
+		frameBufferData.g_transform_worldToCamera = Math::cMatrix_transformation::CreateWorldToCameraTransform(camera->GetTransform().GetOrientationQuarternion(), camera->GetTransform().m_position);
 		frameBufferData.g_transform_cameraToScreen = Math::cMatrix_transformation::CreateCameraToScreenTransform_perspectiveProjection(camera->GetFieldOfView(), camera->GetAspectRatio(), camera->GetNearPlaneDistance(), camera->GetFarPlaneDistance());
 		frameBufferData.g_elapsedSecondCount_total = Time::GetElapsedSecondCount_total();
 		frameBuffer->UpdateConstantBuffer(&frameBufferData, sizeof(frameBufferData));
@@ -141,7 +141,7 @@ void eae6320::Graphics::RenderFrame()
 	{
 		SortGameObjects();
 		ConstantBufferData::sDrawCall drawCallBufferData;
-		for (auto it = sortedGameObjects.begin(); it != sortedGameObjects.end(); it++)
+		for (auto it = sortedGameObjects.begin(); it != sortedGameObjects.end(); ++it)
 		{
 			Material*material = (*it)->GetMaterial();
 			if (currentMaterialUUID != material->GetMaterialUUID())
@@ -149,7 +149,7 @@ void eae6320::Graphics::RenderFrame()
 				material->BindMaterial();
 				currentMaterialUUID = material->GetMaterialUUID();
 			}
-			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetTransform().m_orientationQuaternion, (*it)->GetTransform().m_position);
+			drawCallBufferData.g_transform_localToWorld = Math::cMatrix_transformation((*it)->GetTransform().GetOrientationQuarternion(), (*it)->GetTransform().m_position);
 			drawCallBuffer->UpdateConstantBuffer(&drawCallBufferData, sizeof(drawCallBufferData));
 			(*it)->GetMesh()->RenderMesh();
 		}

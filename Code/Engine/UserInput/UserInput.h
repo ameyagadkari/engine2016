@@ -25,8 +25,9 @@ namespace eae6320
 		// Note that these codes are in Winuser.h,
 		// and this interface is _not_ platform-independent.
 
-		bool IsKeyPressed( const int i_virtualKeyCode );
-		bool IsKeyPressedOnce(const int i_virtualKeyCode);
+		bool GetKey( const int i_virtualKeyCode );
+		bool GetKeyDown(const int i_virtualKeyCode);
+		bool GetKeyUp(const int i_virtualKeyCode);
 		bool IsMouseButtonPressed( const int i_virtualButtonCode );
 	}
 }

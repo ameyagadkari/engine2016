@@ -30,6 +30,9 @@ namespace eae6320
 
 		public:
 
+			// RotateVector
+			cVector operator *(const cVector& i_rhs) const;
+
 			// Concatenation
 			cQuaternion operator *(const cQuaternion& i_rhs) const;
 
@@ -52,6 +55,10 @@ namespace eae6320
 
 			// Products
 			friend float Dot(const cQuaternion& i_lhs, const cQuaternion& i_rhs);
+
+			static cQuaternion LookRotation(cVector source, cVector destination);
+
+			cVector ToEular() const;
 
 			// Initialization / Shut Down
 			//---------------------------
