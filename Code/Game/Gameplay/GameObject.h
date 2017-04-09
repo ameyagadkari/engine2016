@@ -42,6 +42,7 @@ namespace eae6320
 			Graphics::Mesh* GetMesh()const;
 			Transform GetTransform()const;
 			Transform& GetTransformAddress();
+			cbController& GameObject::GetController()const;
 #pragma endregion
 
 #pragma region Sets

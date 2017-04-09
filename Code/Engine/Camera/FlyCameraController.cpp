@@ -25,7 +25,7 @@ void eae6320::Camera::FlyCameraController::UpdatePosition(Gameplay::Transform& i
 	io_transform.m_position += localOffset;
 }
 
-void eae6320::Camera::FlyCameraController::UpdateOrientation(Gameplay::Transform& io_transform)const
+void eae6320::Camera::FlyCameraController::UpdateOrientation(Gameplay::Transform& io_transform)
 {
 	Math::cVector localOffset = Math::cVector::zero;
 	if (UserInput::GetKey('H'))

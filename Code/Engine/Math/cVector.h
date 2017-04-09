@@ -39,9 +39,10 @@ namespace eae6320
 
 			// Length / Normalization
 			float GetLength() const;
+			float SqrGetLength() const;
 			void Normalize();
 			cVector CreateNormalized() const;
-			cVector ClampMagnitude(const float i_maxLength) const;
+			static cVector ClampMagnitude(const cVector& i_vector, const float i_maxLength);
 			float DistanceBetween(const cVector& i_other) const;
 
 			// Interpolation

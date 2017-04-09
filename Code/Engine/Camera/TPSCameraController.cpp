@@ -25,10 +25,7 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	if (!m_playerTransform)return;
 	if (notDone)
 	{
-		Math::cVector desiredStart =
-			/*m_playerTransform->m_position*/ -
-			m_playerTransform->m_localAxes.m_forward*500.0f +
-			m_playerTransform->m_localAxes.m_up*50.0f;
+		Math::cVector desiredStart = -m_playerTransform->m_localAxes.m_forward*500.0f + m_playerTransform->m_localAxes.m_up*50.0f;
 		offset = m_playerTransform->m_position - desiredStart;
 		notDone = false;
 	}
@@ -72,6 +69,6 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	io_transform.UpdateLocalAxes();
 }
 
-void eae6320::Camera::TPSCameraController::UpdateOrientation(Gameplay::Transform& io_transform) const
+void eae6320::Camera::TPSCameraController::UpdateOrientation(Gameplay::Transform& io_transform)
 {
 }

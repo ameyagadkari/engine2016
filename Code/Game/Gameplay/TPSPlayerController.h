@@ -38,7 +38,7 @@ namespace eae6320
 			}
 
 			void UpdatePosition(Transform& io_transform) override;
-			void UpdateOrientation(Transform& io_transform)const override;
+			void UpdateOrientation(Transform& io_transform) override;
 			Math::cVector m_velocity;
 			Math::cVector m_velocity2;
 			Debug::Shapes::DebugObject* m_forward;

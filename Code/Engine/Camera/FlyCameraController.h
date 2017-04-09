@@ -16,7 +16,7 @@ namespace eae6320
 		private:
 			FlyCameraController() = default;
 			void UpdatePosition(Gameplay::Transform& io_transform) override;
-			void UpdateOrientation(Gameplay::Transform& io_transform)const override;
+			void UpdateOrientation(Gameplay::Transform& io_transform) override;
 		};
 	}
 }

@@ -7,5 +7,5 @@ uint32_t const eae6320::Gameplay::DefaultController::classUUID(StringHandler::Ha
 
 void eae6320::Gameplay::DefaultController::UpdatePosition(Transform& io_transformn) {}
 
-void eae6320::Gameplay::DefaultController::UpdateOrientation(Transform& io_transform) const{}
+void eae6320::Gameplay::DefaultController::UpdateOrientation(Transform& io_transform){}
 

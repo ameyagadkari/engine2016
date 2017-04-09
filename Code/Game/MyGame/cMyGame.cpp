@@ -18,9 +18,10 @@
 #include "../../Engine/Camera/Camera.h"
 #include "../../Engine/Camera/FPSCameraController.h"
 #include "../../Engine/Camera/FlyCameraController.h"
-#include "../../Engine/Camera/TPSCameraController.h"
+//#include "../../Engine/Camera/TPSCameraController.h"
 #include "../../Engine/Time/Time.h"
-#include "../Gameplay/TPSPlayerController.h"
+#include "../Gameplay/FPSPlayerController.h"
+//#include "../Gameplay/TPSPlayerController.h"
 
 
 // Interface
@@ -95,13 +96,27 @@ bool eae6320::cMyGame::Initialize()
 	//Make different cameras and pushback in cameras vector
 	//Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
 	//Camera::Camera::PushBackToVector(tpsCam);
-	Camera::Camera *fpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FPSCameraController::Initialize()), Math::cVector(0.0, 100.0, 200.0));
+	Camera::Camera *fpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
 	Camera::Camera::PushBackToVector(fpsCam);
 	Camera::Camera *flyCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::Camera::PushBackToVector(flyCam);
 
 	//After adding all cameras, doing this is must
 	Camera::Camera::UpdateMaxCameras();
+
+
+	for (auto const& gameObject : gameObjects)
+	{
+		if (gameObject.second)
+		{
+			if (gameObject.second->m_controllerUUID == Gameplay::FPSPlayerController::classUUID)
+			{
+				reinterpret_cast<Camera::FPSCameraController&>(fpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
+				reinterpret_cast<Gameplay::FPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&fpsCam->GetTransformAddress());
+				break;
+			}
+		}
+	}
 
 	/*for (auto const& gameObject : gameObjects)
 	{

@@ -20,31 +20,34 @@ uint32_t const eae6320::Gameplay::FPSPlayerController::classUUID(StringHandler::
 
 void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transform)
 {
+	if (!m_cameraTransform)return;
 	Math::cVector localOffset = Math::cVector::zero;
 
 	if (UserInput::GetKey('W'))
 		localOffset += io_transform.m_localAxes.m_forward;
-	//if (UserInput::IsKeyPressed('S'))
-	//	localOffset -= io_transform.m_localAxes.m_forward;
+	if (UserInput::GetKey('S'))
+		localOffset -= io_transform.m_localAxes.m_forward;
 	if (UserInput::GetKey('D'))
 		localOffset += io_transform.m_localAxes.m_right;
 	if (UserInput::GetKey('A'))
 		localOffset -= io_transform.m_localAxes.m_right;
 
 	Math::cVector acceleration = localOffset * m_acceleration;
-	Math::cVector tempPosition;
+	//Math::cVector tempPosition;
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity = m_velocity.ClampMagnitude(s_maxVelocity);
+		m_velocity = Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
 	}
 	else
 	{
 		m_velocity = Math::cVector::zero;
 	}
-	tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
+	/*tempPosition =*/
+	io_transform.m_position += m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
+	m_cameraTransform->m_position = io_transform.m_position;
 
-	Physics::HitData forwardHitData;
+	/*Physics::HitData forwardHitData;
 	Physics::HitData downHitData;
 	CheckCollision(tempPosition, io_transform.m_localAxes, m_height, &forwardHitData, &downHitData);
 	Math::cVector feetPosition = tempPosition - Math::cVector::up*m_height;
@@ -110,6 +113,5 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	o_position += localOffset;*/
 }
 
-void eae6320::Gameplay::FPSPlayerController::UpdateOrientation(Transform& io_transform) const
-{
-}
+void eae6320::Gameplay::FPSPlayerController::UpdateOrientation(Transform& io_transform)
+{}

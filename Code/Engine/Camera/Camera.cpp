@@ -36,6 +36,11 @@ eae6320::Gameplay::cbController& eae6320::Camera::Camera::GetController() const
 {
 	return *m_controller;
 }
+
+eae6320::Gameplay::Transform& eae6320::Camera::Camera::GetTransformAddress()
+{
+	return m_transform;
+}
 #pragma endregion
 
 #pragma region Sets

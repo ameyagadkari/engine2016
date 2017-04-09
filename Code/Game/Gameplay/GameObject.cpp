@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "FPSPlayerController.h"
 #include "TPSPlayerController.h"
 #include "StandardRotationController.h"
 #include "DefaultController.h"
@@ -53,6 +54,10 @@ namespace eae6320
 					if (gameObject->m_controllerUUID == TPSPlayerController::classUUID)
 					{
 						gameObject->m_controller = reinterpret_cast<cbController*>(TPSPlayerController::Initialize(1000.0f, 105.0f));
+					}
+					else if (gameObject->m_controllerUUID == FPSPlayerController::classUUID)
+					{
+						gameObject->m_controller = reinterpret_cast<cbController*>(FPSPlayerController::Initialize(1000.0f, 105.0f));
 					}
 					else if (gameObject->m_controllerUUID == DefaultController::classUUID)
 					{
@@ -144,6 +149,10 @@ namespace eae6320
 		Transform& GameObject::GetTransformAddress()
 		{
 			return m_transform;
+		}
+		cbController& GameObject::GetController()const
+		{
+			return *m_controller;
 		}
 #pragma endregion
 

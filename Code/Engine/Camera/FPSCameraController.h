@@ -28,7 +28,7 @@ namespace eae6320
 				m_acceleration(i_acceleration)
 			{}
 			void UpdatePosition(Gameplay::Transform& io_transform) override;
-			void UpdateOrientation(Gameplay::Transform& io_transform)const override;
+			void UpdateOrientation(Gameplay::Transform& io_transform) override;
 			Gameplay::Transform* m_playerTransform;
 			Math::cVector m_velocity;
 			const float m_acceleration;

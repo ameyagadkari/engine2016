@@ -28,7 +28,7 @@ namespace eae6320
 			{
 				return new FPSPlayerController(i_acceleration, i_height);
 			}
-			void SetPlayerTransform(Transform* i_cameraTransform)
+			void SetCameraTransform(Transform* i_cameraTransform)
 			{
 				m_cameraTransform = i_cameraTransform;
 			}
@@ -45,7 +45,7 @@ namespace eae6320
 			{}
 
 			void UpdatePosition(Transform& io_transform) override;
-			void UpdateOrientation(Transform& io_transform)const override;
+			void UpdateOrientation(Transform& io_transform) override;
 
 			Math::cVector m_velocity;
 			Math::cVector m_velocity2;

@@ -36,7 +36,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity = m_velocity.ClampMagnitude(s_maxVelocity);
+		m_velocity = Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
 	}
 	else
 	{
@@ -52,7 +52,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	if (!Physics::isPlayerOnGround)
 	{
 		m_velocity2 -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity2 = m_velocity2.ClampMagnitude(s_maxVelocity);
+		m_velocity2 = Math::cVector::ClampMagnitude(m_velocity2, s_maxVelocity);
 	}
 	else
 	{
@@ -110,7 +110,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	o_position += localOffset;*/
 }
 
-void eae6320::Gameplay::TPSPlayerController::UpdateOrientation(Transform& io_transform) const
+void eae6320::Gameplay::TPSPlayerController::UpdateOrientation(Transform& io_transform)
 {
 	Math::cVector localOffset = Math::cVector::zero;
 	if (UserInput::GetKey('D'))

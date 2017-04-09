@@ -16,7 +16,7 @@ namespace eae6320
 			explicit DefaultController() {}
 
 			void UpdatePosition(Transform& io_transform) override;
-			void UpdateOrientation(Transform& io_transform)const override;
+			void UpdateOrientation(Transform& io_transform) override;
 		};
 	}
 }

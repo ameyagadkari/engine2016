@@ -15,7 +15,7 @@ namespace eae6320
 		private:
 			explicit StandardRotationController(const float i_speed) : m_speed(i_speed) {}
 			void UpdatePosition(Transform& io_transform) override;
-			void UpdateOrientation(Transform& io_transform)const override;
+			void UpdateOrientation(Transform& io_transform) override;
 			const float m_speed;
 		};
 	}
