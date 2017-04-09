@@ -1,5 +1,5 @@
-#ifndef EAE6320_PLAYER_CONTROLLER_H
-#define EAE6320_PLAYER_CONTROLLER_H
+#ifndef EAE6320_TPS_PLAYER_CONTROLLER_H
+#define EAE6320_TPS_PLAYER_CONTROLLER_H
 
 #include "cbController.h"
 #include <cstdint>
@@ -20,13 +20,13 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		class PlayerController final : cbController
+		class TPSPlayerController final : cbController
 		{
 		public:
 			static const uint32_t classUUID;
-			static PlayerController* Initialize(const float i_acceleration = 0.0f, const float i_height = 0.0f) { return new PlayerController(i_acceleration, i_height); }
+			static TPSPlayerController* Initialize(const float i_acceleration = 0.0f, const float i_height = 0.0f) { return new TPSPlayerController(i_acceleration, i_height); }
 		private:
-			explicit PlayerController(const float i_acceleration, const float i_height)
+			explicit TPSPlayerController(const float i_acceleration, const float i_height)
 				:
 				m_velocity(Math::cVector::zero),
 				m_velocity2(Math::cVector::zero),
@@ -49,4 +49,4 @@ namespace eae6320
 	}
 }
 
-#endif // !EAE6320_PLAYER_CONTROLLER_H
+#endif // !EAE6320_TPS_PLAYER_CONTROLLER_H

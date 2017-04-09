@@ -3,6 +3,7 @@
 
 #include "../../Game/Gameplay/cbController.h"
 #include <cstdint>
+#include "../Math/cVector.h"
 
 namespace eae6320
 {
@@ -12,11 +13,25 @@ namespace eae6320
 		{
 		public:
 			static const uint32_t classUUID;
-			static FPSCameraController* Initialize() { return new FPSCameraController(); }
+			static FPSCameraController* Initialize(const float i_acceleration = 0.0f)
+			{
+				return new FPSCameraController(i_acceleration);
+			}
+			void SetPlayerTransform(Gameplay::Transform* i_playerTransform)
+			{
+				m_playerTransform = i_playerTransform;
+			}
 		private:
-			FPSCameraController() = default;
+			explicit FPSCameraController(const float i_acceleration)
+				:
+				m_playerTransform(nullptr),
+				m_acceleration(i_acceleration)
+			{}
 			void UpdatePosition(Gameplay::Transform& io_transform) override;
 			void UpdateOrientation(Gameplay::Transform& io_transform)const override;
+			Gameplay::Transform* m_playerTransform;
+			Math::cVector m_velocity;
+			const float m_acceleration;
 		};
 	}
 }

@@ -59,22 +59,15 @@ namespace eae6320
 			{
 				return m_orientationQuaternion;
 			}
-			void UpdateLocalAxes(bool UpdateForward = true, Math::cVector i_forward = Math::cVector::zero)
+			void UpdateLocalAxes()
 			{
 				Math::cVector forward;
 
-				if (UpdateForward)
-				{
-					forward.z = -cosf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
-						cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-					forward.y = -sinf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-					forward.x = sinf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
-						cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-				}
-				else
-				{
-					forward = i_forward;
-				}
+				forward.z = -cosf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
+					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
+				forward.y = -sinf(Math::ConvertDegreesToRadians(m_orientationEular.x));
+				forward.x = sinf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
+					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
 
 				m_localAxes.m_forward = forward.CreateNormalized();
 				m_localAxes.m_right = Cross(m_localAxes.m_forward, Math::cVector::up).CreateNormalized();

@@ -1,4 +1,4 @@
-#include "PlayerController.h"
+#include "FPSPlayerController.h"
 
 #include"../../Engine/Time/Time.h"
 #include "../../Engine/StringHandler/HashedString.h"
@@ -16,9 +16,9 @@ namespace
 	const float s_maxVelocity = 250.0f;
 }
 
-uint32_t const eae6320::Gameplay::PlayerController::classUUID(StringHandler::HashedString("PlayerController").GetHash());
+uint32_t const eae6320::Gameplay::FPSPlayerController::classUUID(StringHandler::HashedString("FPSPlayerController").GetHash());
 
-void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform)
+void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transform)
 {
 	Math::cVector localOffset = Math::cVector::zero;
 
@@ -98,37 +98,18 @@ void eae6320::Gameplay::PlayerController::UpdatePosition(Transform& io_transform
 	}
 	/*if (Physics::isPlayerFowardHit)
 	{
-		float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
-		float dist = Dot(forwardHitData.normal, o_position + localOffset) + d;
-		Math::cVector currentProjection = (o_position + localOffset) - (forwardHitData.normal*dist);
-		Math::cVector newForward = (forwardHitData.intersectionPoint - currentProjection);
-		localOffset -= i_localAxes.m_forward*offsetModifier;
-		localOffset += newForward*10.0f;
+	float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
+	float dist = Dot(forwardHitData.normal, o_position + localOffset) + d;
+	Math::cVector currentProjection = (o_position + localOffset) - (forwardHitData.normal*dist);
+	Math::cVector newForward = (forwardHitData.intersectionPoint - currentProjection);
+	localOffset -= i_localAxes.m_forward*offsetModifier;
+	localOffset += newForward*10.0f;
 	}
 	Physics::isPlayerOnGround = true;
 	Physics::isPlayerFowardHit = false;
 	o_position += localOffset;*/
 }
 
-void eae6320::Gameplay::PlayerController::UpdateOrientation(Transform& io_transform) const
+void eae6320::Gameplay::FPSPlayerController::UpdateOrientation(Transform& io_transform) const
 {
-	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::GetKey('D'))
-		localOffset.y += 1.0f;
-	if (UserInput::GetKey('A'))
-		localOffset.y -= 1.0f;
-	if (UserInput::GetKeyDown('S'))
-	{
-		//io_transform.m_localAxes.m_forward = -io_transform.m_localAxes.m_forward;
-		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
-		io_transform.UpdateLocalAxes(/*false, io_transform.m_localAxes.m_forward*/);
-		return;
-	}
-
-	const float speed_unitsPerSecond = 200.0f;
-	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-	localOffset *= offsetModifier;
-
-	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
-	io_transform.UpdateLocalAxes();
 }

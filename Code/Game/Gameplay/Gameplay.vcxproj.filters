@@ -4,17 +4,19 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="StandardRotationController.cpp" />
     <ClCompile Include="GameObject2D.cpp" />
-    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="DefaultController.cpp" />
+    <ClCompile Include="TPSPlayerController.cpp" />
+    <ClCompile Include="FPSPlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="StandardRotationController.h" />
     <ClInclude Include="GameObject2D.h" />
-    <ClInclude Include="PlayerController.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="LocalAxes.h" />
     <ClInclude Include="cbController.h" />
     <ClInclude Include="DefaultController.h" />
+    <ClInclude Include="TPSPlayerController.h" />
+    <ClInclude Include="FPSPlayerController.h" />
   </ItemGroup>
 </Project>

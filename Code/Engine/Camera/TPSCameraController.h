@@ -7,14 +7,6 @@
 
 namespace eae6320
 {
-	namespace Gameplay
-	{
-		struct Transform;
-	}
-}
-
-namespace eae6320
-{
 	namespace Camera
 	{
 		class TPSCameraController final : Gameplay::cbController

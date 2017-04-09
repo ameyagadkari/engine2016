@@ -1,0 +1,9 @@
+-- Gameobject Data for PlayerThirdPerson
+return
+{
+	material_filepath = "materials/std_material.txtmaterial",
+	mesh_filepath = "meshes/playerthirdperson.txtmesh",
+	controller_name = "TPSPlayerController",
+	position = {0.0,100.0,100.0},
+	eular_angles = {0.0,0.0,0.0},	
+}

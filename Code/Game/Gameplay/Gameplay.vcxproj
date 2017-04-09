@@ -20,18 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DefaultController.cpp" />
+    <ClCompile Include="FPSPlayerController.cpp" />
     <ClCompile Include="GameObject2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="PlayerController.cpp" />
+    <ClCompile Include="TPSPlayerController.cpp" />
     <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultController.h" />
+    <ClInclude Include="FPSPlayerController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject2D.h" />
     <ClInclude Include="cbController.h" />
     <ClInclude Include="LocalAxes.h" />
-    <ClInclude Include="PlayerController.h" />
+    <ClInclude Include="TPSPlayerController.h" />
     <ClInclude Include="StandardRotationController.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>

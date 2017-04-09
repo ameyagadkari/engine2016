@@ -1,5 +1,5 @@
 #include "GameObject.h"
-#include "PlayerController.h"
+#include "TPSPlayerController.h"
 #include "StandardRotationController.h"
 #include "DefaultController.h"
 
@@ -50,9 +50,9 @@ namespace eae6320
 				data += sizeof(Math::cVector);
 				{
 					gameObject->m_controllerUUID = *reinterpret_cast<uint32_t *>(data);
-					if (gameObject->m_controllerUUID == PlayerController::classUUID)
+					if (gameObject->m_controllerUUID == TPSPlayerController::classUUID)
 					{
-						gameObject->m_controller = reinterpret_cast<cbController*>(PlayerController::Initialize(1000.0f, 105.0f));
+						gameObject->m_controller = reinterpret_cast<cbController*>(TPSPlayerController::Initialize(1000.0f, 105.0f));
 					}
 					else if (gameObject->m_controllerUUID == DefaultController::classUUID)
 					{
