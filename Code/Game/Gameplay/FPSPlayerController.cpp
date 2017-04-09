@@ -33,7 +33,7 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 		localOffset -= io_transform.m_localAxes.m_right;
 
 	Math::cVector acceleration = localOffset * m_acceleration;
-	//Math::cVector tempPosition;
+	Math::cVector tempPosition;
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
@@ -43,35 +43,44 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 		m_velocity = Math::cVector::zero;
 	}
-	/*tempPosition =*/
-	io_transform.m_position += m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
-	m_cameraTransform->m_position = io_transform.m_position;
+	tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
 
-	/*Physics::HitData forwardHitData;
+
+	Physics::HitData forwardHitData;
 	Physics::HitData downHitData;
-	CheckCollision(tempPosition, io_transform.m_localAxes, m_height, &forwardHitData, &downHitData);
+	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &forwardHitData, &downHitData);
 	Math::cVector feetPosition = tempPosition - Math::cVector::up*m_height;
 	float distance = feetPosition.DistanceBetween(downHitData.intersectionPoint);
 	if (!Physics::isPlayerOnGround)
 	{
-		m_velocity2 -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity2 = m_velocity2.ClampMagnitude(s_maxVelocity);
+		m_velocityDown -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
+		m_velocityDown = Math::cVector::ClampMagnitude(m_velocityDown, s_maxVelocity);
 	}
 	else
 	{
-		m_velocity2 = Math::cVector::zero;
+		m_velocityDown = Math::cVector::zero;
 		if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
 		{
 			io_transform.m_position.y += distance - s_epsilon2*2.0f;
 		}
 	}
-	io_transform.m_position += (m_velocity + m_velocity2) * Time::GetElapsedSecondCount_duringPreviousFrame();
+
+	if (Physics::isPlayerFowardHit)
+	{
+		float d = Dot(m_velocity, -forwardHitData.normal);
+		m_velocity -= d*-forwardHitData.normal;
+	}
+	Physics::isPlayerOnGround = false;
+	Physics::isPlayerFowardHit = false;
+
+	io_transform.m_position += (m_velocity + m_velocityDown) * Time::GetElapsedSecondCount_duringPreviousFrame();
+	m_cameraTransform->m_position = io_transform.m_position;
 
 	if (!m_forward)
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
-		m_forward->CreateLine(io_transform.m_position + io_transform.m_localAxes.m_forward*100.0f);
+		m_forward->CreateLine(io_transform.m_position + m_velocity.CreateNormalized()*100.0f);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_forward);
 #endif
 	}
@@ -79,7 +88,7 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward->SetPosition(io_transform.m_position);
-		m_forward->UpdateLine(io_transform.m_position + io_transform.m_localAxes.m_forward*100.0f);
+		m_forward->UpdateLine(io_transform.m_position + m_velocity.CreateNormalized()*100.0f);
 #endif
 	}
 
@@ -99,18 +108,6 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 		m_down->UpdateLine(tempPosition - Math::cVector::up*m_height);
 #endif
 	}
-	/*if (Physics::isPlayerFowardHit)
-	{
-	float d = -Dot(forwardHitData.normal, forwardHitData.intersectionPoint);
-	float dist = Dot(forwardHitData.normal, o_position + localOffset) + d;
-	Math::cVector currentProjection = (o_position + localOffset) - (forwardHitData.normal*dist);
-	Math::cVector newForward = (forwardHitData.intersectionPoint - currentProjection);
-	localOffset -= i_localAxes.m_forward*offsetModifier;
-	localOffset += newForward*10.0f;
-	}
-	Physics::isPlayerOnGround = true;
-	Physics::isPlayerFowardHit = false;
-	o_position += localOffset;*/
 }
 
 void eae6320::Gameplay::FPSPlayerController::UpdateOrientation(Transform& io_transform)

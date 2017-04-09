@@ -21,9 +21,9 @@ void eae6320::Camera::FPSCameraController::UpdateOrientation(Gameplay::Transform
 	if (!m_playerTransform)return;
 	Math::cVector localOffset = Math::cVector::zero;
 	if (UserInput::GetKey('T'))
-		localOffset.x += 1.0f;
-	if (UserInput::GetKey('G'))
 		localOffset.x -= 1.0f;
+	if (UserInput::GetKey('G'))
+		localOffset.x += 1.0f;
 	if (UserInput::GetKey('F'))
 		localOffset.y -= 1.0f;
 	if (UserInput::GetKey('H'))

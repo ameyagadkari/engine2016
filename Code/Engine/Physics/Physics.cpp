@@ -18,6 +18,8 @@ namespace
 	};
 	Triangle* triangles = nullptr;
 	size_t numberOfTriangles = 0;
+
+	const float playerChestOffset = 20.0f;
 }
 
 namespace eae6320
@@ -102,7 +104,7 @@ OnExit:
 	return !wereThereErrors;
 }
 
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Gameplay::LocalAxes i_localAxes, const float i_playerHeight, HitData* o_forwardHitData, HitData* o_downHitData)
+void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_forwardHitData, HitData* o_downHitData)
 {
 	float u, v, w, t;
 	// Is grounded check
@@ -120,14 +122,14 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const G
 				break;
 			}
 		}
-		//!isPlayerOnGround ? o_localOffset -= Math::cVector::up : o_localOffset.y = 0.0f;
 	}
 	// Forward check
 	{
-		const Math::cVector q = i_newPosition + i_localAxes.m_forward*100.0f;
+		const Math::cVector p = i_newPosition - Math::cVector::up*playerChestOffset;
+		const Math::cVector q = p + i_velocityNormalized*50.0f;
 		for (size_t i = 0; i < numberOfTriangles; i++)
 		{
-			isPlayerFowardHit = IntersectSegmentTriangle(i_newPosition, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
+			isPlayerFowardHit = IntersectSegmentTriangle(p, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
 			if (isPlayerFowardHit)
 			{
 				Math::cVector ab = triangles[i].b - triangles[i].a;

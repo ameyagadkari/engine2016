@@ -104,23 +104,24 @@ float eae6320::Math::cVector::SqrGetLength() const
 }
 void eae6320::Math::cVector::Normalize()
 {
-	const float length = GetLength();
-	EAE6320_ASSERTF(length > s_epsilon, "Can't divide by zero");
-	operator /=(length);
+	*this = CreateNormalized();
 }
 
 eae6320::Math::cVector eae6320::Math::cVector::CreateNormalized() const
 {
 	const float length = GetLength();
-	EAE6320_ASSERTF(length > s_epsilon, "Can't divide by zero");
-	const float length_reciprocal = 1.0f / length;
-	return cVector(x * length_reciprocal, y * length_reciprocal, z * length_reciprocal);
+	if (length < s_epsilon)return zero;
+	{
+		const float length_reciprocal = 1.0f / length;
+		return cVector(x * length_reciprocal, y * length_reciprocal, z * length_reciprocal);
+	}
 }
 
 eae6320::Math::cVector eae6320::Math::cVector::ClampMagnitude(const cVector& i_vector, const float i_maxLength)
 {
-	if (i_vector.SqrGetLength() > i_maxLength*i_maxLength)return  i_vector.CreateNormalized() * i_maxLength;
-	return i_vector;
+	const float currentLength = i_vector.GetLength();
+	if (currentLength > s_epsilon) return i_vector*(i_maxLength / currentLength);
+	return  i_vector;
 }
 
 float eae6320::Math::cVector::DistanceBetween(const cVector & i_other) const

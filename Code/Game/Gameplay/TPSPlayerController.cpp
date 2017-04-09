@@ -46,7 +46,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 
 	Physics::HitData forwardHitData;
 	Physics::HitData downHitData;
-	CheckCollision(tempPosition, io_transform.m_localAxes, m_height, &forwardHitData, &downHitData);
+	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &forwardHitData, &downHitData);
 	Math::cVector feetPosition = tempPosition - Math::cVector::up*m_height;
 	float distance = feetPosition.DistanceBetween(downHitData.intersectionPoint);
 	if (!Physics::isPlayerOnGround)
