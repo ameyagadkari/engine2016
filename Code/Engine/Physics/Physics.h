@@ -26,10 +26,9 @@ namespace eae6320
 	{
 		bool Initialize();
 		bool CleanUp();
-		void CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_forwardHitData, HitData* o_downHitData);
+		void CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_hitData, bool groundCheck);
 
-		extern bool isPlayerOnGround;
-		extern bool isPlayerFowardHit;
+		extern bool hasIntersected;
 		extern Graphics::MeshData* collisionData;
 	}
 }

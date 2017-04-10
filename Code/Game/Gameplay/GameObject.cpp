@@ -121,10 +121,14 @@ namespace eae6320
 			return gameObject;
 		}
 
-		GameObject::GameObject() : m_transform(),
+		GameObject::GameObject()
+			:
+			m_transform(),
 			m_mesh(new Graphics::Mesh()),
 			m_material(new Graphics::Material()),
-			m_controller(nullptr) {}
+			m_controller(nullptr),
+			m_controllerUUID(0)
+		{}
 
 		GameObject::~GameObject()
 		{

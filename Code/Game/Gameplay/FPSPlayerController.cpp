@@ -46,12 +46,11 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
 
 
-	Physics::HitData forwardHitData;
-	Physics::HitData downHitData;
-	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &forwardHitData, &downHitData);
+	Physics::HitData hitData;
+	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &hitData, true);
 	Math::cVector feetPosition = tempPosition - Math::cVector::up*m_height;
-	float distance = feetPosition.DistanceBetween(downHitData.intersectionPoint);
-	if (!Physics::isPlayerOnGround)
+	float distance = feetPosition.DistanceBetween(hitData.intersectionPoint);
+	if (!Physics::hasIntersected)
 	{
 		m_velocityDown -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
 		m_velocityDown = Math::cVector::ClampMagnitude(m_velocityDown, s_maxVelocity);
@@ -61,17 +60,18 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 		m_velocityDown = Math::cVector::zero;
 		if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
 		{
-			io_transform.m_position.y += distance - s_epsilon2*2.0f;
+			tempPosition.y = io_transform.m_position.y += distance - s_epsilon2*2.0f;
 		}
 	}
 
-	if (Physics::isPlayerFowardHit)
+	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &hitData, false);
+
+	if (Physics::hasIntersected)
 	{
-		float d = Dot(m_velocity, -forwardHitData.normal);
-		m_velocity -= d*-forwardHitData.normal;
+		float d = Dot(m_velocity, -hitData.normal);
+		m_velocity -= d*-hitData.normal;
 	}
-	Physics::isPlayerOnGround = false;
-	Physics::isPlayerFowardHit = false;
+	Physics::hasIntersected = false;
 
 	io_transform.m_position += (m_velocity + m_velocityDown) * Time::GetElapsedSecondCount_duringPreviousFrame();
 	m_cameraTransform->m_position = io_transform.m_position;
@@ -80,7 +80,7 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
-		m_forward->CreateLine(io_transform.m_position + m_velocity.CreateNormalized()*100.0f);
+		m_forward->CreateLine(io_transform.m_position + m_velocity.CreateNormalized()*125.0f);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_forward);
 #endif
 	}
@@ -88,7 +88,7 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 		m_forward->SetPosition(io_transform.m_position);
-		m_forward->UpdateLine(io_transform.m_position + m_velocity.CreateNormalized()*100.0f);
+		m_forward->UpdateLine(io_transform.m_position + m_velocity.CreateNormalized()*125.0f);
 #endif
 	}
 

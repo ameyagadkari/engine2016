@@ -26,8 +26,7 @@ namespace eae6320
 {
 	namespace Physics
 	{
-		bool isPlayerOnGround = false;
-		bool isPlayerFowardHit = false;
+		bool hasIntersected = false;
 		Graphics::MeshData* collisionData = nullptr;
 	}
 }
@@ -104,38 +103,25 @@ OnExit:
 	return !wereThereErrors;
 }
 
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_forwardHitData, HitData* o_downHitData)
+void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData * o_hitData, bool groundCheck)
 {
 	float u, v, w, t;
-	// Is grounded check
 	{
-		const Math::cVector q = i_newPosition - Math::cVector::up*i_playerHeight;
+		Math::cVector p;
+		if (groundCheck)p = i_newPosition;
+		else p = i_newPosition - Math::cVector::up*playerChestOffset;
+		Math::cVector q;
+		q = p + i_velocityNormalized*125.0f;
+		if (groundCheck)q = i_newPosition - Math::cVector::up*i_playerHeight;
 		for (size_t i = 0; i < numberOfTriangles; i++)
 		{
-			isPlayerOnGround = IntersectSegmentTriangle(i_newPosition, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
-			if (isPlayerOnGround)
+			hasIntersected = IntersectSegmentTriangle(p, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
+			if (hasIntersected)
 			{
 				Math::cVector ab = triangles[i].b - triangles[i].a;
 				Math::cVector ac = triangles[i].c - triangles[i].a;
-				o_downHitData->normal = Cross(ab, ac).CreateNormalized();
-				o_downHitData->intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
-				break;
-			}
-		}
-	}
-	// Forward check
-	{
-		const Math::cVector p = i_newPosition - Math::cVector::up*playerChestOffset;
-		const Math::cVector q = p + i_velocityNormalized*50.0f;
-		for (size_t i = 0; i < numberOfTriangles; i++)
-		{
-			isPlayerFowardHit = IntersectSegmentTriangle(p, q, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
-			if (isPlayerFowardHit)
-			{
-				Math::cVector ab = triangles[i].b - triangles[i].a;
-				Math::cVector ac = triangles[i].c - triangles[i].a;
-				o_forwardHitData->normal = Cross(ab, ac).CreateNormalized();
-				o_forwardHitData->intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
+				o_hitData->normal = Cross(ab, ac).CreateNormalized();
+				o_hitData->intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
 				break;
 			}
 		}

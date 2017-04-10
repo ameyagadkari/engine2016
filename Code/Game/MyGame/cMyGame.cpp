@@ -16,13 +16,14 @@
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/Camera.h"
-#include "../../Engine/Camera/FPSCameraController.h"
-#include "../../Engine/Camera/FlyCameraController.h"
-#include "../../Engine/Camera/TPSCameraController.h"
 #include "../../Engine/Time/Time.h"
+#include "../../Engine/Camera/FlyCameraController.h"
+#include "../../Engine/Camera/FPSCameraController.h"
+#include "../../Engine/Camera/TPSCameraController.h"
 #include "../Gameplay/FPSPlayerController.h"
 #include "../Gameplay/TPSPlayerController.h"
 
+#define FIRSTPERSONMODE 0
 
 // Interface
 //==========
@@ -31,9 +32,7 @@
 //--------------------------
 
 eae6320::cMyGame::~cMyGame()
-{
-
-}
+{}
 // Helper Function Declarations
 //=============================
 
@@ -94,10 +93,14 @@ bool eae6320::cMyGame::Initialize()
 	}
 
 	//Make different cameras and pushback in cameras vector
-	/*Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
-	Camera::Camera::PushBackToVector(tpsCam);*/
+#if FIRSTPERSONMODE
 	Camera::Camera *fpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
 	Camera::Camera::PushBackToVector(fpsCam);
+#else
+	Camera::Camera *tpsCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::TPSCameraController::Initialize(2000.0f)), Math::cVector(0.0, 100.0, 200.0));
+	Camera::Camera::PushBackToVector(tpsCam);
+#endif
+
 	Camera::Camera *flyCam = new Camera::Camera(reinterpret_cast<Gameplay::cbController*>(Camera::FlyCameraController::Initialize()), Math::cVector(-5.0f, 5.0f, 50.0f));
 	Camera::Camera::PushBackToVector(flyCam);
 
@@ -105,6 +108,7 @@ bool eae6320::cMyGame::Initialize()
 	Camera::Camera::UpdateMaxCameras();
 
 
+#if FIRSTPERSONMODE
 	for (auto const& gameObject : gameObjects)
 	{
 		if (gameObject.second)
@@ -115,10 +119,10 @@ bool eae6320::cMyGame::Initialize()
 				reinterpret_cast<Gameplay::FPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&fpsCam->GetTransformAddress());
 				break;
 			}
-		}
 	}
-
-	/*for (auto const& gameObject : gameObjects)
+}
+#else
+	for (auto const& gameObject : gameObjects)
 	{
 		if (gameObject.second)
 		{
@@ -128,7 +132,8 @@ bool eae6320::cMyGame::Initialize()
 				break;
 			}
 		}
-	}*/
+	}
+#endif
 
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)

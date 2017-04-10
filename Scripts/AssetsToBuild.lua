@@ -26,8 +26,8 @@ return
 		"gameobjects/boxes.txtgobj",
 		"gameobjects/flags.txtgobj",
 		"gameobjects/wallbraceinner.txtgobj",
-		"gameobjects/playerfirstperson.txtgobj",
-		--"gameobjects/playerthirdperson.txtgobj",
+		--"gameobjects/playerfirstperson.txtgobj",
+		"gameobjects/playerthirdperson.txtgobj",
 	},
 	materials =
 	{
