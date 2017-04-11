@@ -192,7 +192,7 @@ eae6320::Math::cVector eae6320::Math::cQuaternion::operator*(const cVector & i_r
 eae6320::Math::cQuaternion eae6320::Math::cQuaternion::LookRotation(cVector source, cVector destination)
 {
 	cVector difference = destination - source;
-	difference.y = 0.0;
+	difference.y = 0.0f;
 	cVector forwardVector(difference.CreateNormalized());
 
 	float dot = Dot(cVector::back, forwardVector);
