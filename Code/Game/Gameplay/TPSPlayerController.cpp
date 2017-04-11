@@ -20,17 +20,22 @@ uint32_t const eae6320::Gameplay::TPSPlayerController::classUUID(StringHandler::
 
 void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transform)
 {
+	if (!m_cameraTransform)return;
 	Math::cVector localOffset = Math::cVector::zero;
 
 	if (UserInput::GetKey('W'))
-		localOffset += io_transform.m_localAxes.m_forward;
+		localOffset += m_cameraTransform->m_localAxes.m_forward;
+	if (UserInput::GetKeyDown('S'))
+	{
+		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
+		io_transform.UpdateLocalAxes();
+	}
 	if (UserInput::GetKey('D'))
-		localOffset += io_transform.m_localAxes.m_right;
+		localOffset += m_cameraTransform->m_localAxes.m_right;
 	if (UserInput::GetKey('A'))
-		localOffset -= io_transform.m_localAxes.m_right;
+		localOffset -= m_cameraTransform->m_localAxes.m_right;
 
 	Math::cVector acceleration = localOffset * m_acceleration;
-	Math::cVector tempPosition;
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
@@ -40,7 +45,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 		m_velocity = Math::cVector::zero;
 	}
-	tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
+	Math::cVector tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
 
 	Physics::HitData hitData;
 	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &hitData, true);
@@ -48,12 +53,12 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	float distance = feetPosition.DistanceBetween(hitData.intersectionPoint);
 	if (!Physics::hasIntersected)
 	{
-		m_velocity2 -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity2 = Math::cVector::ClampMagnitude(m_velocity2, s_maxVelocity);
+		m_velocityDown -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
+		m_velocityDown = Math::cVector::ClampMagnitude(m_velocityDown, s_maxVelocity);
 	}
 	else
 	{
-		m_velocity2 = Math::cVector::zero;
+		m_velocityDown = Math::cVector::zero;
 		if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
 		{
 			tempPosition.y = io_transform.m_position.y += distance - s_epsilon2*2.0f;
@@ -69,7 +74,20 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	}
 	Physics::hasIntersected = false;
 
-	io_transform.m_position += (m_velocity + m_velocity2) * Time::GetElapsedSecondCount_duringPreviousFrame();
+	Math::cVector tempvelocity(m_velocity.x, 0.0f, m_velocity.z);
+	if (tempvelocity.SqrGetLength() > 10.0f)
+	{
+		float theta = acosf(Dot(tempvelocity.CreateNormalized(), io_transform.m_localAxes.m_forward));
+		float sign = Dot(Cross(tempvelocity, io_transform.m_localAxes.m_forward), io_transform.m_localAxes.m_up);
+		if (sign < 0.0f)theta = -theta;
+		if (theta > 1.0f || theta < -1.0f)
+		{
+			io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, Math::ConvertRadiansToDegrees(theta), 0.0f));
+			io_transform.UpdateLocalAxes();
+		}
+		
+	}
+	io_transform.m_position += (m_velocity + m_velocityDown) * Time::GetElapsedSecondCount_duringPreviousFrame();
 
 	if (!m_forward)
 	{
@@ -106,23 +124,4 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 }
 
 void eae6320::Gameplay::TPSPlayerController::UpdateOrientation(Transform& io_transform)
-{
-	Math::cVector localOffset = Math::cVector::zero;
-	if (UserInput::GetKey('D'))
-		localOffset.y += 1.0f;
-	if (UserInput::GetKey('A'))
-		localOffset.y -= 1.0f;
-	if (UserInput::GetKeyDown('S'))
-	{
-		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
-		io_transform.UpdateLocalAxes();
-		return;
-	}
-
-	const float speed_unitsPerSecond = 200.0f;
-	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-	localOffset *= offsetModifier;
-
-	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
-	io_transform.UpdateLocalAxes();
-}
+{}

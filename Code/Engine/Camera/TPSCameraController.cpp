@@ -16,6 +16,7 @@ namespace
 	float oldEularY;
 	eae6320::Math::cVector offset;
 	bool notDone = true;
+	void CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z);
 }
 
 uint32_t const eae6320::Camera::TPSCameraController::classUUID = StringHandler::HashedString("TPSCameraController").GetHash();
@@ -25,11 +26,11 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	if (!m_playerTransform)return;
 	if (notDone)
 	{
-		Math::cVector desiredStart = -m_playerTransform->m_localAxes.m_forward*500.0f + m_playerTransform->m_localAxes.m_up*50.0f;
-		offset = m_playerTransform->m_position - desiredStart;
+		CalculateOffset(*m_playerTransform, 0.0f, 50.0f, -500.0f);		
 		notDone = false;
 	}
 	float currentAngle = io_transform.GetOrientationEular().y;
+	Math::cVector tempPosition = io_transform.m_position;
 	if (UserInput::GetKeyDown('Q') || UserInput::GetKeyDown('E'))
 	{
 		oldEularY = io_transform.GetOrientationEular().y;
@@ -53,7 +54,7 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 		Math::cQuaternion rotation = Math::cQuaternion(0, Math::cVector::right)*
 			Math::cQuaternion(Math::ConvertDegreesToRadians(angle), Math::cVector::up)*
 			Math::cQuaternion(0, Math::cVector::forward);
-		io_transform.m_position = m_playerTransform->m_position - (rotation * offset);
+		tempPosition = m_playerTransform->m_position - (rotation * offset);
 	}
 	else
 	{
@@ -62,13 +63,23 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 		Math::cQuaternion rotation = Math::cQuaternion(0, Math::cVector::right)*
 			Math::cQuaternion(Math::ConvertDegreesToRadians(angle), Math::cVector::up)*
 			Math::cQuaternion(0, Math::cVector::forward);
-		io_transform.m_position = m_playerTransform->m_position - (rotation * offset);
+
+		tempPosition = m_playerTransform->m_position - (rotation * offset);
 	}
-	Math::cQuaternion neworientationQuaternion = Math::cQuaternion::LookRotation(io_transform.m_position,m_playerTransform->m_position);
+	io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, tempPosition, 0.3f);
+	Math::cQuaternion neworientationQuaternion = Math::cQuaternion::LookRotation(io_transform.m_position, m_playerTransform->m_position);
 	io_transform.SetOrientationEular(neworientationQuaternion.ToEular());
 	io_transform.UpdateLocalAxes();
 }
 
 void eae6320::Camera::TPSCameraController::UpdateOrientation(Gameplay::Transform& io_transform)
+{}
+
+namespace
 {
+	void CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z)
+	{
+		eae6320::Math::cVector desiredStart = i_playerTransform.m_localAxes.m_up*i_x + i_playerTransform.m_localAxes.m_up*i_y + i_playerTransform.m_localAxes.m_forward*i_z;
+		offset = i_playerTransform.m_position - desiredStart;
+	}
 }

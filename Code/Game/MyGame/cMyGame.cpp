@@ -129,6 +129,7 @@ bool eae6320::cMyGame::Initialize()
 			if (gameObject.second->m_controllerUUID == Gameplay::TPSPlayerController::classUUID)
 			{
 				reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
+				reinterpret_cast<Gameplay::TPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
 				break;
 			}
 		}

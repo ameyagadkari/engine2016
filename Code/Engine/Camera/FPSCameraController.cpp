@@ -48,12 +48,4 @@ void eae6320::Camera::FPSCameraController::UpdateOrientation(Gameplay::Transform
 	m_playerTransform->SetOrientationEular(0.0f, io_transform.GetOrientationEular().y, 0.0f);
 	io_transform.UpdateLocalAxes();
 	m_playerTransform->UpdateLocalAxes();
-	/*const float speed_unitsPerSecond = 200.0f;
-	const float offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
-	localOffset *= offsetModifier;
-
-	io_transform.SetOrientationEular(io_transform.GetOrientationEular() + localOffset);
-	Math::cVector currentEularOrientation(io_transform.GetOrientationEular());
-	if (currentEularOrientation.x > 89.0f)io_transform.SetOrientationEular(89.0f, currentEularOrientation.y, currentEularOrientation.z);
-	if (currentEularOrientation.x < -89.0f)io_transform.SetOrientationEular(-89.0f, currentEularOrientation.y, currentEularOrientation.z);*/
 }

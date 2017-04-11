@@ -133,9 +133,17 @@ float eae6320::Math::cVector::DistanceBetween(const cVector & i_other) const
 }
 
 // Interpolation
+
+eae6320::Math::cVector eae6320::Math::cVector::Lerp(const cVector i_start, const cVector i_end, const float i_t)
+{
+	float t = Clamp01(i_t);
+	//return cVector(i_start.x + (b.x - i_start.x) * t, i_start.y + (b.y - i_start.y) * t, a.z + (b.z - a.z) * t);
+	return cVector(i_start + (i_end - i_start)*t);
+}
+
 eae6320::Math::cVector eae6320::Math::cVector::Slerp(const cVector i_start, const cVector i_end, const float i_t)
 {
-	EAE6320_ASSERTF((i_t >= 0.0f && i_t <= 1.0f), "Specify t between [0,100]");
+	float t = Clamp01(i_t);
 	// Dot product - the cosine of the angle between 2 vectors.
 	float dot = Dot(i_start.CreateNormalized(), i_end.CreateNormalized());
 	// Clamp it to be in the range of Acos()
@@ -145,17 +153,10 @@ eae6320::Math::cVector eae6320::Math::cVector::Slerp(const cVector i_start, cons
 	// Acos(dot) returns the angle between start and end,
 	// And multiplying that by percent returns the angle between
 	// start and the final result.
-	float theta = acosf(dot)*i_t;
+	float theta = acosf(dot)*t;
 	cVector relativeVector = i_end - i_start*dot;
 	relativeVector = relativeVector.CreateNormalized();// Orthonormal basis							 
 	return i_start*cosf(theta) + relativeVector*sinf(theta);// The final result.
-
-	/*const float dot = Dot(i_start, i_end);
-	const float alpha = ConvertDegreesToRadians(dot);
-	const float theta = acosf(alpha);
-	const cVector t1 = (sinf(1.0f - i_t)*theta / sinf(alpha))*i_start;
-	const cVector t2 = (sinf(i_t)*theta / sinf(alpha))*i_end;
-	return  t1 + t2;*/
 }
 // Products
 float eae6320::Math::Dot(const cVector& i_lhs, const cVector& i_rhs)

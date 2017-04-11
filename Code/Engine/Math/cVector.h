@@ -46,6 +46,7 @@ namespace eae6320
 			float DistanceBetween(const cVector& i_other) const;
 
 			// Interpolation
+			static cVector Lerp(const cVector i_start, const cVector i_end, const float i_t);
 			static cVector Slerp(const cVector i_start, const cVector i_end, const float i_t);
 
 			// Products

@@ -83,7 +83,7 @@ namespace eae6320
 			// Implementation
 			//===============
 
-		private:
+
 
 			// Initialization / Shut Down
 			//---------------------------

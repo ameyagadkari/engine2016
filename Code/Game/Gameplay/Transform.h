@@ -4,7 +4,6 @@
 #include "../../Engine/Math/cQuaternion.h"
 #include "LocalAxes.h"
 #include "../../Engine/Math/Functions.h"
-#include <cmath>
 
 namespace
 {
@@ -60,22 +59,23 @@ namespace eae6320
 			}
 			void UpdateLocalAxes()
 			{
-				Math::cVector forward;
-
-				forward.z = -cosf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
-					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-				forward.y = -sinf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-				forward.x = sinf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
-					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
-
-				m_localAxes.m_forward = forward.CreateNormalized();
-				m_localAxes.m_right = Cross(m_localAxes.m_forward, Math::cVector::up).CreateNormalized();
-				m_localAxes.m_up = Cross(m_localAxes.m_right, m_localAxes.m_forward).CreateNormalized();
-
 				m_orientationQuaternion =
 					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.x), Math::cVector::right)*
 					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.y), Math::cVector::up)*
 					Math::cQuaternion(Math::ConvertDegreesToRadians(m_orientationEular.z), Math::cVector::forward);
+
+				Math::cVector forward = m_orientationQuaternion.CreateInverse()*Math::cVector::back;
+
+				/*Math::cVector forward;
+				forward.z = -cosf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
+					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));
+				forward.y = -sinf(Math::ConvertDegreesToRadians(m_orientationEular.x));
+				forward.x = sinf(Math::ConvertDegreesToRadians(m_orientationEular.y))*
+					cosf(Math::ConvertDegreesToRadians(m_orientationEular.x));*/
+
+				m_localAxes.m_forward = forward.CreateNormalized();
+				m_localAxes.m_right = Cross(m_localAxes.m_forward, Math::cVector::up).CreateNormalized();
+				m_localAxes.m_up = Cross(m_localAxes.m_right, m_localAxes.m_forward).CreateNormalized();
 			}
 
 			explicit Transform(const Math::cVector i_position = Math::cVector::zero, const Math::cVector i_orientationEular = Math::cVector::zero)
