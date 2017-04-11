@@ -59,6 +59,7 @@ namespace eae6320
 			}
 #pragma endregion 
 			DebugObject::DebugObject(const bool i_isDisplayed,const Math::cVector i_position, const Color i_color) :
+				m_type(),
 				m_position(i_position),
 				m_color(i_color),
 				m_mesh(new Graphics::Mesh()),

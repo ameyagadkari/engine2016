@@ -53,7 +53,8 @@ namespace eae6320
 				const float i_z_nearPlane, const float i_z_farPlane );
 
 			static cMatrix_transformation Transpose(const cMatrix_transformation& i_matrix);
-
+			float cMatrix_transformation::Determinant()const;
+			//static cMatrix_transformation Inverse(const cMatrix_transformation& i_matrix);
 			// Initialization / Shut Down
 			//---------------------------
 
@@ -63,7 +64,6 @@ namespace eae6320
 			// Data
 			//=====
 
-		private:
 
 			// Storage is column-major; see notes at the top of the file
 			float m_00, m_10, m_20, m_30,

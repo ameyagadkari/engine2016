@@ -1,11 +1,12 @@
 // Header Files
 //=============
-
+#include "cMatrix_transformation.h"
 #include "cVector.h"
 
 #include <cmath>
 #include "../Asserts/Asserts.h"
 #include "Functions.h"
+
 
 // Static Data Initialization
 //===========================
@@ -69,6 +70,18 @@ eae6320::Math::cVector& eae6320::Math::cVector::operator *=(const float i_rhs)
 	y *= i_rhs;
 	z *= i_rhs;
 	return *this;
+}
+
+eae6320::Math::cVector eae6320::Math::cVector::operator*(const cMatrix_transformation i_rhs)const
+{
+	cVector result;
+
+	result.x = x*i_rhs.m_00 + y*i_rhs.m_01 + z*i_rhs.m_02 + 1.0f*i_rhs.m_03;
+	result.y = x*i_rhs.m_10 + y*i_rhs.m_11 + z*i_rhs.m_12 + 1.0f*i_rhs.m_13;
+	result.z = x*i_rhs.m_20 + y*i_rhs.m_21 + z*i_rhs.m_22 + 1.0f*i_rhs.m_23;
+	float w  = x*i_rhs.m_30 + y*i_rhs.m_31 + z*i_rhs.m_32 + 1.0f*i_rhs.m_33;
+
+	return result;
 }
 
 eae6320::Math::cVector eae6320::Math::operator *(const float i_lhs, const cVector& i_rhs)

@@ -4,6 +4,8 @@
 #include "../StringHandler/HashedString.h"
 #include "../../Game/Gameplay/LocalAxes.h"
 #include "../../Game/Gameplay/Transform.h"
+#include "../Physics/HitData.h"
+#include "../Physics/Physics.h"
 
 namespace
 {
@@ -16,7 +18,7 @@ namespace
 	float oldEularY;
 	eae6320::Math::cVector offset;
 	bool notDone = true;
-	void CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z);
+	eae6320::Math::cVector CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z);
 }
 
 uint32_t const eae6320::Camera::TPSCameraController::classUUID = StringHandler::HashedString("TPSCameraController").GetHash();
@@ -26,7 +28,7 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	if (!m_playerTransform)return;
 	if (notDone)
 	{
-		CalculateOffset(*m_playerTransform, 0.0f, 50.0f, -500.0f);		
+		offset = CalculateOffset(*m_playerTransform, 0.0f, 50.0f, -500.0f);
 		notDone = false;
 	}
 	float currentAngle = io_transform.GetOrientationEular().y;
@@ -66,8 +68,18 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 
 		tempPosition = m_playerTransform->m_position - (rotation * offset);
 	}
-	io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, tempPosition, 0.3f);
-	Math::cQuaternion neworientationQuaternion = Math::cQuaternion::LookRotation(io_transform.m_position, m_playerTransform->m_position);
+	Physics::HitData hitData;
+	CheckCollision(m_playerTransform->m_position, tempPosition, hitData);
+	if(Physics::hasIntersected)
+	{
+		Math::cVector newOffset(hitData.intersectionPoint + hitData.normal*10.0f);
+		io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, newOffset, 0.3f);
+	}
+	else
+	{
+		io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, tempPosition, 0.3f);
+	}
+	Math::cQuaternion neworientationQuaternion(Math::cQuaternion::LookRotation(io_transform.m_position, m_playerTransform->m_position));
 	io_transform.SetOrientationEular(neworientationQuaternion.ToEular());
 	io_transform.UpdateLocalAxes();
 }
@@ -77,9 +89,9 @@ void eae6320::Camera::TPSCameraController::UpdateOrientation(Gameplay::Transform
 
 namespace
 {
-	void CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z)
+	eae6320::Math::cVector CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z)
 	{
-		eae6320::Math::cVector desiredStart = i_playerTransform.m_localAxes.m_up*i_x + i_playerTransform.m_localAxes.m_up*i_y + i_playerTransform.m_localAxes.m_forward*i_z;
-		offset = i_playerTransform.m_position - desiredStart;
+		eae6320::Math::cVector desiredStart = i_playerTransform.m_localAxes.m_right*i_x + i_playerTransform.m_localAxes.m_up*i_y + i_playerTransform.m_localAxes.m_forward*i_z;
+		return i_playerTransform.m_position - desiredStart;
 	}
 }

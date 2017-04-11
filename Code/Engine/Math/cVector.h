@@ -19,6 +19,12 @@ namespace eae6320
 
 		public:
 
+			// Friend Classes
+			//===============
+
+			friend class cMatrix_transformation;
+			friend class cQuaternion;
+
 			// Addition
 			cVector operator +( const cVector& i_rhs ) const;
 			cVector& operator +=( const cVector& i_rhs );
@@ -32,6 +38,8 @@ namespace eae6320
 			cVector operator *( const float i_rhs ) const;
 			cVector& operator *=( const float i_rhs );
 			friend cVector operator *( const float i_lhs, const cVector& i_rhs );
+			cVector operator *(const cMatrix_transformation i_rhs) const;
+			cVector& operator *=(const cMatrix_transformation i_rhs);
 
 			// Division
 			cVector operator /( const float i_rhs ) const;
@@ -83,11 +91,7 @@ namespace eae6320
 
 			float x, y, z;
 
-			// Friend Classes
-			//===============
 
-			friend class cMatrix_transformation;
-			friend class cQuaternion;
 		};
 
 		// Friend Function Declarations
