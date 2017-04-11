@@ -209,7 +209,6 @@ eae6320::Math::cQuaternion eae6320::Math::cQuaternion::LookRotation(cVector sour
 	float rotationAngle = acosf(dot);
 	cVector rotationAxis = Cross(cVector::back, forwardVector);
 	rotationAxis.Normalize();
-	rotationAxis.Normalize();
 	return cQuaternion(rotationAngle, rotationAxis);
 }
 
