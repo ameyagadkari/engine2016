@@ -1,8 +1,6 @@
 #ifndef EAE6320_PHYSICS_H
 #define EAE6320_PHYSICS_H
 #include "../Math/cVector.h"
-#include "../../Game/Gameplay/LocalAxes.h"
-
 
 namespace eae6320
 {
@@ -26,7 +24,8 @@ namespace eae6320
 	{
 		bool Initialize();
 		bool CleanUp();
-		void CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_hitData, bool groundCheck);
+		//void CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_hitData, bool groundCheck);
+		void CheckCollision(const Math::cVector i_start, const Math::cVector i_end, HitData& o_hitData);
 
 		extern bool hasIntersected;
 		extern Graphics::MeshData* collisionData;

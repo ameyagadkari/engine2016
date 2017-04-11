@@ -43,35 +43,42 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	{
 		m_velocity = Math::cVector::zero;
 	}
-	tempPosition = io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame();
-
-
-	Physics::HitData hitData;
-	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &hitData, true);
-	Math::cVector feetPosition = tempPosition - Math::cVector::up*m_height;
-	float distance = feetPosition.DistanceBetween(hitData.intersectionPoint);
-	if (!Physics::hasIntersected)
+	
+	Math::cVector headPosition(io_transform.m_position + m_velocity * Time::GetElapsedSecondCount_duringPreviousFrame());
+	const Math::cVector feetPosition(headPosition - Math::cVector::up*m_height);
+	// Ground Check
 	{
-		m_velocityDown -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocityDown = Math::cVector::ClampMagnitude(m_velocityDown, s_maxVelocity);
-	}
-	else
-	{
-		m_velocityDown = Math::cVector::zero;
-		if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
+		Physics::HitData hitData;
+		CheckCollision(headPosition, feetPosition, hitData);
+		float distance = feetPosition.DistanceBetween(hitData.intersectionPoint);
+		if (!Physics::hasIntersected)
 		{
-			tempPosition.y = io_transform.m_position.y += distance - s_epsilon2*2.0f;
+			m_velocityDown -= Math::cVector::up*10.0f * Time::GetElapsedSecondCount_duringPreviousFrame();
+			m_velocityDown = Math::cVector::ClampMagnitude(m_velocityDown, s_maxVelocity);
+		}
+		else
+		{
+			m_velocityDown = Math::cVector::zero;
+			if (Math::AlmostEqualUlpsAndAbs(distance, s_epsilon2))
+			{
+				headPosition.y = io_transform.m_position.y += distance - s_epsilon2*2.0f;
+			}
 		}
 	}
 
-	CheckCollision(tempPosition, m_velocity.CreateNormalized(), m_height, &hitData, false);
-
-	if (Physics::hasIntersected)
+	Math::cVector neckPosition(headPosition - Math::cVector::up*20.0f);
+	const Math::cVector bodyPosition(neckPosition + m_velocity.CreateNormalized()*125.0f);
+	// World Collision Check
 	{
-		float d = Dot(m_velocity, -hitData.normal);
-		m_velocity -= d*-hitData.normal;
+		Physics::HitData hitData;
+		CheckCollision(neckPosition, bodyPosition, hitData);
+		if (Physics::hasIntersected)
+		{
+			float d = Dot(m_velocity, -hitData.normal);
+			m_velocity -= d*-hitData.normal;
+		}
+		Physics::hasIntersected = false;
 	}
-	Physics::hasIntersected = false;
 
 	io_transform.m_position += (m_velocity + m_velocityDown) * Time::GetElapsedSecondCount_duringPreviousFrame();
 	m_cameraTransform->m_position = io_transform.m_position;
@@ -79,16 +86,16 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	if (!m_forward)
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		m_forward = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
-		m_forward->CreateLine(io_transform.m_position + m_velocity.CreateNormalized()*125.0f);
+		m_forward = new Debug::Shapes::DebugObject(true, neckPosition, { 1.0f,0.0f,0.0f });
+		m_forward->CreateLine(bodyPosition);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_forward);
 #endif
 	}
 	else
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		m_forward->SetPosition(io_transform.m_position);
-		m_forward->UpdateLine(io_transform.m_position + m_velocity.CreateNormalized()*125.0f);
+		m_forward->SetPosition(neckPosition);
+		m_forward->UpdateLine(bodyPosition);
 #endif
 	}
 
@@ -96,16 +103,16 @@ void eae6320::Gameplay::FPSPlayerController::UpdatePosition(Transform& io_transf
 	if (!m_down)
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		m_down = new Debug::Shapes::DebugObject(true, io_transform.m_position, { 1.0f,0.0f,0.0f });
-		m_down->CreateLine(io_transform.m_position - Math::cVector::up*m_height);
+		m_down = new Debug::Shapes::DebugObject(true, headPosition, { 1.0f,0.0f,0.0f });
+		m_down->CreateLine(feetPosition);
 		Debug::Shapes::DebugObject::ms_debugObjects.push_back(m_down);
 #endif
 	}
 	else
 	{
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-		m_down->SetPosition(tempPosition);
-		m_down->UpdateLine(tempPosition - Math::cVector::up*m_height);
+		m_down->SetPosition(headPosition);
+		m_down->UpdateLine(feetPosition);
 #endif
 	}
 }

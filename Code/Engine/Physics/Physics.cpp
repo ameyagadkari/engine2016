@@ -103,7 +103,24 @@ OnExit:
 	return !wereThereErrors;
 }
 
-void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData * o_hitData, bool groundCheck)
+void eae6320::Physics::CheckCollision(const Math::cVector i_start, const Math::cVector i_end, HitData& o_hitData)
+{
+	float u, v, w, t;
+	for (size_t i = 0; i < numberOfTriangles; i++)
+	{
+		hasIntersected = IntersectSegmentTriangle(i_start, i_end, triangles[i].a, triangles[i].b, triangles[i].c, u, v, w, t);
+		if (hasIntersected)
+		{
+			Math::cVector ab = triangles[i].b - triangles[i].a;
+			Math::cVector ac = triangles[i].c - triangles[i].a;
+			o_hitData.normal = Cross(ab, ac).CreateNormalized();
+			o_hitData.intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
+			break;
+		}
+	}
+}
+
+/*void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData * o_hitData, bool groundCheck)
 {
 	float u, v, w, t;
 	{
@@ -126,7 +143,7 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_newPosition, const M
 			}
 		}
 	}
-}
+}*/
 
 bool eae6320::Physics::CleanUp()
 {
