@@ -79,6 +79,7 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	{
 		io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, tempPosition, 0.3f);
 	}
+	Physics::hasIntersected = false;
 	Math::cQuaternion neworientationQuaternion(Math::cQuaternion::LookRotation(io_transform.m_position, m_playerTransform->m_position));
 	io_transform.SetOrientationEular(neworientationQuaternion.ToEular());
 	io_transform.UpdateLocalAxes();
