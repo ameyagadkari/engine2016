@@ -386,7 +386,7 @@ namespace
 				if (!strcmp(search_data.cFileName, ".."))continue;
 				if (!strcmp(search_data.cFileName, "ui"))continue;
 				relativePaths.push_back((prefix + search_data.cFileName).c_str());
-				fileNames.push_back(std::regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
+				fileNames.push_back(regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
 			} while (FindNextFile(handle, &search_data));
 		}
 		FindClose(handle);
