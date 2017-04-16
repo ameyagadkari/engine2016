@@ -85,7 +85,9 @@ namespace eae6320
 		//--------------------------------
 
 		bool Initialize() override;
-		void ChangeCamera() override;
+		void Update() override;
+		void Submit() override;
+		/*void ChangeCamera() override;
 		void UpdateCameraPostion() override;
 		void UpdateCameraOrientation() override;
 		void SubmitCamera() override;
@@ -95,7 +97,7 @@ namespace eae6320
 		void SubmitDrawcallData3D() override;		
 		void SubmitDebugShapeData3D() override;
 		void SubmitConsoleMenu() override;
-		void SubmitDrawcallData2D() override;
+		void SubmitDrawcallData2D() override;*/
 		bool CleanUp() override;	
 	};
 }

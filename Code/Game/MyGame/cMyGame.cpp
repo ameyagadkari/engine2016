@@ -43,6 +43,22 @@ namespace
 	std::vector<std::string> fileNames;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
+
+#pragma region Update
+	void ChangeCamera();
+	void UpdateGameObjectOrientation();
+	void UpdateGameObjectPosition();
+	void UpdateCameraOrientation();
+	void UpdateCameraPostion();
+	void UpdateConsoleMenu();
+#pragma endregion 
+
+#pragma region Submit
+	void SubmitCamera();
+	void SubmitDrawcallData3D();
+	void SubmitConsoleMenu();
+	void SubmitDrawcallData2D();
+#pragma endregion 
 }
 // Inherited Implementation
 //=========================
@@ -128,92 +144,108 @@ bool eae6320::cMyGame::Initialize()
 	return !wereThereErrors;
 }
 
-void eae6320::cMyGame::ChangeCamera()
+void eae6320::cMyGame::Update()
 {
-	Camera::Camera::ChangeCurrentCamera();
+	ChangeCamera();
+	UpdateGameObjectOrientation();
+	UpdateGameObjectPosition();
+	UpdateCameraOrientation();
+	UpdateCameraPostion();
+	UpdateConsoleMenu();
 }
 
-void eae6320::cMyGame::UpdateCameraPostion()
+void eae6320::cMyGame::Submit()
 {
-	Camera::Camera::GetCurrentCamera()->UpdateCameraPosition();
+	SubmitCamera();
+	SubmitDrawcallData3D();
+	SubmitConsoleMenu();
+	SubmitDrawcallData2D();
 }
 
-void eae6320::cMyGame::UpdateConsoleMenu()
+namespace
 {
-	Debug::ConsoleMenu::Update();
-}
+#pragma region Update
 
-void eae6320::cMyGame::UpdateCameraOrientation()
-{
-	Camera::Camera::GetCurrentCamera()->UpdateCameraOrientation();
-}
-
-
-void eae6320::cMyGame::SubmitCamera()
-{
-	Camera::Camera *currentCamera = Camera::Camera::GetCurrentCamera();
-	if (currentCamera)
+	void ChangeCamera()
 	{
-		Graphics::SetCamera(currentCamera);
+		eae6320::Camera::Camera::ChangeCurrentCamera();
 	}
-	else
+	void UpdateGameObjectOrientation()
 	{
-		EAE6320_ASSERT(false);
-		Logging::OutputError("No Current Camera Exists");
-	}
-}
-
-void eae6320::cMyGame::UpdateGameObjectPosition()
-{
-	for (auto const& gameObject : gameObjects)
-	{
-		if (gameObject.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			gameObject.second->UpdateGameObjectPosition();
+			if (gameObject.second)
+			{
+				gameObject.second->UpdateGameObjectOrientation();
+			}
 		}
 	}
-}
-
-void eae6320::cMyGame::UpdateGameObjectOrientation()
-{
-	for (auto const& gameObject : gameObjects)
+	void UpdateGameObjectPosition()
 	{
-		if (gameObject.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			gameObject.second->UpdateGameObjectOrientation();
+			if (gameObject.second)
+			{
+				gameObject.second->UpdateGameObjectPosition();
+			}
 		}
 	}
-}
-
-void eae6320::cMyGame::SubmitDrawcallData3D()
-{
-	for (auto const& gameObject : gameObjects)
+	void UpdateCameraOrientation()
 	{
-		if (gameObject.second)
+		eae6320::Camera::Camera::GetCurrentCamera()->UpdateCameraOrientation();
+	}
+	void UpdateCameraPostion()
+	{
+		eae6320::Camera::Camera::GetCurrentCamera()->UpdateCameraPosition();
+	}
+	void UpdateConsoleMenu()
+	{
+		eae6320::Debug::ConsoleMenu::Update();
+	}
+
+#pragma endregion 
+
+#pragma region Submit
+
+	void SubmitCamera()
+	{
+		eae6320::Camera::Camera *currentCamera = eae6320::Camera::Camera::GetCurrentCamera();
+		if (currentCamera)
 		{
-			Graphics::SetGameObject(gameObject.second);
+			eae6320::Graphics::SetCamera(currentCamera);
+		}
+		else
+		{
+			EAE6320_ASSERT(false);
+			eae6320::Logging::OutputError("No Current Camera Exists");
 		}
 	}
-}
-
-void eae6320::cMyGame::SubmitDebugShapeData3D()
-{
-}
-
-void eae6320::cMyGame::SubmitConsoleMenu()
-{
-	Debug::ConsoleMenu::Draw();
-}
-
-void eae6320::cMyGame::SubmitDrawcallData2D()
-{
-	for (auto const& gameObject2D : gameObjects2D)
+	void SubmitDrawcallData3D()
 	{
-		if (gameObject2D.second)
+		for (auto const& gameObject : gameObjects)
 		{
-			Graphics::SetGameObject2D(gameObject2D.second);
+			if (gameObject.second)
+			{
+				eae6320::Graphics::SetGameObject(gameObject.second);
+			}
 		}
 	}
+	void SubmitConsoleMenu()
+	{
+		eae6320::Debug::ConsoleMenu::Draw();
+	}
+	void SubmitDrawcallData2D()
+	{
+		for (auto const& gameObject2D : gameObjects2D)
+		{
+			if (gameObject2D.second)
+			{
+				eae6320::Graphics::SetGameObject2D(gameObject2D.second);
+			}
+		}
+	}
+
+#pragma endregion 
 }
 
 bool eae6320::cMyGame::CleanUp()
@@ -245,7 +277,7 @@ bool eae6320::cMyGame::CleanUp()
 #endif
 	}
 
-	// Deletingc Console Menu
+	// Deleting Console Menu
 	Debug::ConsoleMenu::CleanUp();
 
 	// Deleting GameObjects2D

@@ -116,8 +116,10 @@ namespace eae6320
 			// Initialization / Clean Up / Draw
 			//---------------------------------
 
-			virtual bool Initialize() = 0;			
-			virtual void ChangeCamera() = 0;
+			virtual bool Initialize() = 0;		
+			virtual void Update() = 0;
+			virtual void Submit() = 0;
+			/*virtual void ChangeCamera() = 0;
 			virtual void UpdateCameraPostion() = 0;
 			virtual void UpdateCameraOrientation() = 0;
 			virtual void SubmitCamera() = 0;
@@ -127,7 +129,7 @@ namespace eae6320
 			virtual void SubmitDrawcallData3D() = 0;
 			virtual void SubmitDebugShapeData3D() = 0;
 			virtual void SubmitConsoleMenu() = 0;
-			virtual void SubmitDrawcallData2D() = 0;
+			virtual void SubmitDrawcallData2D() = 0;*/
 			virtual bool CleanUp() = 0;
 
 			// Implementation
