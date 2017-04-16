@@ -72,7 +72,11 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	CheckCollision(m_playerTransform->m_position, tempPosition, hitData);
 	if(Physics::hasIntersected)
 	{
+#ifdef _DEBUG
 		Math::cVector newOffset = hitData.intersectionPoint + hitData.normal*10.0f;
+#else
+		Math::cVector newOffset = hitData.intersectionPoint + hitData.normal*0.1f;
+#endif
 		io_transform.m_position = Math::cVector::Lerp(io_transform.m_position, newOffset, 0.3f);
 	}
 	else
