@@ -4,6 +4,7 @@
 
 #ifndef EAE6320_TIME_H
 #define EAE6320_TIME_H
+#include <string>
 
 // Interface
 //==========
@@ -26,7 +27,7 @@ namespace eae6320
 		bool Initialize();
 		bool CleanUp();
 
-		extern size_t fps;
+		void SetFPS(std::string& o_text);
 	}
 }
 

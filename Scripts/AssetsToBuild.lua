@@ -46,10 +46,8 @@ return
 		"gameobjects2d/ui/checked.txtg2dobj",
 		"gameobjects2d/ui/unchecked.txtg2dobj",
 		"gameobjects2d/ui/sliderbar.txtg2dobj",
-	}, 
-	--[[gameobjects2d = 
-	{
-		"gameobjects2d/logo.txtg2dobj",
-		"gameobjects2d/score.txtg2dobj",
-	},]]
+		--"gameobjects2d/logo.txtg2dobj",
+		--"gameobjects2d/score.txtg2dobj",
+		"gameobjects2d/networkscreenbackground.txtg2dobj",
+	},
 }

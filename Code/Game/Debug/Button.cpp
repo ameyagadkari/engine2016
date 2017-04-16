@@ -1,6 +1,4 @@
 #include "Button.h"
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "Text.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Graphics/cSprite.h"
@@ -68,7 +66,7 @@ void eae6320::Debug::UI::Button::CleanUp()
 }
 
 void eae6320::Debug::UI::Button::Draw(const Graphics::Material * const i_material, const float alpha, const bool invertColor) const
-{	
+{
 	const bool invertBackgroundColor = true;
 	IUIController::Draw(m_background->GetMaterial(), m_backgroundTransperancy, invertBackgroundColor);
 	m_background->GetSprite()->Draw();
@@ -77,14 +75,11 @@ void eae6320::Debug::UI::Button::Draw(const Graphics::Material * const i_materia
 	text->Draw();
 }
 
-void eae6320::Debug::UI::Button::Update(std::string i_string)
+void eae6320::Debug::UI::Button::Update()
 {
-	if (isDebugMenuEnabled)
+	if (isSelected && UserInput::GetKeyDown(VK_RETURN))
 	{
-		if (isSelected && UserInput::GetKeyDown(VK_RETURN))
-		{
-			m_pressed = true;
-		}
+		m_pressed = true;
 	}
 }
 
@@ -96,5 +91,3 @@ bool eae6320::Debug::UI::Button::GetState()const
 {
 	return m_pressed;
 }
-
-#endif

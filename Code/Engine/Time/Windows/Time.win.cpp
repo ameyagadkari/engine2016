@@ -23,6 +23,7 @@ namespace
 	size_t innerCount = 0;
 	float currentTime = 0.0f;
 	float elaspsedTime = 0.0f;
+	size_t fps = 0;
 }
 
 // Helper Function Declarations
@@ -33,19 +34,16 @@ namespace
 	bool InitializeIfNecessary();
 }
 
-namespace eae6320
-{
-	namespace Time
-	{
-		size_t fps = 0;
-	}
-}
-
 // Interface
 //==========
 
 // Time
 //-----
+
+void eae6320::Time::SetFPS(std::string& o_text)
+{
+	o_text = "FPS: " + std::to_string(fps);
+}
 
 float eae6320::Time::GetElapsedSecondCount_total()
 {

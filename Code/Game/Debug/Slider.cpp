@@ -1,7 +1,4 @@
 #include "Slider.h"
-
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "Text.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Graphics/cSprite.h"
@@ -80,9 +77,9 @@ void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_materia
 	m_slider->GetSprite()->Draw();
 }
 
-void eae6320::Debug::UI::Slider::Update(std::string i_string)
+void eae6320::Debug::UI::Slider::Update()
 {
-	if (isDebugMenuEnabled && isSelected)
+	if (isSelected)
 	{
 		float offsetModifier;
 		if (UserInput::GetKey(VK_LEFT))
@@ -114,5 +111,3 @@ void eae6320::Debug::UI::Slider::Reset(float i_resetValue)
 	m_value = i_resetValue;
 	RecalculateSliderbarWidth();
 }
-
-#endif

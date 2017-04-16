@@ -1,11 +1,9 @@
 #ifndef EAE6320_CHECKBOX_H
 #define EAE6320_CHECKBOX_H
 
-#include "ConfigurationUI.h"
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "PixelCoordinates.h"
 #include "IUIController.h"
+#include <string>
 
 namespace eae6320
 {
@@ -35,15 +33,15 @@ namespace eae6320
 			class Checkbox final :public IUIController
 			{
 			public:
-				explicit Checkbox(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_onText = "", const std::string i_offText = "", const Color i_color = { 1.0f,1.0f,1.0f }, const bool i_isOn = true);
+				explicit Checkbox(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_onText = "", const std::string i_offText = "", const Color i_color = { 1.0f,1.0f,1.0f }, const bool i_isOn = true, void(*i_callback)(const bool) = nullptr);
 				~Checkbox();
-				bool GetIsEnabled()const;
 			private:
-				void Update(std::string i_string = "") override;
+				void Update() override;
 				void Draw(const Graphics::Material* const i_material = nullptr, const float alpha = 1.0f, const bool invertColor = false)const override;
 				void Initialize() override;
 				void CleanUp()override;
 				PixelCoordinates m_pixelCoordinates;
+				void(*m_callback)(const bool);
 				Text* m_onText;
 				Text* m_offText;
 				Gameplay::GameObject2D* m_unchecked;
@@ -55,5 +53,3 @@ namespace eae6320
 }
 
 #endif // !EAE6320_CHECKBOX_H
-
-#endif

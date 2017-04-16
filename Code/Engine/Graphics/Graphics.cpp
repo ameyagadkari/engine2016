@@ -113,7 +113,7 @@ void eae6320::Graphics::SetDebugObject(Debug::Shapes::DebugObject*debugObject)
 	}
 }
 
-void eae6320::Graphics::SetDebugUI(Debug::UI::IUIController*uiObject)
+void eae6320::Graphics::SetConsoleMenu(Debug::UI::IUIController*uiObject)
 {
 	if (uiObject)
 	{
@@ -188,8 +188,7 @@ void eae6320::Graphics::RenderFrame()
 	}
 #endif
 
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	// Draw Debug UIs
+	// Draw Console Menu
 	{
 		size_t length = unsortedUIObjects.size();
 		for (size_t i = 0; i < length; i++)
@@ -198,7 +197,7 @@ void eae6320::Graphics::RenderFrame()
 		}
 		unsortedUIObjects.clear();
 	}
-#endif
+
 	// Draw Submitted Gameobjects2D
 	{
 		size_t length = unsortedGameObjects2D.size();

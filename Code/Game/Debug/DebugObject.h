@@ -2,8 +2,7 @@
 #define EAE6320_DEBUGOBJECT_H
 
 #include "ConfigurationShapes.h"
-
-
+#include "Checkbox.h"
 
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 
@@ -25,6 +24,17 @@ namespace eae6320
 {
 	namespace Debug
 	{
+		namespace UI
+		{
+			class Checkbox;
+		}
+	}
+}
+
+namespace eae6320
+{
+	namespace Debug
+	{
 		namespace Shapes
 		{
 			enum struct Shapes { LINE, BOX, SPHERE, CYLINDER };
@@ -33,6 +43,7 @@ namespace eae6320
 			public:
 				Shapes m_type;
 				static std::vector<DebugObject*> ms_debugObjects;
+				static void Draw(const bool i_ison);
 #pragma region Sets
 				void SetPosition(const Math::cVector i_position);
 				void SetIsDisplayed(const bool i_isDisplayed);

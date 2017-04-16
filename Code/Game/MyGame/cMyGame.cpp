@@ -1,27 +1,25 @@
 // Header Files
 //=============
 
-#include <map>
-#include <vector>
-#include <regex>
+#include "cMyGame.h"
 #include "../Gameplay/GameObject.h"
 #include "../Gameplay/GameObject2D.h"
 #include "../Debug/DebugObject.h"
-#include "../Debug/Text.h"
-#include "../Debug/Checkbox.h"
-#include "../Debug/Slider.h"
-#include "../Debug/Button.h"
-#include "cMyGame.h"
+#include "../Debug/ConsoleMenu.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/Camera/Camera.h"
-#include "../../Engine/Time/Time.h"
 #include "../../Engine/Camera/FlyCameraController.h"
 #include "../../Engine/Camera/FPSCameraController.h"
 #include "../../Engine/Camera/TPSCameraController.h"
 #include "../Gameplay/FPSPlayerController.h"
 #include "../Gameplay/TPSPlayerController.h"
+
+
+#include <map>
+#include <vector>
+#include <regex>
 
 #define FIRSTPERSONMODE 0
 
@@ -45,7 +43,6 @@ namespace
 	std::vector<std::string> fileNames;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
-	float resetRadius;
 }
 // Inherited Implementation
 //=========================
@@ -80,17 +77,9 @@ bool eae6320::cMyGame::Initialize()
 			gameObjects2D[fileNames[i]] = (Gameplay::GameObject2D::LoadGameObject2D(relativePaths[i].c_str()));
 		}
 	}
-	{
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-		Debug::UI::debugUIs.push_back(new Debug::UI::Text({ -500,350 }, "FPS: ", { 1.0f,0.0f,0.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Checkbox({ -500,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 0.0f, 1.0f, 0.0f }));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Slider({ -500,250 }, "Radius: ", { 1.0f,0.0f,0.5f }, 10.0f, 100.0f));
-		Debug::UI::debugUIs.push_back(new Debug::UI::Button({ -500,200 }, "Reset Radius", { 0.8f,1.0f,0.0f }));
 
-		//After adding all debug UIs, doing this is must
-		Debug::UI::IUIController::UpdateUIElements();
-#endif
-	}
+	// Initialize Console Menu
+	Debug::ConsoleMenu::Initialize();
 
 	//Make different cameras and pushback in cameras vector
 #if FIRSTPERSONMODE
@@ -119,8 +108,8 @@ bool eae6320::cMyGame::Initialize()
 				reinterpret_cast<Gameplay::FPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&fpsCam->GetTransformAddress());
 				break;
 			}
+		}
 	}
-}
 #else
 	for (auto const& gameObject : gameObjects)
 	{
@@ -136,77 +125,27 @@ bool eae6320::cMyGame::Initialize()
 	}
 #endif
 
-	{
-#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-
-#endif
-	}
-
 	return !wereThereErrors;
 }
 
 void eae6320::cMyGame::ChangeCamera()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (!Debug::UI::isDebugMenuEnabled)
-#endif
-	{
-		Camera::Camera::ChangeCurrentCamera();
-	}
+	Camera::Camera::ChangeCurrentCamera();
 }
 
 void eae6320::cMyGame::UpdateCameraPostion()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (!Debug::UI::isDebugMenuEnabled)
-#endif
-	{
-		Camera::Camera::GetCurrentCamera()->UpdateCameraPosition();
-	}
+	Camera::Camera::GetCurrentCamera()->UpdateCameraPosition();
 }
 
-void eae6320::cMyGame::UpdateDebugUI()
+void eae6320::cMyGame::UpdateConsoleMenu()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	Debug::UI::IUIController::ProcessInput();
-	if (Debug::UI::isDebugMenuEnabled)
-	{
-		if (Debug::UI::debugUIs[0])
-			Debug::UI::debugUIs[0]->Update("FPS: " + std::to_string(Time::fps));
-		if (Debug::UI::debugUIs[1])
-			Debug::UI::debugUIs[1]->Update();
-		if (Debug::UI::debugUIs[2])
-		{
-			const float valueBeforeUpdate = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
-			Debug::UI::debugUIs[2]->Update();
-			const float valueAfterUpdate = reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->GetValue();
-			if (valueBeforeUpdate != valueAfterUpdate)
-			{
-				//debugObjects[0]->UpdateSphere(valueAfterUpdate);
-			}
-		}
-		if (Debug::UI::debugUIs[3])
-		{
-			Debug::UI::debugUIs[3]->Update();
-			if (reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->GetState())
-			{
-				//debugObjects[0]->UpdateSphere(resetRadius);
-				reinterpret_cast<Debug::UI::Slider*>(Debug::UI::debugUIs[2])->Reset(resetRadius);
-				reinterpret_cast<Debug::UI::Button*>(Debug::UI::debugUIs[3])->SetState(false);
-			}
-		}
-	}
-#endif
+	Debug::ConsoleMenu::Update();
 }
 
 void eae6320::cMyGame::UpdateCameraOrientation()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (!Debug::UI::isDebugMenuEnabled)
-#endif
-	{
-		Camera::Camera::GetCurrentCamera()->UpdateCameraOrientation();
-	}
+	Camera::Camera::GetCurrentCamera()->UpdateCameraOrientation();
 }
 
 
@@ -226,32 +165,22 @@ void eae6320::cMyGame::SubmitCamera()
 
 void eae6320::cMyGame::UpdateGameObjectPosition()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (!Debug::UI::isDebugMenuEnabled)
-#endif
+	for (auto const& gameObject : gameObjects)
 	{
-		for (auto const& gameObject : gameObjects)
+		if (gameObject.second)
 		{
-			if (gameObject.second)
-			{
-				gameObject.second->UpdateGameObjectPosition();
-			}
+			gameObject.second->UpdateGameObjectPosition();
 		}
 	}
 }
 
 void eae6320::cMyGame::UpdateGameObjectOrientation()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (!Debug::UI::isDebugMenuEnabled)
-#endif
+	for (auto const& gameObject : gameObjects)
 	{
-		for (auto const& gameObject : gameObjects)
+		if (gameObject.second)
 		{
-			if (gameObject.second)
-			{
-				gameObject.second->UpdateGameObjectOrientation();
-			}
+			gameObject.second->UpdateGameObjectOrientation();
 		}
 	}
 }
@@ -269,30 +198,11 @@ void eae6320::cMyGame::SubmitDrawcallData3D()
 
 void eae6320::cMyGame::SubmitDebugShapeData3D()
 {
-#if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
-	if (reinterpret_cast<Debug::UI::Checkbox*>(Debug::UI::debugUIs[1])->GetIsEnabled())
-	{
-		const size_t length = Debug::Shapes::DebugObject::ms_debugObjects.size();
-		for (size_t i = 0; i < length; i++)
-		{
-			Graphics::SetDebugObject(Debug::Shapes::DebugObject::ms_debugObjects[i]);
-		}
-	}
-#endif
 }
 
-void eae6320::cMyGame::SubmitDebugUIData2D()
+void eae6320::cMyGame::SubmitConsoleMenu()
 {
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-	if (Debug::UI::isDebugMenuEnabled)
-	{
-		const size_t length = Debug::UI::debugUIs.size();
-		for (size_t i = 0; i < length; i++)
-		{
-			Graphics::SetDebugUI(Debug::UI::debugUIs[i]);
-		}
-	}
-#endif
+	Debug::ConsoleMenu::Draw();
 }
 
 void eae6320::cMyGame::SubmitDrawcallData2D()
@@ -334,18 +244,10 @@ bool eae6320::cMyGame::CleanUp()
 		Debug::Shapes::DebugObject::ms_debugObjects.clear();
 #endif
 	}
-	// Deleting Debug UI
-	{
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
-		const size_t length = Debug::UI::debugUIs.size();
-		for (size_t i = 0; i < length; i++)
-		{
-			delete Debug::UI::debugUIs[i];
-			Debug::UI::debugUIs[i] = nullptr;
-		}
-		Debug::UI::debugUIs.clear();
-#endif
-	}
+
+	// Deletingc Console Menu
+	Debug::ConsoleMenu::CleanUp();
+
 	// Deleting GameObjects2D
 	{
 		for (auto const& gameObject2D : gameObjects2D)

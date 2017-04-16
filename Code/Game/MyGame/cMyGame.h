@@ -91,10 +91,10 @@ namespace eae6320
 		void SubmitCamera() override;
 		void UpdateGameObjectPosition() override;
 		void UpdateGameObjectOrientation() override;
-		void UpdateDebugUI()override;
+		void UpdateConsoleMenu()override;
 		void SubmitDrawcallData3D() override;		
 		void SubmitDebugShapeData3D() override;
-		void SubmitDebugUIData2D() override;
+		void SubmitConsoleMenu() override;
 		void SubmitDrawcallData2D() override;
 		bool CleanUp() override;	
 	};

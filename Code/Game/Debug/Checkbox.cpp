@@ -1,6 +1,4 @@
 #include "Checkbox.h"
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "Text.h"
 #include "../../Game/Gameplay/GameObject2D.h"
 #include "../../Engine/Graphics/cSprite.h"
@@ -21,12 +19,12 @@ eae6320::Debug::UI::Checkbox::~Checkbox()
 	Checkbox::CleanUp();
 }
 
-eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn) :
+eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn, void(*i_callback)(const bool)) :
 	IUIController(i_color),
 	m_pixelCoordinates(i_pixelCoordinates),
+	m_callback(i_callback),
 	m_onText(new Text({ i_pixelCoordinates.x + xTextOffset,i_pixelCoordinates.y }, i_onText, i_color)),
-	m_offText(new Text({ i_pixelCoordinates.x + xTextOffset,i_pixelCoordinates.y }, i_offText, i_color)),
-	m_isOn(i_isOn)
+	m_offText(new Text({ i_pixelCoordinates.x + xTextOffset,i_pixelCoordinates.y }, i_offText, i_color)),m_isOn(i_isOn)
 {
 	Checkbox::Initialize();
 }
@@ -72,15 +70,13 @@ void eae6320::Debug::UI::Checkbox::CleanUp()
 	}
 }
 
-void eae6320::Debug::UI::Checkbox::Update(std::string i_string)
+void eae6320::Debug::UI::Checkbox::Update()
 {
-	if (isDebugMenuEnabled)
+	if (isSelected && UserInput::GetKeyDown(VK_RETURN))
 	{
-		if (isSelected && UserInput::GetKeyDown(VK_RETURN))
-		{
-			m_isOn = !m_isOn;
-		}
+		m_isOn = !m_isOn;
 	}
+	m_callback(m_isOn);
 }
 void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_material, const float alpha, const bool invertColor)const
 {
@@ -101,10 +97,3 @@ void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_materi
 		m_unchecked->GetSprite()->Draw();
 	}
 }
-
-bool eae6320::Debug::UI::Checkbox::GetIsEnabled() const
-{
-	return m_isOn;
-}
-
-#endif

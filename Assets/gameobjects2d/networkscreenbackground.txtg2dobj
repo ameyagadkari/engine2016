@@ -1,0 +1,13 @@
+-- Gameobject2D Data for Network Screen Background
+return
+{
+	rect_transform = 
+	{
+		pixel_coordinates = { -400, -400 },
+		width = 800,
+		height = 800,
+	},	
+	maintain_width = true,
+	anchor = "top_left",
+	material_filepath = "materials/networkscreenbackground_material.txtmaterial",	
+}

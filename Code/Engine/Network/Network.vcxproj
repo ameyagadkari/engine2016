@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NetworkScene.h" />
     <ClInclude Include="NetworkManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetworkManager.cpp" />
+    <ClCompile Include="NetworkScene.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1F7C7592-2ADE-481F-B0D9-42B329C58DEE}</ProjectGuid>

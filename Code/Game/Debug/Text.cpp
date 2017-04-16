@@ -1,8 +1,4 @@
 #include "Text.h"
-
-
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "../../Engine/Graphics/SpriteData.h"
 #include "../../Engine/Graphics/MeshData.h"
 #include "../../Engine/UserSettings/UserSettings.h"
@@ -21,9 +17,10 @@ namespace
 	const uint8_t offset = 32;
 }
 
-eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color) :
+eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color, void(*i_callback)(std::string& o_text)) :
 	IUIController(i_color),
 	m_text(i_text),
+	m_callback(i_callback),
 	m_numberOfCharacters(0),
 	m_screenPositionForEachCharacter(nullptr),
 	m_pixelCoordinates(i_pixelCoordinates),
@@ -51,9 +48,9 @@ void eae6320::Debug::UI::Text::Draw(const Graphics::Material* const i_material, 
 	Graphics::Font::RenderText(*m_meshData);
 }
 
-void eae6320::Debug::UI::Text::Update(std::string i_string)
+void eae6320::Debug::UI::Text::Update()
 {
-	m_text = i_string;
+	if (m_callback)m_callback(m_text);
 	Initialize();
 }
 
@@ -148,4 +145,3 @@ void eae6320::Debug::UI::Text::Initialize()
 #endif
 	}
 }
-#endif

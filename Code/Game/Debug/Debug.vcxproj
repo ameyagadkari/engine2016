@@ -23,7 +23,8 @@
     <ClInclude Include="Checkbox.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="ConfigurationShapes.h" />
-    <ClInclude Include="ConfigurationUI.h" />
+    <ClInclude Include="ConfigurationConsoleMenu.h" />
+    <ClInclude Include="ConsoleMenu.h" />
     <ClInclude Include="DebugObject.h" />
     <ClInclude Include="IUIController.h" />
     <ClInclude Include="PixelCoordinates.h" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Checkbox.cpp" />
+    <ClCompile Include="ConsoleMenu.cpp" />
     <ClCompile Include="DebugObject.cpp" />
     <ClCompile Include="IUIController.cpp" />
     <ClCompile Include="Slider.cpp" />

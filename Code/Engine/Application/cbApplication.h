@@ -123,10 +123,10 @@ namespace eae6320
 			virtual void SubmitCamera() = 0;
 			virtual void UpdateGameObjectPosition() = 0;
 			virtual void UpdateGameObjectOrientation() = 0;
-			virtual void UpdateDebugUI() = 0;
+			virtual void UpdateConsoleMenu() = 0;
 			virtual void SubmitDrawcallData3D() = 0;
 			virtual void SubmitDebugShapeData3D() = 0;
-			virtual void SubmitDebugUIData2D() = 0;
+			virtual void SubmitConsoleMenu() = 0;
 			virtual void SubmitDrawcallData2D() = 0;
 			virtual bool CleanUp() = 0;
 

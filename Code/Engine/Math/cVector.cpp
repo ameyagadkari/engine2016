@@ -150,8 +150,7 @@ float eae6320::Math::cVector::DistanceBetween(const cVector & i_other) const
 eae6320::Math::cVector eae6320::Math::cVector::Lerp(const cVector i_start, const cVector i_end, const float i_t)
 {
 	float t = Clamp01(i_t);
-	//return cVector(i_start.x + (b.x - i_start.x) * t, i_start.y + (b.y - i_start.y) * t, a.z + (b.z - a.z) * t);
-	return cVector(i_start + (i_end - i_start)*t);
+	return i_start*(1 - t) + i_end*t;
 }
 
 eae6320::Math::cVector eae6320::Math::cVector::Slerp(const cVector i_start, const cVector i_end, const float i_t)

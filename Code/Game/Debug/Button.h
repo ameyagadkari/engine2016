@@ -1,12 +1,10 @@
 #ifndef EAE6320_BUTTON_H
 #define EAE6320_BUTTON_H
 
-#include "ConfigurationUI.h"
-
-#if defined(EAE6320_DEBUG_UI_AREENABLED)
 #include "Color.h"
 #include "PixelCoordinates.h"
 #include "IUIController.h"
+#include <string>
 
 namespace eae6320
 {
@@ -42,7 +40,7 @@ namespace eae6320
 				bool GetState()const;
 			private:
 				void RecalculateBackgroundWidth() const;
-				void Update(std::string i_string = "") override;
+				void Update() override;
 				void Draw(const Graphics::Material* const i_material = nullptr, const float alpha = 1.0f, const bool invertColor = false)const override;
 				void Initialize() override;
 				void CleanUp()override;
@@ -57,5 +55,3 @@ namespace eae6320
 }
 
 #endif // !EAE6320_BUTTON_H
-
-#endif

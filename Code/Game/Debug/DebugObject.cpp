@@ -1,5 +1,6 @@
 #include "DebugObject.h"
 
+
 #if defined(EAE6320_DEBUG_SHAPES_AREENABLED)
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
@@ -7,6 +8,7 @@
 #include "../../Engine/Graphics/Material.h"
 #include "../../Engine/Graphics/MeshData.h"
 #include "../../Engine/Math/Functions.h"
+#include "../../Engine/Graphics/Graphics.h"
 
 #include <cmath>
 
@@ -90,6 +92,17 @@ namespace eae6320
 					ms_material = nullptr;
 				}
 			}
+
+			void DebugObject::Draw(const bool i_ison)
+			{
+				if (!i_ison)return;
+				const size_t length = ms_debugObjects.size();
+				for (size_t i = 0; i < length; i++)
+				{
+					Graphics::SetDebugObject(ms_debugObjects[i]);
+				}
+			}
+
 			void DebugObject::CreateBox(const float i_width, const float i_height, const float i_depth)
 			{
 				EAE6320_ASSERTF(i_width > 0.0f, "Specified width: %f is negative", i_width);
