@@ -238,16 +238,5 @@ void eae6320::Application::cbApplication::OnNewFrame()
 	Time::OnNewFrame();
 	Update();
 	Submit();
-	/*ChangeCamera();
-	UpdateGameObjectOrientation();
-	UpdateGameObjectPosition();
-	UpdateCameraOrientation();
-	UpdateCameraPostion();
-	UpdateConsoleMenu();
-	SubmitCamera();
-	SubmitDrawcallData3D();
-	SubmitDebugShapeData3D();
-	SubmitConsoleMenu();
-	SubmitDrawcallData2D();*/
 	Graphics::RenderFrame();	
 }

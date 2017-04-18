@@ -6,10 +6,10 @@
 
 float const eae6320::Debug::UI::IUIController::colorManipulator(0.25f);
 
-eae6320::Debug::UI::IUIController::IUIController(Color i_color) :
+eae6320::Debug::UI::IUIController::IUIController(const Color i_color, const bool i_isSelected) :
 	m_selectedColor(i_color),
 	m_deselectedColor(i_color.r - (i_color.r*colorManipulator), i_color.g - (i_color.g*colorManipulator), i_color.b - (i_color.b*colorManipulator)),
-	isSelected(false)
+	isSelected(i_isSelected)
 {}
 
 void eae6320::Debug::UI::IUIController::GetColor(float & o_r, float & o_g, float & o_b) const

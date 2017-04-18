@@ -25,7 +25,7 @@ namespace eae6320
 				virtual void Update() = 0;
 				virtual void GetColor(float& o_r, float& o_g, float& o_b)const;
 			protected:
-				explicit IUIController(Color i_color);
+				explicit IUIController(const Color i_color, const bool i_isSelected);
 				Color m_selectedColor;
 				Color m_deselectedColor;
 			private:

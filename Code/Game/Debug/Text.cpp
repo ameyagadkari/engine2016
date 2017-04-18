@@ -17,8 +17,8 @@ namespace
 	const uint8_t offset = 32;
 }
 
-eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color, void(*i_callback)(std::string& o_text)) :
-	IUIController(i_color),
+eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color, void(*i_callback)(std::string& o_text), const bool i_isSelected) :
+	IUIController(i_color, i_isSelected),
 	m_text(i_text),
 	m_callback(i_callback),
 	m_numberOfCharacters(0),

@@ -48,6 +48,6 @@ return
 		"gameobjects2d/ui/sliderbar.txtg2dobj",
 		--"gameobjects2d/logo.txtg2dobj",
 		--"gameobjects2d/score.txtg2dobj",
-		"gameobjects2d/networkscreenbackground.txtg2dobj",
+		"gameobjects2d/network/networkscreenbackground.txtg2dobj",
 	},
 }

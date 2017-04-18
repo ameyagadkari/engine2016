@@ -16,8 +16,8 @@ namespace
 	const float widthModifier = 200.0f;
 }
 
-eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue) :
-	IUIController(i_color),
+eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue, const bool i_isSelected) :
+	IUIController(i_color, i_isSelected),
 	m_sliderName(new Text(i_pixelCoordinates, i_sliderName, i_color)),
 	m_value(i_minValue + (0.25f*(i_maxValue - i_minValue))),
 	m_minValue(i_minValue),

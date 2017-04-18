@@ -15,11 +15,14 @@
 #include "../../Engine/Camera/TPSCameraController.h"
 #include "../Gameplay/FPSPlayerController.h"
 #include "../Gameplay/TPSPlayerController.h"
-
+#include "../../Engine/Network/NetworkScene.h"
+#include "../../Engine/Network/NetworkManager.h"
 
 #include <map>
 #include <vector>
 #include <regex>
+
+
 
 #define FIRSTPERSONMODE 0
 
@@ -141,24 +144,41 @@ bool eae6320::cMyGame::Initialize()
 	}
 #endif
 
+	// Initialize Network Scene
+	Network::NetworkScene::Initialize();
+
 	return !wereThereErrors;
 }
 
 void eae6320::cMyGame::Update()
 {
 	ChangeCamera();
-	UpdateGameObjectOrientation();
-	UpdateGameObjectPosition();
-	UpdateCameraOrientation();
-	UpdateCameraPostion();
-	UpdateConsoleMenu();
+	if (Network::NetworkScene::currentGameState == Network::NetworkScene::Run)
+	{
+		UpdateGameObjectOrientation();
+		UpdateGameObjectPosition();
+		UpdateCameraOrientation();
+		UpdateCameraPostion();
+		UpdateConsoleMenu();
+	}
+	else
+	{
+		Network::NetworkScene::Update();
+	}
 }
 
 void eae6320::cMyGame::Submit()
 {
 	SubmitCamera();
-	SubmitDrawcallData3D();
-	SubmitConsoleMenu();
+	if (Network::NetworkScene::currentGameState == Network::NetworkScene::Run)
+	{
+		SubmitDrawcallData3D();
+		SubmitConsoleMenu();
+	}
+	else
+	{
+		Network::NetworkScene::Draw();
+	}
 	SubmitDrawcallData2D();
 }
 
@@ -280,6 +300,12 @@ bool eae6320::cMyGame::CleanUp()
 	// Deleting Console Menu
 	Debug::ConsoleMenu::CleanUp();
 
+	// Deleting Network Scene
+	Network::NetworkScene::CleanUp();
+
+	// Deleteing Network Manager
+	Network::NetworkManager::CleanUp();
+
 	// Deleting GameObjects2D
 	{
 		for (auto const& gameObject2D : gameObjects2D)
@@ -319,6 +345,7 @@ namespace
 				if (!strcmp(search_data.cFileName, "."))continue;
 				if (!strcmp(search_data.cFileName, ".."))continue;
 				if (!strcmp(search_data.cFileName, "ui"))continue;
+				if (!strcmp(search_data.cFileName, "network"))continue;
 				relativePaths.push_back((prefix + search_data.cFileName).c_str());
 				fileNames.push_back(regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
 			} while (FindNextFile(handle, &search_data));

@@ -12,12 +12,13 @@ namespace
 	const std::string background = "data/gameobjects2d/ui/sliderbar.bing2dobj";
 }
 
-eae6320::Debug::UI::Button::Button(const PixelCoordinates i_pixelCoordinates, const std::string i_buttonName, const Color i_color, const float i_backgroundTransperancy) :
-	IUIController(i_color),
+eae6320::Debug::UI::Button::Button(const PixelCoordinates i_pixelCoordinates, const std::string i_buttonName, const Color i_color, const float i_backgroundTransperancy, void(*i_callback)(), const bool i_isSelected) :
+	IUIController(i_color, i_isSelected),
 	m_buttonName(new Text(i_pixelCoordinates, i_buttonName, i_color)),
+	m_callback(i_callback),
 	m_backgroundTransperancy(i_backgroundTransperancy),
-	m_pixelCoordinates(i_pixelCoordinates),
-	m_pressed(false)
+	m_pixelCoordinates(i_pixelCoordinates)
+	//,m_pressed(false)
 {
 	Button::Initialize();
 }
@@ -77,17 +78,18 @@ void eae6320::Debug::UI::Button::Draw(const Graphics::Material * const i_materia
 
 void eae6320::Debug::UI::Button::Update()
 {
-	if (isSelected && UserInput::GetKeyDown(VK_RETURN))
+	if (isSelected && UserInput::GetKeyUp(VK_RETURN))
 	{
-		m_pressed = true;
+		if (m_callback)m_callback();
+		//m_pressed = true;
 	}
 }
 
-void eae6320::Debug::UI::Button::SetState(const bool i_state)
+/*void eae6320::Debug::UI::Button::SetState(const bool i_state)
 {
 	m_pressed = i_state;
 }
 bool eae6320::Debug::UI::Button::GetState()const
 {
 	return m_pressed;
-}
+}*/

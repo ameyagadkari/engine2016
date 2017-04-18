@@ -82,7 +82,7 @@ void eae6320::Debug::ConsoleMenu::Update()
 void eae6320::Debug::ConsoleMenu::Draw()
 {
 #if defined(EAE6320_CONSOLE_MENU_ISENABLED)	
-	if (isConsoleMenuEnabled)for (size_t i = 0; i < totalMenuItems; i++)Graphics::SetConsoleMenu(menuItems[i]);
+	if (isConsoleMenuEnabled)for (size_t i = 0; i < totalMenuItems; i++)Graphics::SetUIObjects(menuItems[i]);
 #endif
 }
 

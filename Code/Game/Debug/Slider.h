@@ -34,7 +34,7 @@ namespace eae6320
 			class Slider final :public IUIController
 			{
 			public:
-				explicit Slider(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_sliderName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float minValue = 0.0f, const float maxValue = 1.0f);
+				explicit Slider(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_sliderName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float minValue = 0.0f, const float maxValue = 1.0f, const bool i_isSelected = false);
 				~Slider();
 				float GetValue()const;
 				void Reset(float i_resetValue);

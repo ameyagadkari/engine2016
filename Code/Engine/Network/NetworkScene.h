@@ -26,19 +26,13 @@ namespace eae6320
 	{
 		namespace NetworkScene
 		{
-			enum GameState;
-
-			extern Debug::UI::Button* singlePlayer;
-			extern Debug::UI::Button* multiPlayer;
-			extern Debug::UI::Button* server;
-			extern Debug::UI::Button* client;
-			
-			extern Gameplay::GameObject2D* background;		
+			enum GameState { SelectPlayType, SelectModeType, Run };
 			extern GameState currentGameState;
 
-			bool Initialize();
-			bool CleanUp();
-			bool Update();
+			void Initialize();
+			void Update();
+			void Draw();
+			void CleanUp();
 		}
 	}
 }

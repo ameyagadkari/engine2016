@@ -19,8 +19,8 @@ eae6320::Debug::UI::Checkbox::~Checkbox()
 	Checkbox::CleanUp();
 }
 
-eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn, void(*i_callback)(const bool)) :
-	IUIController(i_color),
+eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn, void(*i_callback)(const bool), const bool i_isSelected) :
+	IUIController(i_color, i_isSelected),
 	m_pixelCoordinates(i_pixelCoordinates),
 	m_callback(i_callback),
 	m_onText(new Text({ i_pixelCoordinates.x + xTextOffset,i_pixelCoordinates.y }, i_onText, i_color)),
@@ -76,7 +76,7 @@ void eae6320::Debug::UI::Checkbox::Update()
 	{
 		m_isOn = !m_isOn;
 	}
-	m_callback(m_isOn);
+	if (m_callback)m_callback(m_isOn);
 }
 void eae6320::Debug::UI::Checkbox::Draw(const Graphics::Material* const i_material, const float alpha, const bool invertColor)const
 {

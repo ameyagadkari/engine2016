@@ -34,10 +34,10 @@ namespace eae6320
 			class Button final :public IUIController
 			{
 			public:
-				explicit Button(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_buttonName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float i_backgroundTransperancy = 0.25f);
+				explicit Button(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_buttonName = "", const Color i_color = { 1.0f,1.0f,1.0f }, const float i_backgroundTransperancy = 0.25f, void(*i_callback)() = nullptr, const bool i_isSelected = false);
 				~Button();
-				void SetState(const bool i_state);
-				bool GetState()const;
+				//void SetState(const bool i_state);
+				//bool GetState()const;
 			private:
 				void RecalculateBackgroundWidth() const;
 				void Update() override;
@@ -46,9 +46,10 @@ namespace eae6320
 				void CleanUp()override;
 				Gameplay::GameObject2D* m_background;
 				Text* m_buttonName;
+				void(*m_callback)();
 				float m_backgroundTransperancy;
 				PixelCoordinates m_pixelCoordinates;
-				bool m_pressed;
+				//bool m_pressed;
 			};
 		}
 	}

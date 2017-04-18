@@ -28,7 +28,7 @@ void eae6320::Camera::TPSCameraController::UpdatePosition(Gameplay::Transform& i
 	if (!m_playerTransform)return;
 	if (notDone)
 	{
-		offset = CalculateOffset(*m_playerTransform, 0.0f, 50.0f, -500.0f);
+		offset = CalculateOffset(*m_playerTransform, 0.0f, 125.0f, -500.0f);
 		notDone = false;
 	}
 	float currentAngle = io_transform.GetOrientationEular().y;

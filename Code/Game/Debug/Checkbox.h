@@ -33,7 +33,7 @@ namespace eae6320
 			class Checkbox final :public IUIController
 			{
 			public:
-				explicit Checkbox(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_onText = "", const std::string i_offText = "", const Color i_color = { 1.0f,1.0f,1.0f }, const bool i_isOn = true, void(*i_callback)(const bool) = nullptr);
+				explicit Checkbox(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_onText = "", const std::string i_offText = "", const Color i_color = { 1.0f,1.0f,1.0f }, const bool i_isOn = true, void(*i_callback)(const bool) = nullptr, const bool i_isSelected = false);
 				~Checkbox();
 			private:
 				void Update() override;

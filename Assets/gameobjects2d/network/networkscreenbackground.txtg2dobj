@@ -3,7 +3,7 @@ return
 {
 	rect_transform = 
 	{
-		pixel_coordinates = { -400, -400 },
+		pixel_coordinates = { -400, 400 },
 		width = 800,
 		height = 800,
 	},	
