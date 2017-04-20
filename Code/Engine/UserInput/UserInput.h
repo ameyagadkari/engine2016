@@ -29,6 +29,8 @@ namespace eae6320
 		bool GetKeyDown(const int i_virtualKeyCode);
 		bool GetKeyUp(const int i_virtualKeyCode);
 		bool IsMouseButtonPressed( const int i_virtualButtonCode );
+
+		extern bool isWindowInFocus;
 	}
 }
 

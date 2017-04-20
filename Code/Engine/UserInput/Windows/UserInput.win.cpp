@@ -16,27 +16,35 @@ namespace
 	std::bitset<512>keyRelease;
 }
 
+namespace eae6320
+{
+	namespace UserInput
+	{
+		bool isWindowInFocus = false;
+	}
+}
+
 // Interface
 //==========
 
 bool eae6320::UserInput::GetKey(const int i_virtualKeyCode)
 {
-	return IsVirtualKeyPressed(i_virtualKeyCode);
+	return isWindowInFocus ? IsVirtualKeyPressed(i_virtualKeyCode) : false;
 }
 
 bool eae6320::UserInput::GetKeyDown(const int i_virtualKeyCode)
 {
-	return IsVirtualKeyPressedOnce(i_virtualKeyCode);
+	return isWindowInFocus ? IsVirtualKeyPressedOnce(i_virtualKeyCode) : false;
 }
 
 bool eae6320::UserInput::GetKeyUp(const int i_virtualKeyCode)
 {
-	return IsVirtualKeyPressedAndReleased(i_virtualKeyCode);
+	return  isWindowInFocus ? IsVirtualKeyPressedAndReleased(i_virtualKeyCode) : false;
 }
 
 bool eae6320::UserInput::IsMouseButtonPressed(const int i_virtualButtonCode)
 {
-	return IsVirtualKeyPressed(i_virtualButtonCode);
+	return isWindowInFocus ? IsVirtualKeyPressed(i_virtualButtonCode) : false;
 }
 
 // Helper Function Definitions
@@ -60,7 +68,7 @@ namespace
 			keyPress.set(i_virtualKeyCode);
 			return true;
 		}
-		if((keyState & isKeyDownMask) != 0)return false;
+		if ((keyState & isKeyDownMask) != 0)return false;
 		if ((keyState & isKeyDownMask) == 0 && keyPress[i_virtualKeyCode])keyPress.reset(i_virtualKeyCode);
 		return false;
 	}
