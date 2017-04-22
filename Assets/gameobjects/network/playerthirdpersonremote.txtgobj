@@ -1,0 +1,9 @@
+-- Gameobject Data for PlayerThirdPersonRemote
+return
+{
+	material_filepath = "materials/std_material.txtmaterial",
+	mesh_filepath = "meshes/playerthirdpersonremote.txtmesh",
+	controller_name = "DefaultController",
+	position = {0.0,0.0,0.0},
+	eular_angles = {0.0,0.0,0.0},	
+}

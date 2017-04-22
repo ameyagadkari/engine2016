@@ -7,6 +7,13 @@ namespace RakNet
 	class RakPeerInterface;
 	struct SocketDescriptor;
 }
+namespace eae6320
+{
+	namespace Gameplay
+	{
+		class GameObject;
+	}
+}
 
 namespace eae6320
 {
@@ -16,10 +23,14 @@ namespace eae6320
 		{
 		public:
 			static bool Initialize(bool i_isServer, uint16_t i_serverPort = 60000, uint32_t i_maxClients = 10);
+			void ProcessIncomingPackets();
+			void Draw()const;
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
+			static Gameplay::GameObject* nativePlayer;
 		private:
 			static NetworkManager* singleton;
+			Gameplay::GameObject* m_remotePlayer;		
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);
 			RakNet::RakPeerInterface* m_rakPeerInterface;
 			uint32_t m_maxClients;

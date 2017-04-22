@@ -138,6 +138,7 @@ bool eae6320::cMyGame::Initialize()
 			{
 				reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
 				reinterpret_cast<Gameplay::TPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
+				Network::NetworkManager::nativePlayer = gameObject.second;
 				break;
 			}
 		}
@@ -153,32 +154,30 @@ bool eae6320::cMyGame::Initialize()
 void eae6320::cMyGame::Update()
 {
 	ChangeCamera();
-	if (Network::NetworkScene::currentGameState == Network::NetworkScene::Run)
-	{
-		UpdateGameObjectOrientation();
-		UpdateGameObjectPosition();
-		UpdateCameraOrientation();
-		UpdateCameraPostion();
-		UpdateConsoleMenu();
-	}
-	else
+	if (Network::NetworkScene::currentGameState != Network::NetworkScene::RunSinglePlayer &&
+		Network::NetworkScene::currentGameState != Network::NetworkScene::RunMultiplayer)
 	{
 		Network::NetworkScene::Update();
-	}
+		return;
+	}	
+	UpdateGameObjectOrientation();
+	UpdateGameObjectPosition();
+	UpdateCameraOrientation();
+	UpdateCameraPostion();
+	UpdateConsoleMenu();
+	Network::NetworkScene::Update();
 }
 
 void eae6320::cMyGame::Submit()
 {
 	SubmitCamera();
-	if (Network::NetworkScene::currentGameState == Network::NetworkScene::Run)
+	if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunSinglePlayer ||
+		Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
 	{
 		SubmitDrawcallData3D();
 		SubmitConsoleMenu();
 	}
-	else
-	{
-		Network::NetworkScene::Draw();
-	}
+	Network::NetworkScene::Draw();
 	SubmitDrawcallData2D();
 }
 

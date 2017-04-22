@@ -40,13 +40,13 @@ namespace eae6320
 #pragma region Gets
 			Graphics::Material* GetMaterial()const;
 			Graphics::Mesh* GetMesh()const;
-			Transform GetTransform()const;
+			Transform GetTransform()const;		
 			Transform& GetTransformAddress();
 			cbController& GameObject::GetController()const;
 #pragma endregion
 
 #pragma region Sets
-
+			void SetTransformSpecial(const Math::cVector i_position, const Math::cVector i_orientationEular);
 #pragma endregion
 			
 		private:

@@ -17,8 +17,8 @@ namespace
 	const float damping = 2.5f;
 	float oldEularY;
 	eae6320::Math::cVector offset;
-	bool notDone = true;
 	eae6320::Math::cVector CalculateOffset(const eae6320::Gameplay::Transform& i_playerTransform, const float i_x, const float i_y, const float i_z);
+	bool notDone = true;
 }
 
 uint32_t const eae6320::Camera::TPSCameraController::classUUID = StringHandler::HashedString("TPSCameraController").GetHash();

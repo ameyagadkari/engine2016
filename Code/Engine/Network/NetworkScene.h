@@ -1,5 +1,6 @@
 #ifndef EAE6320_NETWORKSCENE_H
 #define EAE6320_NETWORKSCENE_H
+#include <string>
 
 namespace eae6320
 {
@@ -26,13 +27,15 @@ namespace eae6320
 	{
 		namespace NetworkScene
 		{
-			enum GameState { SelectPlayType, SelectModeType, Run };
+			enum GameState { SelectPlayType, SelectModeType, WaitingForServer, RunSinglePlayer, RunMultiplayer };
 			extern GameState currentGameState;
 
 			void Initialize();
 			void Update();
 			void Draw();
 			void CleanUp();
+
+			void SetNetworkType(std::string& o_text, bool& o_updateString);
 		}
 	}
 }

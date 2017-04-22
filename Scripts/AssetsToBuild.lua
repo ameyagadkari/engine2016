@@ -28,6 +28,7 @@ return
 		"gameobjects/wallbraceinner.txtgobj",
 		--"gameobjects/playerfirstperson.txtgobj",
 		"gameobjects/playerthirdperson.txtgobj",
+		"gameobjects/network/playerthirdpersonremote.txtgobj",
 	},
 	materials =
 	{

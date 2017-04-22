@@ -161,6 +161,12 @@ namespace eae6320
 #pragma endregion
 
 #pragma region Sets
+		void GameObject::SetTransformSpecial(const Math::cVector i_position, const Math::cVector i_orientationEular)
+		{
+			m_transform.m_position = i_position;
+			m_transform.SetOrientationEular(i_orientationEular);
+			m_transform.UpdateLocalAxes();
+		}
 #pragma endregion
 
 

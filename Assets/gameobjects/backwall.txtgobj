@@ -3,7 +3,7 @@ return
 {
 	material_filepath = "materials/ceiling_material.txtmaterial",
 	mesh_filepath = "meshes/backwall.txtmesh",
-	controller_name = "NoController",
+	controller_name = "DefaultController",
 	position = {0.0,0.0,0.0},
 	eular_angles = {0.0,0.0,0.0},		
 }

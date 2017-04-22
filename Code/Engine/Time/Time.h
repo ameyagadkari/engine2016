@@ -27,7 +27,7 @@ namespace eae6320
 		bool Initialize();
 		bool CleanUp();
 
-		void SetFPS(std::string& o_text);
+		void SetFPS(std::string& o_text, bool& o_updateString);
 	}
 }
 

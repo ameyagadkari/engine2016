@@ -17,7 +17,7 @@ namespace
 	const uint8_t offset = 32;
 }
 
-eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color, void(*i_callback)(std::string& o_text), const bool i_isSelected) :
+eae6320::Debug::UI::Text::Text(const PixelCoordinates i_pixelCoordinates, const std::string i_text, const Color i_color, void(*i_callback)(std::string& o_text, bool& o_updateString), const bool i_isSelected) :
 	IUIController(i_color, i_isSelected),
 	m_text(i_text),
 	m_callback(i_callback),
@@ -50,8 +50,9 @@ void eae6320::Debug::UI::Text::Draw(const Graphics::Material* const i_material, 
 
 void eae6320::Debug::UI::Text::Update()
 {
-	if (m_callback)m_callback(m_text);
-	Initialize();
+	bool updateString = false;
+	if (m_callback)m_callback(m_text, updateString);
+	if(updateString)Initialize();
 }
 
 void eae6320::Debug::UI::Text::CleanUp()

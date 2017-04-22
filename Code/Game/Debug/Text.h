@@ -26,7 +26,7 @@ namespace eae6320
 			class Text final :public IUIController
 			{
 			public:
-				explicit Text(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_text = "", const Color i_color = { 1.0f,1.0f,1.0f }, void(*i_callback)(std::string& o_text) = nullptr, const bool i_isSelected = false);
+				explicit Text(const PixelCoordinates i_pixelCoordinates = { 0,0 }, const std::string i_text = "", const Color i_color = { 1.0f,1.0f,1.0f }, void(*i_callback)(std::string& o_text, bool& o_updateString) = nullptr, const bool i_isSelected = false);
 				~Text();
 				int16_t GetRightTextPixelCoordinate()const;				
 			private:
@@ -35,7 +35,7 @@ namespace eae6320
 				void Initialize() override;
 				void CleanUp()override;
 				std::string m_text;
-				void(*m_callback)(std::string& o_text);
+				void(*m_callback)(std::string& o_text, bool& o_updateString);
 				size_t m_numberOfCharacters;
 				Graphics::Sprite::ScreenPosition* m_screenPositionForEachCharacter;
 				PixelCoordinates m_pixelCoordinates;

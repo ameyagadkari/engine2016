@@ -6,8 +6,10 @@
 #include "../../Engine/Time/Time.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/UserInput/UserInput.h"
+#include "../../Engine/Network/NetworkScene.h"
 
 #include <vector>
+
 
 namespace
 {
@@ -67,6 +69,7 @@ void eae6320::Debug::ConsoleMenu::Initialize()
 #if defined(EAE6320_CONSOLE_MENU_ISENABLED)
 	menuItems.push_back(new UI::Text({ -380,350 }, "FPS: ", { 1.0f,0.55f,0.0f }, &Time::SetFPS));
 	menuItems.push_back(new UI::Checkbox({ -380,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 1.0f,0.55f,0.0f }, true, &Shapes::DebugObject::Draw));
+	menuItems.push_back(new UI::Text({ -380,250 }, "Network Type: ", { 1.0f,0.55f,0.0f }, &Network::NetworkScene::SetNetworkType));
 	UpdateConsoleMenuItems();
 #endif
 }

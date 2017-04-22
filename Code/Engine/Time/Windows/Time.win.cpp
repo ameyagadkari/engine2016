@@ -40,9 +40,10 @@ namespace
 // Time
 //-----
 
-void eae6320::Time::SetFPS(std::string& o_text)
+void eae6320::Time::SetFPS(std::string& o_text, bool& o_updateString)
 {
 	o_text = "FPS: " + std::to_string(fps);
+	o_updateString = true;
 }
 
 float eae6320::Time::GetElapsedSecondCount_total()
