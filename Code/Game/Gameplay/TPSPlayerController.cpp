@@ -15,7 +15,7 @@ namespace
 	const float s_epsilon2 = 1.0e-4f;
 	const float s_maxVelocity = 250.0f;
 	const float s_maxVelocity2 = s_maxVelocity * 2.0f;
-	const float speedBoostDepletionRate = 40.0f;
+	const float speedBoostDepletionRate = 30.0f;
 	const float speedBoostRegenerationRate = speedBoostDepletionRate / 2.0f;
 }
 
@@ -43,21 +43,36 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	if (!m_cameraTransform)return;
 	Math::cVector localOffset = Math::cVector::zero;
 
-	m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
+
 
 	if (UserInput::GetKey('W'))
+	{
+		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
 		localOffset += m_cameraTransform->m_localAxes.m_forward;
+	}
 
 	if (UserInput::GetKeyDown('S'))
 	{
 		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
 		io_transform.UpdateLocalAxes();
 	}
+
 	if (UserInput::GetKey('D'))
+	{
+		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
 		localOffset += m_cameraTransform->m_localAxes.m_right;
+	}
 
 	if (UserInput::GetKey('A'))
+	{
+		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
 		localOffset -= m_cameraTransform->m_localAxes.m_right;
+	}
+
+	if (!(UserInput::GetKey('W') || UserInput::GetKey('D') || UserInput::GetKey('A')))
+	{
+		m_isRunning = false;
+	}
 
 
 	Math::cVector acceleration = localOffset * m_acceleration;
