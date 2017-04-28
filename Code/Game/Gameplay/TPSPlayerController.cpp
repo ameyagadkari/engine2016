@@ -15,16 +15,21 @@ namespace
 	const float s_epsilon2 = 1.0e-4f;
 	const float s_maxVelocity = 250.0f;
 	const float s_maxVelocity2 = s_maxVelocity * 2.0f;
-	const float speedBoostDepletionRate = 20.0f;
+	const float speedBoostDepletionRate = 40.0f;
 	const float speedBoostRegenerationRate = speedBoostDepletionRate / 2.0f;
 }
 
 uint32_t const eae6320::Gameplay::TPSPlayerController::classUUID(StringHandler::HashedString("TPSPlayerController").GetHash());
 
+float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoostProxy(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue)
+{
+	return static_cast<TPSPlayerController const*>(i_thisPointer)->CalculateRemainingSpeedBoost(i_currentValue, i_minValue, i_maxValue);
+}
+
 float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const
 {
 	float offsetModifier;
-	if(m_isRunning)
+	if (m_isRunning)
 	{
 		offsetModifier = speedBoostDepletionRate * Time::GetElapsedSecondCount_duringPreviousFrame();
 		return i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
@@ -50,16 +55,16 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	}
 	if (UserInput::GetKey('D'))
 		localOffset += m_cameraTransform->m_localAxes.m_right;
-	
+
 	if (UserInput::GetKey('A'))
 		localOffset -= m_cameraTransform->m_localAxes.m_right;
-	
+
 
 	Math::cVector acceleration = localOffset * m_acceleration;
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity = m_isRunning ? Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity2) : Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
+		m_velocity = m_isRunning&&m_sprint->GetValue() > s_epsilon2 ? Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity2) : Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
 	}
 	else
 	{
@@ -70,7 +75,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	const Math::cVector feetPosition(headPosition - Math::cVector::up*m_height);
 	// Ground Check
 	{
-		Physics::HitData hitData;	
+		Physics::HitData hitData;
 		CheckCollision(headPosition, feetPosition, hitData);
 		float distance = feetPosition.DistanceBetween(hitData.intersectionPoint);
 		if (!Physics::hasIntersected)
@@ -87,12 +92,12 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 			}
 		}
 	}
-	
+
 	Math::cVector neckPosition(headPosition - Math::cVector::up*20.0f);
 	const Math::cVector bodyPosition(neckPosition + m_velocity.CreateNormalized()*125.0f);
 	// World Collision Check
 	{
-		Physics::HitData hitData;		
+		Physics::HitData hitData;
 		CheckCollision(neckPosition, bodyPosition, hitData);
 		if (Physics::hasIntersected)
 		{
@@ -101,7 +106,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 		}
 		Physics::hasIntersected = false;
 	}
-	
+
 	// Realigning forward to current velocity vector
 	{
 		Math::cVector tempvelocity(m_velocity.x, 0.0f, m_velocity.z);

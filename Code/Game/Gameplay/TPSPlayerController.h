@@ -21,7 +21,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
-		
+
 		class TPSPlayerController final : cbController
 		{
 		public:
@@ -42,13 +42,14 @@ namespace eae6320
 				m_cameraTransform(nullptr),
 				m_forward(nullptr),
 				m_down(nullptr),
-				m_sprint(new Debug::UI::Slider({ -400,200 }, "SpeedBoost", { 0.0f,1.0f,1.0f }, 0.0f, 100.0f, 200.0f,&CalculateRemainingSpeedBoost,true)),
+				m_sprint(new Debug::UI::Slider({ -400,200 }, "Speed Boost: ", { 0.0f,1.0f,1.0f }, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
 				m_acceleration(i_acceleration),
 				m_height(i_height),
 				m_isRunning(false)
 			{
 				if (m_sprint)Debug::UI::HUD.push_back(m_sprint);
 			}
+			static float CalculateRemainingSpeedBoostProxy(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 			float CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const;
 			void UpdatePosition(Transform& io_transform) override;
 			void UpdateOrientation(Transform& io_transform) override;

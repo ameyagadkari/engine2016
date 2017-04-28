@@ -11,10 +11,11 @@ namespace
 {
 	const std::string sliderBarPath = "data/gameobjects2d/ui/sliderbar.bing2dobj";
 }
-
-eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue, const float i_sliderSize, float(*i_callback)(const float i_currentValue, const float i_minvalue, const float i_maxvalue), const bool i_isSelected) :
+eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue, const float i_sliderSize, void const * i_callbackThisPointer, float(*i_callback)(void const* i_callbackthisPointer, const float i_currentValue, const float i_minvalue, const float i_maxvalue), const bool i_isSelected)
+	:
 	IUIController(i_color, i_isSelected),
 	m_callback(i_callback),
+	m_callbackThisPointer(i_callbackThisPointer),
 	m_sliderName(new Text(i_pixelCoordinates, i_sliderName, i_color)),
 	m_value(i_minValue + (0.25f*(i_maxValue - i_minValue))),
 	m_minValue(i_minValue),
@@ -77,9 +78,9 @@ void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_materia
 
 void eae6320::Debug::UI::Slider::Update()
 {
-	m_value = m_callback(m_value, m_minValue, m_maxValue);
+	m_value = m_callback(m_callbackThisPointer, m_value, m_minValue, m_maxValue);
 	RecalculateSliderbarWidth();
-	
+
 	/*if (isSelected)
 	{
 		float offsetModifier;
