@@ -6,22 +6,20 @@
 #include "../../Engine/Graphics/Font.h"
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
-#include "../../Engine/Time/Time.h"
 
 namespace
 {
 	const std::string sliderBarPath = "data/gameobjects2d/ui/sliderbar.bing2dobj";
-	const uint16_t minWidthForSlider = 24;
-	const float speed_unitsPerSecond = 50.0f;
-	const float widthModifier = 200.0f;
 }
 
-eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue, const bool i_isSelected) :
+eae6320::Debug::UI::Slider::Slider(const PixelCoordinates i_pixelCoordinates, const std::string i_sliderName, const Color i_color, const float i_minValue, const float i_maxValue, const float i_sliderSize, float(*i_callback)(const float i_currentValue, const float i_minvalue, const float i_maxvalue), const bool i_isSelected) :
 	IUIController(i_color, i_isSelected),
+	m_callback(i_callback),
 	m_sliderName(new Text(i_pixelCoordinates, i_sliderName, i_color)),
 	m_value(i_minValue + (0.25f*(i_maxValue - i_minValue))),
 	m_minValue(i_minValue),
 	m_maxValue(i_maxValue),
+	m_sliderSize(i_sliderSize),
 	m_pixelCoordinates(i_pixelCoordinates)
 {
 	EAE6320_ASSERTF(i_maxValue > i_minValue, "Incorrect min-max values for a slider");
@@ -79,7 +77,10 @@ void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_materia
 
 void eae6320::Debug::UI::Slider::Update()
 {
-	if (isSelected)
+	m_value = m_callback(m_value, m_minValue, m_maxValue);
+	RecalculateSliderbarWidth();
+	
+	/*if (isSelected)
 	{
 		float offsetModifier;
 		if (UserInput::GetKey(VK_LEFT))
@@ -94,14 +95,14 @@ void eae6320::Debug::UI::Slider::Update()
 			m_value = (m_value < m_maxValue) ? m_value + offsetModifier : m_maxValue;
 			RecalculateSliderbarWidth();
 		}
-	}
+	}*/
 }
 
 void eae6320::Debug::UI::Slider::RecalculateSliderbarWidth() const
 {
 	Gameplay::RectTransform rectTransform = m_slider->GetRectTransform();
 	const Gameplay::Anchor anchor = m_slider->GetAnchor();
-	rectTransform.width = minWidthForSlider + static_cast<uint16_t>(((m_value - m_minValue) / (m_maxValue - m_minValue)) * widthModifier);
+	rectTransform.width = static_cast<uint16_t>((m_value - m_minValue) / (m_maxValue - m_minValue) * m_sliderSize);
 	const Graphics::Sprite::ScreenPosition screenPosition = ConvertPixelCoordinatesUsingAnchorToScreenCoordinates(rectTransform, anchor);
 	m_slider->GetSprite()->SetScreenPosition(screenPosition);
 }

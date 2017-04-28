@@ -1,9 +1,0 @@
--- Gameobject Data for Flags
-return
-{
-	material_filepath = "materials/flag_material.txtmaterial",
-	mesh_filepath = "meshes/flags.txtmesh",
-	controller_name = "DefaultController",
-	position = {0.0,0.0,0.0},
-	eular_angles = {0.0,0.0,0.0},		
-}

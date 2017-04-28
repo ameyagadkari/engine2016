@@ -6,6 +6,17 @@
 
 float const eae6320::Debug::UI::IUIController::colorManipulator(0.25f);
 
+namespace eae6320
+{
+	namespace Debug
+	{
+		namespace UI
+		{
+			std::vector<IUIController*> HUD;
+		}
+	}
+}
+
 eae6320::Debug::UI::IUIController::IUIController(const Color i_color, const bool i_isSelected) :
 	m_selectedColor(i_color),
 	m_deselectedColor(i_color.r - (i_color.r*colorManipulator), i_color.g - (i_color.g*colorManipulator), i_color.b - (i_color.b*colorManipulator)),

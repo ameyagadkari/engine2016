@@ -14,17 +14,35 @@ namespace
 	const float s_epsilon = 1.0e-10f;
 	const float s_epsilon2 = 1.0e-4f;
 	const float s_maxVelocity = 250.0f;
+	const float s_maxVelocity2 = s_maxVelocity * 2.0f;
+	const float speedBoostDepletionRate = 20.0f;
+	const float speedBoostRegenerationRate = speedBoostDepletionRate / 2.0f;
 }
 
 uint32_t const eae6320::Gameplay::TPSPlayerController::classUUID(StringHandler::HashedString("TPSPlayerController").GetHash());
+
+float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const
+{
+	float offsetModifier;
+	if(m_isRunning)
+	{
+		offsetModifier = speedBoostDepletionRate * Time::GetElapsedSecondCount_duringPreviousFrame();
+		return i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
+	}
+	offsetModifier = speedBoostRegenerationRate * Time::GetElapsedSecondCount_duringPreviousFrame();
+	return i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
+}
 
 void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transform)
 {
 	if (!m_cameraTransform)return;
 	Math::cVector localOffset = Math::cVector::zero;
 
+	m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
+
 	if (UserInput::GetKey('W'))
 		localOffset += m_cameraTransform->m_localAxes.m_forward;
+
 	if (UserInput::GetKeyDown('S'))
 	{
 		io_transform.SetOrientationEular(io_transform.GetOrientationEular() + Math::cVector(0.0f, 180.0f, 0.0f));
@@ -32,14 +50,16 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	}
 	if (UserInput::GetKey('D'))
 		localOffset += m_cameraTransform->m_localAxes.m_right;
+	
 	if (UserInput::GetKey('A'))
 		localOffset -= m_cameraTransform->m_localAxes.m_right;
+	
 
 	Math::cVector acceleration = localOffset * m_acceleration;
 	if (acceleration.GetLength() > s_epsilon)
 	{
 		m_velocity += acceleration * Time::GetElapsedSecondCount_duringPreviousFrame();
-		m_velocity = Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
+		m_velocity = m_isRunning ? Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity2) : Math::cVector::ClampMagnitude(m_velocity, s_maxVelocity);
 	}
 	else
 	{

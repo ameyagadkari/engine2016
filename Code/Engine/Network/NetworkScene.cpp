@@ -158,6 +158,7 @@ namespace
 	void SinglePlayerButtonPressed()
 	{
 		currentGameState = RunSinglePlayer;
+		networkType = "Not Connected";
 	}
 
 	void MultiPlayerButtonPressed()

@@ -199,7 +199,7 @@ void eae6320::Graphics::RenderFrame()
 		unsortedGameObjects2D.clear();
 	}
 
-	// Draw Console Menu
+	// Draw UI Objects
 	{
 		size_t length = unsortedUIObjects.size();
 		for (size_t i = 0; i < length; i++)

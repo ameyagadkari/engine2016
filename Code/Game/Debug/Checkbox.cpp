@@ -19,7 +19,7 @@ eae6320::Debug::UI::Checkbox::~Checkbox()
 	Checkbox::CleanUp();
 }
 
-eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn, void(*i_callback)(const bool), const bool i_isSelected) :
+eae6320::Debug::UI::Checkbox::Checkbox(const PixelCoordinates i_pixelCoordinates, const std::string i_onText, const std::string i_offText, const Color i_color, const bool i_isOn, void(*i_callback)(const bool i_ison), const bool i_isSelected) :
 	IUIController(i_color, i_isSelected),
 	m_pixelCoordinates(i_pixelCoordinates),
 	m_callback(i_callback),

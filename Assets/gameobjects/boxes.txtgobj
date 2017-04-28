@@ -1,9 +1,0 @@
--- Gameobject Data for Boxes
-return
-{
-	material_filepath = "materials/std_material.txtmaterial",
-	mesh_filepath = "meshes/boxes.txtmesh",
-	controller_name = "DefaultController",
-	position = {0.0,0.0,0.0},
-	eular_angles = {0.0,0.0,0.0},	
-}

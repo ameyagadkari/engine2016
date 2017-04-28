@@ -54,6 +54,7 @@ namespace
 	void UpdateCameraOrientation();
 	void UpdateCameraPostion();
 	void UpdateConsoleMenu();
+	void UpdateHUD();
 #pragma endregion 
 
 #pragma region Submit
@@ -61,6 +62,7 @@ namespace
 	void SubmitDrawcallData3D();
 	void SubmitConsoleMenu();
 	void SubmitDrawcallData2D();
+	void SubmitHUD();
 #pragma endregion 
 }
 // Inherited Implementation
@@ -165,6 +167,7 @@ void eae6320::cMyGame::Update()
 	UpdateCameraOrientation();
 	UpdateCameraPostion();
 	UpdateConsoleMenu();
+	UpdateHUD();
 	Network::NetworkScene::Update();
 }
 
@@ -176,6 +179,7 @@ void eae6320::cMyGame::Submit()
 	{
 		SubmitDrawcallData3D();
 		SubmitConsoleMenu();
+		SubmitHUD();
 	}
 	Network::NetworkScene::Draw();
 	SubmitDrawcallData2D();
@@ -221,6 +225,14 @@ namespace
 	{
 		eae6320::Debug::ConsoleMenu::Update();
 	}
+	void UpdateHUD()
+	{
+		size_t length = eae6320::Debug::UI::HUD.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			eae6320::Debug::UI::HUD[i]->Update();
+		}
+	}
 
 #pragma endregion 
 
@@ -263,6 +275,14 @@ namespace
 			}
 		}
 	}
+	void SubmitHUD()
+	{
+		size_t length = eae6320::Debug::UI::HUD.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			eae6320::Graphics::SetUIObjects(eae6320::Debug::UI::HUD[i]);
+		}		
+	}
 
 #pragma endregion 
 }
@@ -304,6 +324,13 @@ bool eae6320::cMyGame::CleanUp()
 
 	// Deleteing Network Manager
 	Network::NetworkManager::CleanUp();
+
+	// Deleting HUD elements
+	size_t length = Debug::UI::HUD.size();
+	for (size_t i = 0; i < length; i++)
+	{
+		delete Debug::UI::HUD[i];
+	}
 
 	// Deleting GameObjects2D
 	{

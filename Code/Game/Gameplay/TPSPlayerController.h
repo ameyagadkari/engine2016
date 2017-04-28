@@ -4,6 +4,7 @@
 #include "cbController.h"
 #include <cstdint>
 #include "../../Engine/Math/cVector.h"
+#include "../Debug/Slider.h"
 
 namespace eae6320
 {
@@ -20,6 +21,7 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
+		
 		class TPSPlayerController final : cbController
 		{
 		public:
@@ -36,15 +38,18 @@ namespace eae6320
 			explicit TPSPlayerController(const float i_acceleration, const float i_height)
 				:
 				m_velocity(Math::cVector::zero),
-				m_velocityDown(Math::cVector::zero), 
+				m_velocityDown(Math::cVector::zero),
 				m_cameraTransform(nullptr),
 				m_forward(nullptr),
 				m_down(nullptr),
+				m_sprint(new Debug::UI::Slider({ -400,200 }, "SpeedBoost", { 0.0f,1.0f,1.0f }, 0.0f, 100.0f, 200.0f,&CalculateRemainingSpeedBoost,true)),
 				m_acceleration(i_acceleration),
-				m_height(i_height)
+				m_height(i_height),
+				m_isRunning(false)
 			{
+				if (m_sprint)Debug::UI::HUD.push_back(m_sprint);
 			}
-
+			float CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const;
 			void UpdatePosition(Transform& io_transform) override;
 			void UpdateOrientation(Transform& io_transform) override;
 			Math::cVector m_velocity;
@@ -52,8 +57,10 @@ namespace eae6320
 			Transform* m_cameraTransform;
 			Debug::Shapes::DebugObject* m_forward;
 			Debug::Shapes::DebugObject* m_down;
+			Debug::UI::Slider* m_sprint;
 			const float m_acceleration;
 			const float m_height;
+			bool m_isRunning;
 		};
 	}
 }

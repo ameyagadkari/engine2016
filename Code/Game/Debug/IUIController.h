@@ -2,6 +2,7 @@
 #define EAE6320_IUICONTROLLER_H
 
 #include "Color.h"
+#include <vector>
 
 namespace eae6320
 {
@@ -35,6 +36,7 @@ namespace eae6320
 			public:
 				bool isSelected;
 			};
+			extern std::vector<IUIController*> HUD;
 		}
 	}
 }
