@@ -1,7 +1,7 @@
 -- Gameobject Data for MyScoreZoneClient
 return
 {
-	material_filepath = "materials/std_material.txtmaterial",
+	material_filepath = "materials/primitivecopy_material.txtmaterial",
 	mesh_filepath = "meshes/myscorezone.txtmesh",
 	controller_name = "DefaultController",
 	position = {-1000.0,125.0,-1550.0},

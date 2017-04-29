@@ -29,14 +29,6 @@ namespace eae6320
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
 			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
-			/*static Gameplay::GameObject* nativePlayer;
-			static Gameplay::GameObject* remotePlayer;
-
-			static Gameplay::GameObject* myteamflagserver;
-			static Gameplay::GameObject* otherteamflagserver;
-
-			static Gameplay::GameObject* myteamflagclient;
-			static Gameplay::GameObject* otherteamflagclient;*/
 		private:
 			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
 			static NetworkManager* singleton;			
