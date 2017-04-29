@@ -119,32 +119,27 @@ bool eae6320::cMyGame::Initialize()
 
 
 #if FIRSTPERSONMODE
-	for (auto const& gameObject : gameObjects)
-	{
-		if (gameObject.second)
-		{
-			if (gameObject.second->m_controllerUUID == Gameplay::FPSPlayerController::classUUID)
-			{
-				reinterpret_cast<Camera::FPSCameraController&>(fpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
-				reinterpret_cast<Gameplay::FPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&fpsCam->GetTransformAddress());
-				break;
-			}
-		}
-	}
+	Gameplay::GameObject* localPlayer = gameObjects.at("playerfirstperson");
+	reinterpret_cast<Camera::TPSCameraController&>(fpsCam->GetController()).SetPlayerTransform(&localPlayer->GetTransformAddress());
+	reinterpret_cast<Gameplay::TPSPlayerController&>(localPlayer->GetController()).SetCameraTransform(&fpsCam->GetTransformAddress());
 #else
-	for (auto const& gameObject : gameObjects)
-	{
-		if (gameObject.second)
-		{
-			if (gameObject.second->m_controllerUUID == Gameplay::TPSPlayerController::classUUID)
-			{
-				reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&gameObject.second->GetTransformAddress());
-				reinterpret_cast<Gameplay::TPSPlayerController&>(gameObject.second->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
-				Network::NetworkManager::nativePlayer = gameObject.second;
-				break;
-			}
-		}
-	}
+	Gameplay::GameObject* localPlayer = gameObjects.at("playerthirdperson");
+	reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&localPlayer->GetTransformAddress());
+	reinterpret_cast<Gameplay::TPSPlayerController&>(localPlayer->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
+	Network::NetworkManager::nativePlayer = localPlayer;
+	Network::NetworkManager::remotePlayer = gameObjects.at("playerthirdpersonremote");
+	
+	Network::NetworkManager::myteamflagserver = gameObjects.at("myteamflagserver");
+	Network::NetworkManager::otherteamflagserver = gameObjects.at("otherteamflagserver");
+	Network::NetworkManager::myteamflagclient = gameObjects.at("myteamflagclient");
+	Network::NetworkManager::otherteamflagclient = gameObjects.at("otherteamflagclient");
+
+	gameObjects.erase("playerthirdpersonremote");
+
+	gameObjects.erase("myteamflagserver");
+	gameObjects.erase("myteamflagclient");
+	gameObjects.erase("otherteamflagserver");
+	gameObjects.erase("otherteamflagclient");
 #endif
 
 	// Initialize Network Scene

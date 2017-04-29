@@ -28,14 +28,21 @@ namespace eae6320
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
 			static Gameplay::GameObject* nativePlayer;
+			static Gameplay::GameObject* remotePlayer;
+
+			static Gameplay::GameObject* myteamflagserver;
+			static Gameplay::GameObject* otherteamflagserver;
+
+			static Gameplay::GameObject* myteamflagclient;
+			static Gameplay::GameObject* otherteamflagclient;
 		private:
-			static NetworkManager* singleton;
-			Gameplay::GameObject* m_remotePlayer;		
+			static NetworkManager* singleton;			
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);
 			RakNet::RakPeerInterface* m_rakPeerInterface;
 			uint32_t m_maxClients;
 			uint16_t m_serverPort;
 			bool m_isServer;
+			bool m_showRemotePlayer;
 		};
 	}
 }

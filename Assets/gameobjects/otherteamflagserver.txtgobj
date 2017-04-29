@@ -1,0 +1,9 @@
+-- Gameobject Data for OtherTeamFlagServer
+return
+{
+	material_filepath = "materials/flag_material.txtmaterial",
+	mesh_filepath = "meshes/otherflag.txtmesh",
+	controller_name = "FlagController",
+	position = {-1486.0,50.0,1465.0},
+	eular_angles = {0.0,0.0,0.0},	
+}

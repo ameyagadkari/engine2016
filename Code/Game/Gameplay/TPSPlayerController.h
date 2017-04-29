@@ -30,7 +30,7 @@ namespace eae6320
 			{
 				return new TPSPlayerController(i_acceleration, i_height);
 			}
-			void SetCameraTransform(Transform* i_cameraTransform)
+			void SetCameraTransform(Transform const * const i_cameraTransform)
 			{
 				m_cameraTransform = i_cameraTransform;
 			}
@@ -55,7 +55,7 @@ namespace eae6320
 			void UpdateOrientation(Transform& io_transform) override;
 			Math::cVector m_velocity;
 			Math::cVector m_velocityDown;
-			Transform* m_cameraTransform;
+			Transform const * m_cameraTransform;
 			Debug::Shapes::DebugObject* m_forward;
 			Debug::Shapes::DebugObject* m_down;
 			Debug::UI::Slider* m_sprint;

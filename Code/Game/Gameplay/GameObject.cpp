@@ -3,6 +3,7 @@
 #include "TPSPlayerController.h"
 #include "StandardRotationController.h"
 #include "DefaultController.h"
+#include "FlagController.h"
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
@@ -66,6 +67,10 @@ namespace eae6320
 					else if (gameObject->m_controllerUUID == StandardRotationController::classUUID)
 					{
 						gameObject->m_controller = reinterpret_cast<cbController*>(StandardRotationController::Initialize(250.0f));
+					}
+					else if (gameObject->m_controllerUUID == FlagController::classUUID)
+					{
+						gameObject->m_controller = reinterpret_cast<cbController*>(FlagController::Initialize());
 					}
 					else
 					{

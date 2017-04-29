@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="HitData.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Physics.cpp" />

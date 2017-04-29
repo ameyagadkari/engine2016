@@ -23,12 +23,14 @@ return
 		"gameobjects/firstfloor.txtgobj",
 		"gameobjects/archwayceiling.txtgobj",
 		"gameobjects/insidewalls.txtgobj",
-		--"gameobjects/boxes.txtgobj",
-		--"gameobjects/flags.txtgobj",
 		"gameobjects/wallbraceinner.txtgobj",
 		--"gameobjects/playerfirstperson.txtgobj",
 		"gameobjects/playerthirdperson.txtgobj",
-		"gameobjects/network/playerthirdpersonremote.txtgobj",
+		"gameobjects/playerthirdpersonremote.txtgobj",
+		"gameobjects/myteamflagserver.txtgobj",
+		"gameobjects/otherteamflagserver.txtgobj",
+		"gameobjects/myteamflagclient.txtgobj",
+		"gameobjects/otherteamflagclient.txtgobj",
 	},
 	materials =
 	{

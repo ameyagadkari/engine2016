@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DefaultController.cpp" />
+    <ClCompile Include="FlagController.cpp" />
     <ClCompile Include="FPSPlayerController.cpp" />
     <ClCompile Include="GameObject2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultController.h" />
+    <ClInclude Include="FlagController.h" />
     <ClInclude Include="FPSPlayerController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject2D.h" />

@@ -17,7 +17,7 @@ namespace eae6320
 			{
 				return new TPSCameraController(i_acceleration);
 			}
-			void SetPlayerTransform(Gameplay::Transform* i_playerTransform)
+			void SetPlayerTransform(Gameplay::Transform const * const i_playerTransform)
 			{
 				m_playerTransform = i_playerTransform;
 			}
@@ -30,7 +30,7 @@ namespace eae6320
 
 			void UpdatePosition(Gameplay::Transform& io_transform) override;
 			void UpdateOrientation(Gameplay::Transform& io_transform) override;
-			Gameplay::Transform* m_playerTransform;
+			Gameplay::Transform const * m_playerTransform;
 			Math::cVector m_velocity;
 			const float m_acceleration;
 		};

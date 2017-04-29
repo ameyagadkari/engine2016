@@ -846,7 +846,7 @@ namespace
 					}
 				}
 
-				if (eae6320::AssetBuild::CheckIfNumberIsNormalized(uv, 2))
+				//if (eae6320::AssetBuild::CheckIfNumberIsNormalized(uv, 2))
 				{
 					meshData.vertexData[index].u = eae6320::Math::cHalf::MakeHalfFromFloat(uv[0]);
 #if defined( EAE6320_PLATFORM_D3D )
@@ -855,12 +855,12 @@ namespace
 					meshData.vertexData[index].v = eae6320::Math::cHalf::MakeHalfFromFloat(uv[1]);
 #endif
 				}
-				else
+				/*else
 				{
 					wereThereErrors = true;
 					fprintf_s(stderr, "The UVs were not normalized in range [0,1]");
 					goto OnExit;
-				}
+				}*/
 
 			}
 			else

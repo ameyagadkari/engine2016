@@ -4,6 +4,7 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "HitData.h"
+#include "Triangle.h"
 
 namespace
 {
@@ -11,12 +12,8 @@ namespace
 
 	bool IntersectSegmentTriangle(eae6320::Math::cVector p, eae6320::Math::cVector q, eae6320::Math::cVector a, eae6320::Math::cVector b, eae6320::Math::cVector c, float &u, float &v, float &w, float &t);
 
-	// Helper Struct 
-	struct Triangle
-	{
-		eae6320::Math::cVector a, b, c;
-	};
-	Triangle* triangles = nullptr;
+
+	eae6320::Physics::Triangle* triangles = nullptr;
 	size_t numberOfTriangles = 0;
 
 	const float playerChestOffset = 20.0f;
@@ -27,7 +24,6 @@ namespace eae6320
 	namespace Physics
 	{
 		bool hasIntersected = false;
-		Graphics::MeshData* collisionData = nullptr;
 	}
 }
 bool eae6320::Physics::Initialize()
@@ -49,7 +45,7 @@ bool eae6320::Physics::Initialize()
 	// Casting data to uint8_t* for pointer arithematic
 	uint8_t* data = reinterpret_cast<uint8_t*>(binaryMesh.data);
 
-	collisionData = new Graphics::MeshData();
+	Graphics::MeshData* collisionData = new Graphics::MeshData();
 	// Extracting Binary Data
 	{
 		// Extracting Type Of IndexData		
@@ -115,6 +111,23 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_start, const Math::c
 			Math::cVector ac = triangles[i].c - triangles[i].a;
 			o_hitData.normal = Cross(ab, ac).CreateNormalized();
 			o_hitData.intersectionPoint = triangles[i].a*u + triangles[i].b*v + triangles[i].c*w;
+			break;
+		}
+	}
+}
+
+void eae6320::Physics::CheckCollisionForFlag(const Math::cVector i_start, const Math::cVector i_end, const size_t i_numberOfTriangles, const Triangle * i_flagTriangles, HitData & o_hitData)
+{
+	float u, v, w, t;
+	for (size_t i = 0; i < i_numberOfTriangles; i++)
+	{
+		hasIntersected = IntersectSegmentTriangle(i_start, i_end, i_flagTriangles[i].a, i_flagTriangles[i].b, i_flagTriangles[i].c, u, v, w, t);
+		if (hasIntersected)
+		{
+			Math::cVector ab = i_flagTriangles[i].b - i_flagTriangles[i].a;
+			Math::cVector ac = i_flagTriangles[i].c - i_flagTriangles[i].a;
+			o_hitData.normal = Cross(ab, ac).CreateNormalized();
+			o_hitData.intersectionPoint = i_flagTriangles[i].a*u + i_flagTriangles[i].b*v + i_flagTriangles[i].c*w;
 			break;
 		}
 	}

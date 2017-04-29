@@ -15,6 +15,7 @@ namespace eae6320
 	namespace Physics
 	{
 		struct HitData;
+		struct Triangle;
 	}
 }
 
@@ -24,11 +25,10 @@ namespace eae6320
 	{
 		bool Initialize();
 		bool CleanUp();
-		//void CheckCollision(const Math::cVector i_newPosition, const Math::cVector i_velocityNormalized, const float i_playerHeight, HitData* o_hitData, bool groundCheck);
 		void CheckCollision(const Math::cVector i_start, const Math::cVector i_end, HitData& o_hitData);
+		void CheckCollisionForFlag(const Math::cVector i_start, const Math::cVector i_end, const size_t i_numberOfTriangles, const Triangle* i_flagTriangles, HitData& o_hitData);
 
 		extern bool hasIntersected;
-		extern Graphics::MeshData* collisionData;
 	}
 }
 

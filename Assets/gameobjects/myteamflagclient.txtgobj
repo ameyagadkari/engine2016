@@ -1,0 +1,9 @@
+-- Gameobject Data for MyTeamFlagClient
+return
+{
+	material_filepath = "materials/flag_material.txtmaterial",
+	mesh_filepath = "meshes/myflag.txtmesh",
+	controller_name = "DefaultController",
+	position = {-1486.0,50.0,1465.0},
+	eular_angles = {0.0,0.0,0.0},	
+}
