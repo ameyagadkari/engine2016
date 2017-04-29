@@ -116,23 +116,6 @@ void eae6320::Physics::CheckCollision(const Math::cVector i_start, const Math::c
 	}
 }
 
-void eae6320::Physics::CheckCollisionForFlag(const Math::cVector i_start, const Math::cVector i_end, const size_t i_numberOfTriangles, const Triangle * i_flagTriangles, HitData & o_hitData)
-{
-	float u, v, w, t;
-	for (size_t i = 0; i < i_numberOfTriangles; i++)
-	{
-		hasIntersected = IntersectSegmentTriangle(i_start, i_end, i_flagTriangles[i].a, i_flagTriangles[i].b, i_flagTriangles[i].c, u, v, w, t);
-		if (hasIntersected)
-		{
-			Math::cVector ab = i_flagTriangles[i].b - i_flagTriangles[i].a;
-			Math::cVector ac = i_flagTriangles[i].c - i_flagTriangles[i].a;
-			o_hitData.normal = Cross(ab, ac).CreateNormalized();
-			o_hitData.intersectionPoint = i_flagTriangles[i].a*u + i_flagTriangles[i].b*v + i_flagTriangles[i].c*w;
-			break;
-		}
-	}
-}
-
 bool eae6320::Physics::CleanUp()
 {
 	if (triangles)free(triangles);

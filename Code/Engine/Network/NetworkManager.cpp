@@ -7,7 +7,6 @@
 #include "../Graphics/Graphics.h"
 #include "../Physics/Triangle.h"
 #include "../Platform/Platform.h"
-#include "../Graphics/MeshData.h"
 #include "../../Game/Gameplay/FlagController.h"
 
 namespace
@@ -15,7 +14,8 @@ namespace
 	enum GameMessages
 	{
 		ID_CREATE_PLAYER = ID_USER_PACKET_ENUM + 1,
-		ID_UPDATE_OTHER_PLAYER = ID_USER_PACKET_ENUM + 2
+		ID_UPDATE_OTHER_PLAYER = ID_USER_PACKET_ENUM + 2,
+		ID_UPDATE_MY_FLAG = ID_USER_PACKET_ENUM + 3,
 	};
 
 	char const * const localIPV4 = "127.0.0.1";
@@ -46,10 +46,6 @@ namespace
 		"CONNECTION_ATTEMPT_ALREADY_IN_PROGRESS",
 		"SECURITY_INITIALIZATION_FAILED"
 	};
-
-	//eae6320::Physics::Triangle* flagTriangles = nullptr;
-	//size_t numberOfFlagTriangles = 0;
-	//void InitializeFlagTriangles(char const * const i_filePath);
 }
 
 eae6320::Network::NetworkManager* eae6320::Network::NetworkManager::singleton(nullptr);
@@ -105,10 +101,8 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 		// Setting Max Number of Clients
 		singleton->m_rakPeerInterface->SetMaximumIncomingConnections(singleton->m_maxClients);
 
-		/*InitializeFlagTriangles("data/meshes/otherteamflag.binmesh");*/
 		if (otherteamflagserver)
 		{
-			//reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetFlagCollisionData(numberOfFlagTriangles, flagTriangles);
 			reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetPlayerTransform(&nativePlayer->GetTransformAddress());
 		}
 	}
@@ -138,10 +132,9 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 				goto OnExit;
 			}
 		}
-		//InitializeFlagTriangles("data/meshes/otherteamflagremote.binmesh");
+
 		if (otherteamflagclient)
 		{
-			//reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetFlagCollisionData(numberOfFlagTriangles, flagTriangles);
 			reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetPlayerTransform(&nativePlayer->GetTransformAddress());
 		}
 	}
@@ -183,11 +176,6 @@ bool eae6320::Network::NetworkManager::CleanUp()
 		delete singleton;
 		singleton = nullptr;
 	}
-	/*if (flagTriangles)
-	{
-		free(flagTriangles);
-		flagTriangles = nullptr;
-	}*/
 	return true;
 }
 
@@ -291,6 +279,15 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				bsOut.WriteVector(nativePlayerTransform.GetOrientationEular().x, nativePlayerTransform.GetOrientationEular().y, nativePlayerTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 			}
+
+			{
+				RakNet::BitStream bsOut;
+				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_MY_FLAG));
+				Gameplay::Transform otherflagTransform = m_isServer ? otherteamflagserver->GetTransform() : otherteamflagclient->GetTransform();
+				bsOut.WriteVector(otherflagTransform.m_position.x, otherflagTransform.m_position.y, otherflagTransform.m_position.z);
+				bsOut.WriteVector(otherflagTransform.GetOrientationEular().x, otherflagTransform.GetOrientationEular().y, otherflagTransform.GetOrientationEular().z);
+				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+			}
 			NetworkScene::currentGameState = NetworkScene::RunMultiplayer;
 			break;
 		case ID_UPDATE_OTHER_PLAYER:
@@ -313,6 +310,29 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				Gameplay::Transform nativePlayerTransform = nativePlayer->GetTransform();
 				bsOut.WriteVector(nativePlayerTransform.m_position.x, nativePlayerTransform.m_position.y, nativePlayerTransform.m_position.z);
 				bsOut.WriteVector(nativePlayerTransform.GetOrientationEular().x, nativePlayerTransform.GetOrientationEular().y, nativePlayerTransform.GetOrientationEular().z);
+				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, packet->systemAddress, false);
+			}
+		}
+		break;
+		case ID_UPDATE_MY_FLAG:
+		{
+			Math::cVector position, orientationEular;
+			// Read the packet and write value to my flag transform
+			{
+				RakNet::BitStream bsIn(packet->data, packet->length, false);
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				bsIn.ReadVector(position.x, position.y, position.z);
+				bsIn.IgnoreBytes(sizeof(Math::cVector));
+				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
+				m_isServer ? myteamflagserver->SetTransformSpecial(position, orientationEular) : myteamflagclient->SetTransformSpecial(position, orientationEular);
+			}
+
+			{
+				RakNet::BitStream bsOut;
+				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_MY_FLAG));
+				Gameplay::Transform otherflagTransform = m_isServer ? otherteamflagserver->GetTransform() : otherteamflagclient->GetTransform();
+				bsOut.WriteVector(otherflagTransform.m_position.x, otherflagTransform.m_position.y, otherflagTransform.m_position.z);
+				bsOut.WriteVector(otherflagTransform.GetOrientationEular().x, otherflagTransform.GetOrientationEular().y, otherflagTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, packet->systemAddress, false);
 			}
 		}
@@ -346,78 +366,3 @@ void eae6320::Network::NetworkManager::Draw()const
 	}
 
 }
-
-/*namespace
-{
-	void InitializeFlagTriangles(char const * const i_filePath)
-	{
-		bool wereThereErrors = false;
-		eae6320::Platform::sDataFromFile binaryMesh;
-		// Load the binary mesh file
-		{
-			std::string errorMessage;
-			if (!LoadBinaryFile(i_filePath, binaryMesh, &errorMessage))
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, errorMessage.c_str());
-				eae6320::Logging::OutputError("Failed to load the binary mesh file \"%s\": %s", i_filePath, errorMessage.c_str());
-				goto OnExit;
-			}
-		}
-
-		// Casting data to uint8_t* for pointer arithematic
-		uint8_t* data = reinterpret_cast<uint8_t*>(binaryMesh.data);
-
-		eae6320::Graphics::MeshData* flagCollisionData = new eae6320::Graphics::MeshData();
-		// Extracting Binary Data
-		{
-			// Extracting Type Of IndexData		
-			flagCollisionData->typeOfIndexData = *reinterpret_cast<uint32_t*>(data);
-
-			// Extracting Number Of Vertices
-			data += sizeof(uint32_t);
-			flagCollisionData->numberOfVertices = *reinterpret_cast<uint32_t*>(data);
-
-			// Extracting Number Of Indices
-			data += sizeof(uint32_t);
-			flagCollisionData->numberOfIndices = *reinterpret_cast<uint32_t*>(data);
-
-			// Extracting Vertex Array
-			data += sizeof(uint32_t);
-			flagCollisionData->vertexData = reinterpret_cast<eae6320::Graphics::MeshData::Vertex*>(data);
-
-			// Extracting Index Array
-			data += flagCollisionData->numberOfVertices * sizeof(eae6320::Graphics::MeshData::Vertex);
-			flagCollisionData->indexData = data;
-		}
-
-		numberOfFlagTriangles = flagCollisionData->numberOfIndices / 3;
-		flagTriangles = reinterpret_cast<eae6320::Physics::Triangle*>(malloc(numberOfFlagTriangles * sizeof(eae6320::Physics::Triangle)));
-		uint16_t j1, j2, j3;
-		for (size_t i = 0, k = 0; i < numberOfFlagTriangles; i++, k += 3)
-		{
-#if defined( EAE6320_PLATFORM_D3D )
-			j1 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[flagCollisionData->numberOfIndices - 1 - k];
-			j2 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[flagCollisionData->numberOfIndices - 1 - (k + 1)];
-			j3 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[flagCollisionData->numberOfIndices - 1 - (k + 2)];
-#elif defined( EAE6320_PLATFORM_GL )
-			j1 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[k];
-			j2 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[k + 1];
-			j3 = reinterpret_cast<uint16_t*>(flagCollisionData->indexData)[k + 2];
-#endif
-			flagTriangles[i].a = eae6320::Math::cVector(flagCollisionData->vertexData[j1].x, flagCollisionData->vertexData[j1].y, flagCollisionData->vertexData[j1].z);
-			flagTriangles[i].b = eae6320::Math::cVector(flagCollisionData->vertexData[j2].x, flagCollisionData->vertexData[j2].y, flagCollisionData->vertexData[j2].z);
-			flagTriangles[i].c = eae6320::Math::cVector(flagCollisionData->vertexData[j3].x, flagCollisionData->vertexData[j3].y, flagCollisionData->vertexData[j3].z);
-		}
-
-	OnExit:
-		if (flagCollisionData)
-		{
-			flagCollisionData->vertexData = nullptr;
-			flagCollisionData->indexData = nullptr;
-			delete flagCollisionData;
-			flagCollisionData = nullptr;
-		}
-		binaryMesh.Free();
-	}
-}*/
