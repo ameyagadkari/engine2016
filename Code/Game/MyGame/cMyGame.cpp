@@ -126,13 +126,18 @@ bool eae6320::cMyGame::Initialize()
 	Gameplay::GameObject* localPlayer = gameObjects.at("playerthirdperson");
 	reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&localPlayer->GetTransformAddress());
 	reinterpret_cast<Gameplay::TPSPlayerController&>(localPlayer->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
-	Network::NetworkManager::nativePlayer = localPlayer;
-	Network::NetworkManager::remotePlayer = gameObjects.at("playerthirdpersonremote");
+	Network::NetworkManager::AddToMap("playerthirdperson", localPlayer);
+	Network::NetworkManager::AddToMap("playerthirdpersonremote", gameObjects.at("playerthirdpersonremote"));
 	
-	Network::NetworkManager::myteamflagserver = gameObjects.at("myteamflagserver");
-	Network::NetworkManager::otherteamflagserver = gameObjects.at("otherteamflagserver");
-	Network::NetworkManager::myteamflagclient = gameObjects.at("myteamflagclient");
-	Network::NetworkManager::otherteamflagclient = gameObjects.at("otherteamflagclient");
+	Network::NetworkManager::AddToMap("myteamflagserver", gameObjects.at("myteamflagserver"));
+	Network::NetworkManager::AddToMap("otherteamflagserver", gameObjects.at("otherteamflagserver"));
+	Network::NetworkManager::AddToMap("myteamflagclient", gameObjects.at("myteamflagclient"));
+	Network::NetworkManager::AddToMap("otherteamflagclient", gameObjects.at("otherteamflagclient"));
+
+	Network::NetworkManager::AddToMap("myscorezoneserver", gameObjects.at("myscorezoneserver"));
+	Network::NetworkManager::AddToMap("otherscorezoneserver", gameObjects.at("otherscorezoneserver"));
+	Network::NetworkManager::AddToMap("myscorezoneclient", gameObjects.at("myscorezoneclient"));
+	Network::NetworkManager::AddToMap("otherscorezoneclient", gameObjects.at("otherscorezoneclient"));
 
 	gameObjects.erase("playerthirdpersonremote");
 
@@ -140,6 +145,11 @@ bool eae6320::cMyGame::Initialize()
 	gameObjects.erase("myteamflagclient");
 	gameObjects.erase("otherteamflagserver");
 	gameObjects.erase("otherteamflagclient");
+
+	gameObjects.erase("myscorezoneserver");
+	gameObjects.erase("otherscorezoneserver");
+	gameObjects.erase("myscorezoneclient");
+	gameObjects.erase("otherscorezoneclient");
 #endif
 
 	// Initialize Network Scene
@@ -288,11 +298,12 @@ bool eae6320::cMyGame::CleanUp()
 
 	// Deleting GameObjects
 	{
-		for (auto const& gameObject : gameObjects)
+		for (auto& gameObject : gameObjects)
 		{
 			if (gameObject.second)
 			{
 				delete gameObject.second;
+				gameObject.second = nullptr;
 			}
 		}
 		gameObjects.clear();
@@ -325,15 +336,17 @@ bool eae6320::cMyGame::CleanUp()
 	for (size_t i = 0; i < length; i++)
 	{
 		delete Debug::UI::HUD[i];
+		Debug::UI::HUD[i] = nullptr;
 	}
 
 	// Deleting GameObjects2D
 	{
-		for (auto const& gameObject2D : gameObjects2D)
+		for (auto& gameObject2D : gameObjects2D)
 		{
 			if (gameObject2D.second)
 			{
 				delete gameObject2D.second;
+				gameObject2D.second = nullptr;
 			}
 		}
 		gameObjects2D.clear();

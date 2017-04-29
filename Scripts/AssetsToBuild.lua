@@ -31,6 +31,10 @@ return
 		"gameobjects/otherteamflagserver.txtgobj",
 		"gameobjects/myteamflagclient.txtgobj",
 		"gameobjects/otherteamflagclient.txtgobj",
+		"gameobjects/myscorezoneserver.txtgobj",
+		"gameobjects/otherscorezoneserver.txtgobj",
+		"gameobjects/myscorezoneclient.txtgobj",
+		"gameobjects/otherscorezoneclient.txtgobj",
 	},
 	materials =
 	{

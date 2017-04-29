@@ -1,6 +1,7 @@
 #ifndef EAE6320_NETWORKMANAGER_H
 #define EAE6320_NETWORKMANAGER_H
 #include <cstdint>
+#include <map>
 
 namespace RakNet
 {
@@ -27,15 +28,17 @@ namespace eae6320
 			void Draw()const;
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
-			static Gameplay::GameObject* nativePlayer;
+			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
+			/*static Gameplay::GameObject* nativePlayer;
 			static Gameplay::GameObject* remotePlayer;
 
 			static Gameplay::GameObject* myteamflagserver;
 			static Gameplay::GameObject* otherteamflagserver;
 
 			static Gameplay::GameObject* myteamflagclient;
-			static Gameplay::GameObject* otherteamflagclient;
+			static Gameplay::GameObject* otherteamflagclient;*/
 		private:
+			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
 			static NetworkManager* singleton;			
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);
 			RakNet::RakPeerInterface* m_rakPeerInterface;

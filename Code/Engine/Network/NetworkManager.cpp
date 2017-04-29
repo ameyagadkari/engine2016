@@ -48,14 +48,13 @@ namespace
 	};
 }
 
+void eae6320::Network::NetworkManager::AddToMap(const std::string i_key, Gameplay::GameObject * i_value)
+{
+	networkGameObjects[i_key] = i_value;
+}
 eae6320::Network::NetworkManager* eae6320::Network::NetworkManager::singleton(nullptr);
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::nativePlayer(nullptr);
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::remotePlayer(nullptr);
 
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::myteamflagserver(nullptr);
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::otherteamflagserver(nullptr);
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::myteamflagclient(nullptr);
-eae6320::Gameplay::GameObject* eae6320::Network::NetworkManager::otherteamflagclient(nullptr);
+std::map<const std::string, eae6320::Gameplay::GameObject*> eae6320::Network::NetworkManager::networkGameObjects;
 
 eae6320::Network::NetworkManager::NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients)
 	:
@@ -100,10 +99,11 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 
 		// Setting Max Number of Clients
 		singleton->m_rakPeerInterface->SetMaximumIncomingConnections(singleton->m_maxClients);
-
-		if (otherteamflagserver)
+		Gameplay::GameObject * otherteamflagserver = networkGameObjects.at("otherteamflagserver");
+		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
+		if (otherteamflagserver && playerthirdperson)
 		{
-			reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetPlayerTransform(&nativePlayer->GetTransformAddress());
+			reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
 		}
 	}
 	else
@@ -132,10 +132,11 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 				goto OnExit;
 			}
 		}
-
+		Gameplay::GameObject * otherteamflagclient = networkGameObjects.at("otherteamflagclient");
+		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
 		if (otherteamflagclient)
 		{
-			reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetPlayerTransform(&nativePlayer->GetTransformAddress());
+			reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
 		}
 	}
 OnExit:
@@ -144,31 +145,17 @@ OnExit:
 
 bool eae6320::Network::NetworkManager::CleanUp()
 {
-	if (remotePlayer)
+	networkGameObjects.erase("playerthirdperson");
+	for (auto& gameObject : networkGameObjects)
 	{
-		delete remotePlayer;
-		remotePlayer = nullptr;
+		if (gameObject.second)
+		{
+			delete gameObject.second;
+			gameObject.second = nullptr;
+		}
 	}
-	if (myteamflagserver)
-	{
-		delete myteamflagserver;
-		myteamflagserver = nullptr;
-	}
-	if (otherteamflagserver)
-	{
-		delete otherteamflagserver;
-		otherteamflagserver = nullptr;
-	}
-	if (myteamflagclient)
-	{
-		delete myteamflagclient;
-		myteamflagclient = nullptr;
-	}
-	if (otherteamflagclient)
-	{
-		delete otherteamflagclient;
-		otherteamflagclient = nullptr;
-	}
+	networkGameObjects.clear();
+
 	if (singleton)
 	{
 		RakNet::RakPeerInterface::DestroyInstance(singleton->m_rakPeerInterface);
@@ -189,7 +176,7 @@ eae6320::Network::NetworkManager* eae6320::Network::NetworkManager::GetSingleton
 
 void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 {
-	m_isServer ? otherteamflagserver->UpdateGameObjectPosition() : otherteamflagclient->UpdateGameObjectPosition();
+	m_isServer ? networkGameObjects.at("otherteamflagserver")->UpdateGameObjectPosition() : networkGameObjects.at("otherteamflagclient")->UpdateGameObjectPosition();
 	RakNet::Packet* packet;
 	for (packet = m_rakPeerInterface->Receive(); packet; m_rakPeerInterface->DeallocatePacket(packet), packet = m_rakPeerInterface->Receive())
 	{
@@ -266,15 +253,15 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				bsIn.IgnoreBytes(sizeof(Math::cVector));
 				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
 				position += Math::cVector(0.0f, 0.0f, 0.0f);
-				remotePlayer->SetTransformSpecial(position, orientationEular);
-				nativePlayer->SetTransformSpecial(position, orientationEular);
+				networkGameObjects.at("playerthirdpersonremote")->SetTransformSpecial(position, orientationEular);
+				networkGameObjects.at("playerthirdperson")->SetTransformSpecial(position, orientationEular);
 				notDone = false;
 			}
 
 			{
 				RakNet::BitStream bsOut;
 				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_OTHER_PLAYER));
-				Gameplay::Transform nativePlayerTransform = nativePlayer->GetTransform();
+				Gameplay::Transform nativePlayerTransform = networkGameObjects.at("playerthirdperson")->GetTransform();
 				bsOut.WriteVector(nativePlayerTransform.m_position.x, nativePlayerTransform.m_position.y, nativePlayerTransform.m_position.z);
 				bsOut.WriteVector(nativePlayerTransform.GetOrientationEular().x, nativePlayerTransform.GetOrientationEular().y, nativePlayerTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
@@ -283,7 +270,7 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			{
 				RakNet::BitStream bsOut;
 				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_MY_FLAG));
-				Gameplay::Transform otherflagTransform = m_isServer ? otherteamflagserver->GetTransform() : otherteamflagclient->GetTransform();
+				Gameplay::Transform otherflagTransform = m_isServer ? networkGameObjects.at("otherteamflagserver")->GetTransform() : networkGameObjects.at("otherteamflagclient")->GetTransform();
 				bsOut.WriteVector(otherflagTransform.m_position.x, otherflagTransform.m_position.y, otherflagTransform.m_position.z);
 				bsOut.WriteVector(otherflagTransform.GetOrientationEular().x, otherflagTransform.GetOrientationEular().y, otherflagTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
@@ -301,13 +288,13 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				bsIn.ReadVector(position.x, position.y, position.z);
 				bsIn.IgnoreBytes(sizeof(Math::cVector));
 				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
-				remotePlayer->SetTransformSpecial(position, orientationEular);
+				networkGameObjects.at("playerthirdpersonremote")->SetTransformSpecial(position, orientationEular);
 			}
 
 			{
 				RakNet::BitStream bsOut;
 				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_OTHER_PLAYER));
-				Gameplay::Transform nativePlayerTransform = nativePlayer->GetTransform();
+				Gameplay::Transform nativePlayerTransform = networkGameObjects.at("playerthirdperson")->GetTransform();
 				bsOut.WriteVector(nativePlayerTransform.m_position.x, nativePlayerTransform.m_position.y, nativePlayerTransform.m_position.z);
 				bsOut.WriteVector(nativePlayerTransform.GetOrientationEular().x, nativePlayerTransform.GetOrientationEular().y, nativePlayerTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, packet->systemAddress, false);
@@ -324,13 +311,13 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				bsIn.ReadVector(position.x, position.y, position.z);
 				bsIn.IgnoreBytes(sizeof(Math::cVector));
 				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
-				m_isServer ? myteamflagserver->SetTransformSpecial(position, orientationEular) : myteamflagclient->SetTransformSpecial(position, orientationEular);
+				m_isServer ? networkGameObjects.at("myteamflagserver")->SetTransformSpecial(position, orientationEular) : networkGameObjects.at("myteamflagclient")->SetTransformSpecial(position, orientationEular);
 			}
 
 			{
 				RakNet::BitStream bsOut;
 				bsOut.Write(static_cast<RakNet::MessageID>(ID_UPDATE_MY_FLAG));
-				Gameplay::Transform otherflagTransform = m_isServer ? otherteamflagserver->GetTransform() : otherteamflagclient->GetTransform();
+				Gameplay::Transform otherflagTransform = m_isServer ? networkGameObjects.at("otherteamflagserver")->GetTransform() : networkGameObjects.at("otherteamflagclient")->GetTransform();
 				bsOut.WriteVector(otherflagTransform.m_position.x, otherflagTransform.m_position.y, otherflagTransform.m_position.z);
 				bsOut.WriteVector(otherflagTransform.GetOrientationEular().x, otherflagTransform.GetOrientationEular().y, otherflagTransform.GetOrientationEular().z);
 				m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, packet->systemAddress, false);
@@ -346,22 +333,23 @@ void eae6320::Network::NetworkManager::Draw()const
 {
 	if (m_showRemotePlayer)
 	{
-		if (remotePlayer)Graphics::SetGameObject(remotePlayer);
+		Graphics::SetGameObject(networkGameObjects.at("playerthirdpersonremote"));
 		if (m_isServer)
 		{
-			if (myteamflagserver)
-			{
-				Graphics::SetGameObject(myteamflagserver);
-				Graphics::SetGameObject(otherteamflagserver);
-			}
+			Graphics::SetGameObject(networkGameObjects.at("myteamflagserver"));
+			Graphics::SetGameObject(networkGameObjects.at("otherteamflagserver"));
+
+			Graphics::SetGameObject(networkGameObjects.at("myscorezoneserver"));
+			Graphics::SetGameObject(networkGameObjects.at("otherscorezoneserver"));
+
 		}
 		else
 		{
-			if (myteamflagclient)
-			{
-				Graphics::SetGameObject(myteamflagclient);
-				Graphics::SetGameObject(otherteamflagclient);
-			}
+			Graphics::SetGameObject(networkGameObjects.at("myteamflagclient"));
+			Graphics::SetGameObject(networkGameObjects.at("otherteamflagclient"));
+
+			Graphics::SetGameObject(networkGameObjects.at("myscorezoneclient"));
+			Graphics::SetGameObject(networkGameObjects.at("otherscorezoneclient"));
 		}
 	}
 

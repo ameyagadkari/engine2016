@@ -1,0 +1,9 @@
+-- Gameobject Data for OtherScoreZoneServer
+return
+{
+	material_filepath = "materials/std_material.txtmaterial",
+	mesh_filepath = "meshes/otherscorezone.txtmesh",
+	controller_name = "DefaultController",
+	position = {-1000.0,125.0,-1550.0},
+	eular_angles = {0.0,0.0,0.0},	
+}

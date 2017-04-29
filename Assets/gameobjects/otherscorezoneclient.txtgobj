@@ -1,9 +1,9 @@
--- Gameobject Data for MyTeamFlag
+-- Gameobject Data for OtherScoreZoneClient
 return
 {
 	material_filepath = "materials/std_material.txtmaterial",
-	mesh_filepath = "meshes/myteamflag.txtmesh",
+	mesh_filepath = "meshes/otherscorezone.txtmesh",
 	controller_name = "DefaultController",
-	position = {0.0,0.0,0.0},
+	position = {1000.0,125.0,1550.0},
 	eular_angles = {0.0,0.0,0.0},	
 }

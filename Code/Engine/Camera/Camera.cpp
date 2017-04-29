@@ -93,7 +93,11 @@ bool eae6320::Camera::Camera::CleanUp()
 	bool wereThereErrors = false;
 	for (size_t i = 0; i < s_maxCameraNumber; i++)
 	{
-		if (s_cameras[i])delete s_cameras[i];
+		if (s_cameras[i])
+		{
+			delete s_cameras[i];
+			s_cameras[i] = nullptr;
+		}
 		else wereThereErrors = true;
 
 	}
