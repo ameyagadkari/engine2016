@@ -34,6 +34,7 @@ namespace eae6320
 			{
 				m_flagController = i_flagController;
 			}
+			size_t GetScore()const { return  m_score; }
 		private:
 			explicit ScoreZoneController():
 				m_score(0),

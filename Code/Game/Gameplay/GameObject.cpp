@@ -165,9 +165,9 @@ namespace eae6320
 		{
 			return m_transform;
 		}
-		cbController& GameObject::GetController()const
+		cbController* GameObject::GetController()const
 		{
-			return *m_controller;
+			return m_controller;
 		}
 #pragma endregion
 

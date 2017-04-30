@@ -44,7 +44,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	if(m_remotePlayerTransform)
 	{
 		float distance = m_remotePlayerTransform->m_position.DistanceBetween(io_transform.m_position);
-		if (distance < 150.0f)
+		if (distance < 50.0f)
 		{
 			if (m_isCarryingFlag)
 			{

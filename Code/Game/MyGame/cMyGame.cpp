@@ -125,7 +125,7 @@ bool eae6320::cMyGame::Initialize()
 #else
 	Gameplay::GameObject* localPlayer = gameObjects.at("playerthirdperson");
 	reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&localPlayer->GetTransformAddress());
-	reinterpret_cast<Gameplay::TPSPlayerController&>(localPlayer->GetController()).SetCameraTransform(&tpsCam->GetTransformAddress());
+	reinterpret_cast<Gameplay::TPSPlayerController*>(localPlayer->GetController())->SetCameraTransform(&tpsCam->GetTransformAddress());
 	Network::NetworkManager::AddToMap("playerthirdperson", localPlayer);
 	Network::NetworkManager::AddToMap("playerthirdpersonremote", gameObjects.at("playerthirdpersonremote"));
 	

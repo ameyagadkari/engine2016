@@ -3,6 +3,17 @@
 #include <cstdint>
 #include <map>
 
+namespace eae6320
+{
+	namespace Debug
+	{
+		namespace UI
+		{
+			class Text;
+		}
+	}
+}
+
 namespace RakNet
 {
 	class RakPeerInterface;
@@ -31,7 +42,9 @@ namespace eae6320
 			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
 		private:
 			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
-			static NetworkManager* singleton;			
+			static NetworkManager* singleton;	
+			Debug::UI::Text* m_myscore;
+			Debug::UI::Text* m_otherscore;
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);
 			RakNet::RakPeerInterface* m_rakPeerInterface;
 			uint32_t m_maxClients;
