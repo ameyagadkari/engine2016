@@ -24,6 +24,7 @@
     <ClCompile Include="FPSPlayerController.cpp" />
     <ClCompile Include="GameObject2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ScoreZoneController.cpp" />
     <ClCompile Include="TPSPlayerController.cpp" />
     <ClCompile Include="StandardRotationController.cpp" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="GameObject2D.h" />
     <ClInclude Include="cbController.h" />
     <ClInclude Include="LocalAxes.h" />
+    <ClInclude Include="ScoreZoneController.h" />
     <ClInclude Include="TPSPlayerController.h" />
     <ClInclude Include="StandardRotationController.h" />
     <ClInclude Include="Transform.h" />

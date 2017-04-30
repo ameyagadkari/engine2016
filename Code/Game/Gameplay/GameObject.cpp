@@ -4,12 +4,14 @@
 #include "StandardRotationController.h"
 #include "DefaultController.h"
 #include "FlagController.h"
+#include "ScoreZoneController.h"
 
 #include "../../Engine/Asserts/Asserts.h"
 #include "../../Engine/Logging/Logging.h"
 #include "../../Engine/Platform/Platform.h"
 #include "../../Engine/Graphics/Mesh.h"
 #include "../../Engine/Graphics/Material.h"
+
 
 namespace eae6320
 {
@@ -71,6 +73,10 @@ namespace eae6320
 					else if (gameObject->m_controllerUUID == FlagController::classUUID)
 					{
 						gameObject->m_controller = reinterpret_cast<cbController*>(FlagController::Initialize());
+					}
+					else if (gameObject->m_controllerUUID == ScoreZoneController::classUUID)
+					{
+						gameObject->m_controller = reinterpret_cast<cbController*>(ScoreZoneController::Initialize());
 					}
 					else
 					{

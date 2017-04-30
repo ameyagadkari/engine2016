@@ -8,6 +8,7 @@
     <ClCompile Include="TPSPlayerController.cpp" />
     <ClCompile Include="FPSPlayerController.cpp" />
     <ClCompile Include="FlagController.cpp" />
+    <ClCompile Include="ScoreZoneController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
@@ -20,5 +21,6 @@
     <ClInclude Include="TPSPlayerController.h" />
     <ClInclude Include="FPSPlayerController.h" />
     <ClInclude Include="FlagController.h" />
+    <ClInclude Include="ScoreZoneController.h" />
   </ItemGroup>
 </Project>

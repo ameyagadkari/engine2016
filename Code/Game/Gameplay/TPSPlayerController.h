@@ -34,6 +34,8 @@ namespace eae6320
 			{
 				m_cameraTransform = i_cameraTransform;
 			}
+			void SetCarryFlag(const bool i_isCarryingFlag) { m_isCarryingFlag = i_isCarryingFlag; }
+			bool GetCarryFlag()const { return m_isCarryingFlag; }
 		private:
 			explicit TPSPlayerController(const float i_acceleration, const float i_height)
 				:
@@ -42,13 +44,15 @@ namespace eae6320
 				m_cameraTransform(nullptr),
 				m_forward(nullptr),
 				m_down(nullptr),
-				m_sprint(new Debug::UI::Slider({ -400,200 }, "Speed Boost: ", { 0.0f,1.0f,1.0f }, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
+				m_sprint(new Debug::UI::Slider({-400,200}, "Speed Boost: ", {0.0f,1.0f,1.0f}, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
 				m_acceleration(i_acceleration),
 				m_height(i_height),
-				m_isRunning(false)
+				m_isRunning(false), 
+				m_isCarryingFlag(false)
 			{
 				if (m_sprint)Debug::UI::HUD.push_back(m_sprint);
 			}
+
 			static float CalculateRemainingSpeedBoostProxy(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 			float CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const;
 			void UpdatePosition(Transform& io_transform) override;
@@ -62,6 +66,7 @@ namespace eae6320
 			const float m_acceleration;
 			const float m_height;
 			bool m_isRunning;
+			bool m_isCarryingFlag;
 		};
 	}
 }

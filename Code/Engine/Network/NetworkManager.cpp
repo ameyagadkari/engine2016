@@ -8,6 +8,8 @@
 #include "../Physics/Triangle.h"
 #include "../Platform/Platform.h"
 #include "../../Game/Gameplay/FlagController.h"
+#include "../../Game/Gameplay/ScoreZoneController.h"
+#include "../../Game/Gameplay/TPSPlayerController.h"
 
 namespace
 {
@@ -99,11 +101,25 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 
 		// Setting Max Number of Clients
 		singleton->m_rakPeerInterface->SetMaximumIncomingConnections(singleton->m_maxClients);
+
 		Gameplay::GameObject * otherteamflagserver = networkGameObjects.at("otherteamflagserver");
 		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
+		Gameplay::GameObject * otherscorezoneserver = networkGameObjects.at("otherscorezoneserver");
+
+		/*Gameplay::FlagController flagcontroller = reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController());
+		Gameplay::TPSPlayerController tpsPlayerController = reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController());*/
+
 		if (otherteamflagserver && playerthirdperson)
 		{
 			reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
+			reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
+		}
+
+		if(otherteamflagserver && playerthirdperson && otherscorezoneserver)
+		{
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagserver->GetController()));
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
 		}
 	}
 	else
@@ -134,9 +150,22 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 		}
 		Gameplay::GameObject * otherteamflagclient = networkGameObjects.at("otherteamflagclient");
 		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
-		if (otherteamflagclient)
+		Gameplay::GameObject * otherscorezoneclient = networkGameObjects.at("otherscorezoneclient");
+
+		/*Gameplay::FlagController flagcontroller = reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController());
+		Gameplay::TPSPlayerController tpsPlayerController = reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController());*/
+
+		if (otherteamflagclient && playerthirdperson)
 		{
 			reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
+			reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
+		}
+
+		if (otherteamflagclient && playerthirdperson && otherscorezoneclient)
+		{
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagclient->GetController()));
+			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
 		}
 	}
 OnExit:
@@ -176,7 +205,16 @@ eae6320::Network::NetworkManager* eae6320::Network::NetworkManager::GetSingleton
 
 void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 {
-	m_isServer ? networkGameObjects.at("otherteamflagserver")->UpdateGameObjectPosition() : networkGameObjects.at("otherteamflagclient")->UpdateGameObjectPosition();
+	if (m_isServer)
+	{
+		networkGameObjects.at("otherteamflagserver")->UpdateGameObjectPosition();
+		networkGameObjects.at("otherscorezoneserver")->UpdateGameObjectPosition();
+	}
+	else
+	{
+		networkGameObjects.at("otherteamflagclient")->UpdateGameObjectPosition();
+		networkGameObjects.at("otherscorezoneclient")->UpdateGameObjectPosition();
+	}
 	RakNet::Packet* packet;
 	for (packet = m_rakPeerInterface->Receive(); packet; m_rakPeerInterface->DeallocatePacket(packet), packet = m_rakPeerInterface->Receive())
 	{
