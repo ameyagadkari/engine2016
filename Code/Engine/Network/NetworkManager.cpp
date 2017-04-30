@@ -105,6 +105,7 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 		Gameplay::GameObject * otherteamflagserver = networkGameObjects.at("otherteamflagserver");
 		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
 		Gameplay::GameObject * otherscorezoneserver = networkGameObjects.at("otherscorezoneserver");
+		Gameplay::GameObject * playerthirdpersonremote = networkGameObjects.at("playerthirdpersonremote");
 
 		/*Gameplay::FlagController flagcontroller = reinterpret_cast<Gameplay::FlagController&>(otherteamflagserver->GetController());
 		Gameplay::TPSPlayerController tpsPlayerController = reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController());*/
@@ -120,6 +121,12 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagserver->GetController()));
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneserver->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
+		}
+
+		if(playerthirdperson && playerthirdpersonremote && otherteamflagserver)
+		{
+			reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagserver->GetController()));
+			reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController()).SetRemotePlayerTransform(&playerthirdpersonremote->GetTransformAddress());
 		}
 	}
 	else
@@ -151,6 +158,7 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 		Gameplay::GameObject * otherteamflagclient = networkGameObjects.at("otherteamflagclient");
 		Gameplay::GameObject * playerthirdperson = networkGameObjects.at("playerthirdperson");
 		Gameplay::GameObject * otherscorezoneclient = networkGameObjects.at("otherscorezoneclient");
+		Gameplay::GameObject * playerthirdpersonremote = networkGameObjects.at("playerthirdpersonremote");
 
 		/*Gameplay::FlagController flagcontroller = reinterpret_cast<Gameplay::FlagController&>(otherteamflagclient->GetController());
 		Gameplay::TPSPlayerController tpsPlayerController = reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController());*/
@@ -166,6 +174,12 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetPlayerTransform(&playerthirdperson->GetTransformAddress());
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagclient->GetController()));
 			reinterpret_cast<Gameplay::ScoreZoneController&>(otherscorezoneclient->GetController()).SetTPSPlayerController(reinterpret_cast<Gameplay::TPSPlayerController*>(&playerthirdperson->GetController()));
+		}
+
+		if (playerthirdperson && playerthirdpersonremote && otherscorezoneclient)
+		{
+			reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController()).SetFlagController(reinterpret_cast<Gameplay::FlagController*>(&otherteamflagclient->GetController()));
+			reinterpret_cast<Gameplay::TPSPlayerController&>(playerthirdperson->GetController()).SetRemotePlayerTransform(&playerthirdpersonremote->GetTransformAddress());
 		}
 	}
 OnExit:

@@ -1,5 +1,5 @@
 #include "TPSPlayerController.h"
-
+#include "FlagController.h"
 #include"../../Engine/Time/Time.h"
 #include "../../Engine/StringHandler/HashedString.h"
 #include "LocalAxes.h"
@@ -41,6 +41,18 @@ float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoost(const
 void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transform)
 {
 	if (!m_cameraTransform)return;
+	if(m_remotePlayerTransform)
+	{
+		float distance = m_remotePlayerTransform->m_position.DistanceBetween(io_transform.m_position);
+		if (distance < 150.0f)
+		{
+			if (m_isCarryingFlag)
+			{
+				m_isCarryingFlag = false;
+				m_flagController->ResetFlagPostion();
+			}
+		}
+	}
 	Math::cVector localOffset = Math::cVector::zero;
 
 

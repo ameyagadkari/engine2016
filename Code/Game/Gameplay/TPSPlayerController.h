@@ -21,6 +21,14 @@ namespace eae6320
 {
 	namespace Gameplay
 	{
+		class FlagController;
+	}
+}
+
+namespace eae6320
+{
+	namespace Gameplay
+	{
 
 		class TPSPlayerController final : cbController
 		{
@@ -34,6 +42,14 @@ namespace eae6320
 			{
 				m_cameraTransform = i_cameraTransform;
 			}
+			void SetRemotePlayerTransform(Transform const * const i_remotePlayerTransform)
+			{
+				m_remotePlayerTransform = i_remotePlayerTransform;
+			}
+			void SetFlagController(FlagController * const  i_flagController)
+			{
+				m_flagController = i_flagController;
+			}
 			void SetCarryFlag(const bool i_isCarryingFlag) { m_isCarryingFlag = i_isCarryingFlag; }
 			bool GetCarryFlag()const { return m_isCarryingFlag; }
 		private:
@@ -41,13 +57,15 @@ namespace eae6320
 				:
 				m_velocity(Math::cVector::zero),
 				m_velocityDown(Math::cVector::zero),
-				m_cameraTransform(nullptr),
+				m_cameraTransform(nullptr), 
+				m_remotePlayerTransform(nullptr),
+				m_flagController(nullptr),
 				m_forward(nullptr),
 				m_down(nullptr),
 				m_sprint(new Debug::UI::Slider({-400,200}, "Speed Boost: ", {0.0f,1.0f,1.0f}, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
 				m_acceleration(i_acceleration),
 				m_height(i_height),
-				m_isRunning(false), 
+				m_isRunning(false),
 				m_isCarryingFlag(false)
 			{
 				if (m_sprint)Debug::UI::HUD.push_back(m_sprint);
@@ -60,6 +78,8 @@ namespace eae6320
 			Math::cVector m_velocity;
 			Math::cVector m_velocityDown;
 			Transform const * m_cameraTransform;
+			Transform const * m_remotePlayerTransform;
+			FlagController* m_flagController;
 			Debug::Shapes::DebugObject* m_forward;
 			Debug::Shapes::DebugObject* m_down;
 			Debug::UI::Slider* m_sprint;

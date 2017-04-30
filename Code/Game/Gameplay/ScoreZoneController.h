@@ -3,7 +3,6 @@
 
 #include "cbController.h"
 #include <cstdint>
-#include "FlagController.h"
 
 namespace eae6320
 {
@@ -11,6 +10,7 @@ namespace eae6320
 	{
 
 		class TPSPlayerController;
+		class FlagController;
 	}
 }
 namespace eae6320

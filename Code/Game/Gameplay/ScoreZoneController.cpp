@@ -1,5 +1,6 @@
 #include "ScoreZoneController.h"
 #include "TPSPlayerController.h"
+#include "FlagController.h"
 #include "../../Engine/StringHandler/HashedString.h"
 #include "Transform.h"
 
