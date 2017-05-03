@@ -30,6 +30,7 @@ bool eae6320::Physics::Initialize()
 {
 	bool wereThereErrors = false;
 	Platform::sDataFromFile binaryMesh;
+	Graphics::MeshData* collisionData = nullptr;
 	// Load the binary mesh file
 	{
 		std::string errorMessage;
@@ -45,7 +46,7 @@ bool eae6320::Physics::Initialize()
 	// Casting data to uint8_t* for pointer arithematic
 	uint8_t* data = reinterpret_cast<uint8_t*>(binaryMesh.data);
 
-	Graphics::MeshData* collisionData = new Graphics::MeshData();
+	collisionData = new Graphics::MeshData();
 	// Extracting Binary Data
 	{
 		// Extracting Type Of IndexData		
