@@ -10,6 +10,14 @@ namespace eae6320
 {
 	namespace Audio
 	{
+		class AudioClip;
+	}
+}
+
+namespace eae6320
+{
+	namespace Audio
+	{
 		class AudioManager
 		{
 		public:		
@@ -21,6 +29,7 @@ namespace eae6320
 			~AudioManager(){}
 			static AudioManager* singleton;
 			AudioManager();
+			AudioClip * m_backgroundMusic;
 			FMOD::System *m_fmodSystem;
 			bool m_isAudioEnabled;
 		};

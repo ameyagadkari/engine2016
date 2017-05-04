@@ -1,11 +1,18 @@
 #include "AudioManager.h"
+#include "AudioClip.h"
 #include "../UserSettings/UserSettings.h"
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 #include "../../FMOD/inc/fmod.hpp"
 #include "../../FMOD/inc/fmod_errors.h"
 
-eae6320::Audio::AudioManager::AudioManager():
+namespace
+{
+	char const * const musicPath = "data/audio/backgroundmusic.wav";
+}
+
+eae6320::Audio::AudioManager::AudioManager() :
+	m_backgroundMusic(nullptr),
 	m_fmodSystem(nullptr),
 	m_isAudioEnabled(false)
 {}
@@ -14,7 +21,7 @@ bool eae6320::Audio::AudioManager::Initialize()
 {
 	bool wereThereErrors = false;
 	singleton = new AudioManager();
-	if(UserSettings::GetMusicState() || UserSettings::GetSoundEffectsState())
+	if (UserSettings::GetMusicState() || UserSettings::GetSoundEffectsState())
 	{
 		singleton->m_isAudioEnabled = true;
 
@@ -49,6 +56,19 @@ bool eae6320::Audio::AudioManager::Initialize()
 	{
 		singleton->m_isAudioEnabled = false;
 	}
+	if (UserSettings::GetMusicState())
+	{
+		// Init background music
+		{
+			const FMOD_MODE mode = FMOD_2D;
+			singleton->m_backgroundMusic = new AudioClip(musicPath, mode);
+		}
+		// Start background music
+		{
+			const bool isLooped = true;
+			singleton->m_backgroundMusic->Play(isLooped);
+		}
+	}
 
 OnExit:
 	return !wereThereErrors;
@@ -77,6 +97,15 @@ bool eae6320::Audio::AudioManager::CleanUp()
 				EAE6320_ASSERTF(false, FMOD_ErrorString(result));
 				Logging::OutputError("Failed to close and release FMOD system %s", FMOD_ErrorString(result));
 			}
+		}
+	}
+	if (UserSettings::GetMusicState())
+	{
+		// Releases background music
+		if (singleton->m_backgroundMusic)
+		{
+			delete singleton->m_backgroundMusic;
+			singleton->m_backgroundMusic = nullptr;
 		}
 	}
 	if (singleton)
