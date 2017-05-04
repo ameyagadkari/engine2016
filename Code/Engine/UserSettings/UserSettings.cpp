@@ -19,6 +19,9 @@ namespace
 	unsigned int s_resolutionHeight = 512;
 	unsigned int s_resolutionWidth = 512;
 
+	bool s_music = true;
+	bool s_sfx = true;
+
 	const char* const s_userSettingsFileName = "settings.ini";
 }
 
@@ -46,6 +49,18 @@ unsigned int eae6320::UserSettings::GetResolutionWidth()
 {
 	InitializeIfNecessary();
 	return s_resolutionWidth;
+}
+
+bool eae6320::UserSettings::GetMusicState()
+{
+	InitializeIfNecessary();
+	return s_music;
+}
+
+bool eae6320::UserSettings::GetSoundEffectsState()
+{
+	InitializeIfNecessary();
+	return s_sfx;
 }
 
 // Helper Function Definitions
@@ -274,6 +289,60 @@ namespace
 				}
 			}
 			lua_pop( &io_luaState, 1 );
+		}
+
+		// Music
+		{
+			const char* key_music = "music";
+
+			lua_pushstring(&io_luaState, key_music);
+			lua_gettable(&io_luaState, -2);
+			if (lua_isboolean(&io_luaState, -1))
+			{
+				uint8_t result = lua_toboolean(&io_luaState, -1);
+				if (result)
+				{
+					s_music = true;
+					eae6320::Logging::OutputMessage("The user settings file ran the game with music on.");
+				}
+				else
+				{
+					s_music = false;
+					eae6320::Logging::OutputMessage("The user settings file ran the game with music off.");
+				}
+			}
+			else
+			{
+				eae6320::Logging::OutputError("The user settings file %s specifies a invalid music option. Using default value of true instead", s_userSettingsFileName);
+			}
+			lua_pop(&io_luaState, 1);
+		}
+
+		// SFX
+		{
+			const char* key_sfx = "sfx";
+
+			lua_pushstring(&io_luaState, key_sfx);
+			lua_gettable(&io_luaState, -2);
+			if (lua_isboolean(&io_luaState, -1))
+			{
+				uint8_t result = lua_toboolean(&io_luaState, -1);
+				if (result)
+				{
+					s_sfx = true;
+					eae6320::Logging::OutputMessage("The user settings file ran the game with sfx on.");
+				}
+				else
+				{
+					s_sfx = false;
+					eae6320::Logging::OutputMessage("The user settings file ran the game with sfx off.");
+				}
+			}
+			else
+			{
+				eae6320::Logging::OutputError("The user settings file %s specifies a invalid sfx option. Using default value of true instead", s_userSettingsFileName);
+			}
+			lua_pop(&io_luaState, 1);
 		}
 
 		return true;

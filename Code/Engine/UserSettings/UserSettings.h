@@ -15,6 +15,8 @@ namespace eae6320
 	{
 		unsigned int GetResolutionHeight();
 		unsigned int GetResolutionWidth();
+		bool GetMusicState();
+		bool GetSoundEffectsState();
 	}
 }
 

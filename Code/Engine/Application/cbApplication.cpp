@@ -11,6 +11,7 @@
 #include "../UserOutput/UserOutput.h"
 #include "../Graphics/CommonData.h"
 #include "../Physics/Physics.h"
+#include "../Audio/AudioManager.h"
 
 // Interface
 //==========
@@ -146,6 +147,13 @@ bool eae6320::Application::cbApplication::Initialize_engine()
 		EAE6320_ASSERT(false);
 		return false;
 	}
+	// Audio
+	if (!Audio::AudioManager::Initialize())
+	{
+		EAE6320_ASSERT(false);
+		return false;
+	}
+
 	return true;
 }
 
@@ -185,7 +193,14 @@ bool eae6320::Application::cbApplication::CleanUp_engine()
 {
 	bool wereThereErrors = false;
 
-	// Graphics
+	// Audio
+	if (!Audio::AudioManager::CleanUp())
+	{
+		wereThereErrors = true;
+		EAE6320_ASSERT(false);
+	}
+
+	// Physics
 	if (!Physics::CleanUp())
 	{
 		wereThereErrors = true;
