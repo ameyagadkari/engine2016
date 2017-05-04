@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioClip.h" />
     <ClInclude Include="AudioManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioClip.cpp" />
     <ClCompile Include="AudioManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

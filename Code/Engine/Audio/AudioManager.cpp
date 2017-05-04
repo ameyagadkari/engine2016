@@ -6,8 +6,8 @@
 #include "../../FMOD/inc/fmod_errors.h"
 
 eae6320::Audio::AudioManager::AudioManager():
-	fmodSystem(nullptr),
-	isAudioEnabled(false)
+	m_fmodSystem(nullptr),
+	m_isAudioEnabled(false)
 {}
 
 bool eae6320::Audio::AudioManager::Initialize()
@@ -16,11 +16,11 @@ bool eae6320::Audio::AudioManager::Initialize()
 	singleton = new AudioManager();
 	if(UserSettings::GetMusicState() || UserSettings::GetSoundEffectsState())
 	{
-		singleton->isAudioEnabled = true;
+		singleton->m_isAudioEnabled = true;
 
 		// Create FMOD System
 		{
-			const FMOD_RESULT result = System_Create(&singleton->fmodSystem);
+			const FMOD_RESULT result = System_Create(&singleton->m_fmodSystem);
 			if (result != FMOD_OK)
 			{
 				wereThereErrors = true;
@@ -35,7 +35,7 @@ bool eae6320::Audio::AudioManager::Initialize()
 			const int maxchannels = 32;
 			const FMOD_INITFLAGS flags = FMOD_INIT_NORMAL;
 			void * const extradriverdata = nullptr;
-			const FMOD_RESULT result = singleton->fmodSystem->init(maxchannels, flags, extradriverdata);
+			const FMOD_RESULT result = singleton->m_fmodSystem->init(maxchannels, flags, extradriverdata);
 			if (result != FMOD_OK)
 			{
 				wereThereErrors = true;
@@ -47,7 +47,7 @@ bool eae6320::Audio::AudioManager::Initialize()
 	}
 	else
 	{
-		singleton->isAudioEnabled = false;
+		singleton->m_isAudioEnabled = false;
 	}
 
 OnExit:
@@ -66,11 +66,11 @@ eae6320::Audio::AudioManager * eae6320::Audio::AudioManager::GetSingleton()
 bool eae6320::Audio::AudioManager::CleanUp()
 {
 	bool wereThereErrors = false;
-	if (singleton->isAudioEnabled)
+	if (singleton->m_isAudioEnabled)
 	{
 		// Closes and release FMOD system
 		{
-			const FMOD_RESULT result = singleton->fmodSystem->release();
+			const FMOD_RESULT result = singleton->m_fmodSystem->release();
 			if (result != FMOD_OK)
 			{
 				wereThereErrors = true;
@@ -85,4 +85,9 @@ bool eae6320::Audio::AudioManager::CleanUp()
 		singleton = nullptr;
 	}
 	return !wereThereErrors;
+}
+
+FMOD::System* eae6320::Audio::AudioManager::GetFMODSystem() const
+{
+	return m_fmodSystem;
 }

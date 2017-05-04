@@ -12,15 +12,17 @@ namespace eae6320
 	{
 		class AudioManager
 		{
-		public:
+		public:		
 			static bool Initialize();
 			static AudioManager* GetSingleton();
 			static bool CleanUp();
+			FMOD::System* GetFMODSystem()const;
 		private:
+			~AudioManager(){}
 			static AudioManager* singleton;
 			AudioManager();
-			FMOD::System *fmodSystem;
-			bool isAudioEnabled;
+			FMOD::System *m_fmodSystem;
+			bool m_isAudioEnabled;
 		};
 	}
 }
