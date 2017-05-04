@@ -378,6 +378,18 @@ NewAssetTypeInfo( "meshes",
 	}
 )
 
+-- Audio Asset Type
+--------------------
+
+NewAssetTypeInfo( "audio",
+	{
+		-- This function is required for all asset types
+		GetBuilderRelativePath = function()
+			return "AudioBuilder.exe"
+		end,
+	}
+)
+
 -- Shader Asset Type
 --------------------
 

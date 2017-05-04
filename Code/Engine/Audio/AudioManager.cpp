@@ -11,6 +11,8 @@ namespace
 	char const * const musicPath = "data/audio/backgroundmusic.wav";
 }
 
+eae6320::Audio::AudioManager* eae6320::Audio::AudioManager::singleton = nullptr;
+
 eae6320::Audio::AudioManager::AudioManager() :
 	m_backgroundMusic(nullptr),
 	m_fmodSystem(nullptr),
@@ -40,7 +42,7 @@ bool eae6320::Audio::AudioManager::Initialize()
 		// Initialize FMOD System
 		{
 			const int maxchannels = 32;
-			const FMOD_INITFLAGS flags = FMOD_INIT_NORMAL;
+			const FMOD_INITFLAGS flags = FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED;
 			void * const extradriverdata = nullptr;
 			const FMOD_RESULT result = singleton->m_fmodSystem->init(maxchannels, flags, extradriverdata);
 			if (result != FMOD_OK)
@@ -86,30 +88,30 @@ eae6320::Audio::AudioManager * eae6320::Audio::AudioManager::GetSingleton()
 bool eae6320::Audio::AudioManager::CleanUp()
 {
 	bool wereThereErrors = false;
-	if (singleton->m_isAudioEnabled)
-	{
-		// Closes and release FMOD system
-		{
-			const FMOD_RESULT result = singleton->m_fmodSystem->release();
-			if (result != FMOD_OK)
-			{
-				wereThereErrors = true;
-				EAE6320_ASSERTF(false, FMOD_ErrorString(result));
-				Logging::OutputError("Failed to close and release FMOD system %s", FMOD_ErrorString(result));
-			}
-		}
-	}
-	if (UserSettings::GetMusicState())
-	{
-		// Releases background music
-		if (singleton->m_backgroundMusic)
-		{
-			delete singleton->m_backgroundMusic;
-			singleton->m_backgroundMusic = nullptr;
-		}
-	}
 	if (singleton)
 	{
+		if (singleton->m_isAudioEnabled)
+		{
+			if (UserSettings::GetMusicState())
+			{
+				// Releases background music
+				if (singleton->m_backgroundMusic)
+				{
+					delete singleton->m_backgroundMusic;
+					singleton->m_backgroundMusic = nullptr;
+				}
+			}
+			// Closes and release FMOD system
+			{
+				const FMOD_RESULT result = singleton->m_fmodSystem->release();
+				if (result != FMOD_OK)
+				{
+					wereThereErrors = true;
+					EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+					Logging::OutputError("Failed to close and release FMOD system %s", FMOD_ErrorString(result));
+				}
+			}
+		}
 		delete singleton;
 		singleton = nullptr;
 	}

@@ -5,11 +5,6 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 
-namespace
-{
-	FMOD::System* fmodSystem = eae6320::Audio::AudioManager::GetSingleton()->GetFMODSystem();
-}
-
 eae6320::Audio::AudioClip::AudioClip(char const * const i_path, const FMOD_MODE i_mode) :
 	m_clip(nullptr)
 {
@@ -33,6 +28,7 @@ bool eae6320::Audio::AudioClip::Initialize(char const * const i_path, const FMOD
 {
 	bool wereThereErrors = false;
 	FMOD_CREATESOUNDEXINFO *const i_info = nullptr;
+	FMOD::System* fmodSystem = AudioManager::GetSingleton()->GetFMODSystem();
 	const FMOD_RESULT result = fmodSystem->createSound(i_path, i_mode, i_info, &m_clip);	
 	if (result != FMOD_OK)
 	{
@@ -68,8 +64,10 @@ bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPause
 		m_clip->setLoopCount(-1);
 	}
 	FMOD::ChannelGroup *const channelGroup = nullptr;
-	FMOD::Channel **const channel = nullptr;
-	const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, channel);
+	FMOD::Channel * channel = nullptr;
+	FMOD::System* fmodSystem = AudioManager::GetSingleton()->GetFMODSystem();
+	fmodSystem->getChannel(0, &channel);
+	const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, &channel);
 	if (result != FMOD_OK)
 	{
 		wereThereErrors = true;

@@ -18,42 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AudioClip.h" />
-    <ClInclude Include="AudioManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="AudioClip.cpp" />
-    <ClCompile Include="AudioManager.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{BD7E36CF-29EE-4D53-AEC9-32E82A371DFC}</ProjectGuid>
+    <ProjectGuid>{74C5CE2B-BAB1-4D11-BB9C-D6433AE84104}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Audio</RootNamespace>
+    <RootNamespace>AudioBuilder</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -90,16 +82,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Code\External\FMOD\inc\;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)Code\External\FMOD\inc\;$(IncludePath)</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Code\External\FMOD\inc\;$(IncludePath)</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Code\External\FMOD\inc\;$(IncludePath)</IncludePath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -107,27 +99,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AssetBuildLibrary.lib;Platform.lib</AdditionalDependencies>
     </Link>
-    <Lib>
-      <AdditionalDependencies>fmod_$(PlatformShortName)_$(ConfigurationName).lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Code\External\FMOD\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
-    <CustomBuildStep>
-      <Message>Copying the required FMOD DLL</Message>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Outputs>$(GameDir)fmodL.dll</Outputs>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Inputs>$(SolutionDir)Code\External\FMOD\lib\fmodL.dll</Inputs>
-      <Command>copy "$(SolutionDir)Code\External\FMOD\lib\fmodL.dll" "$(GameDir)fmodL.dll" /y</Command>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -135,27 +113,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AssetBuildLibrary.lib;Platform.lib</AdditionalDependencies>
     </Link>
-    <Lib>
-      <AdditionalDependencies>fmod_$(PlatformShortName)_$(ConfigurationName).lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Code\External\FMOD\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
-    <CustomBuildStep>
-      <Message>Copying the required FMOD DLL</Message>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Outputs>$(GameDir)fmodL64.dll</Outputs>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Inputs>$(SolutionDir)Code\External\FMOD\lib\fmodL64.dll</Inputs>
-      <Command>copy "$(SolutionDir)Code\External\FMOD\lib\fmodL64.dll" "$(GameDir)fmodL64.dll" /y</Command>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -165,29 +129,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AssetBuildLibrary.lib;Platform.lib</AdditionalDependencies>
     </Link>
-    <Lib>
-      <AdditionalDependencies>fmod_$(PlatformShortName)_$(ConfigurationName).lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Code\External\FMOD\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
-    <CustomBuildStep>
-      <Message>Copying the required FMOD DLL</Message>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Outputs>$(GameDir)fmod.dll</Outputs>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Inputs>$(SolutionDir)Code\External\FMOD\lib\fmod.dll</Inputs>
-      <Command>copy "$(SolutionDir)Code\External\FMOD\lib\fmod.dll" "$(GameDir)fmod.dll" /y</Command>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -197,30 +147,23 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AssetBuildLibrary.lib;Platform.lib</AdditionalDependencies>
     </Link>
-    <Lib>
-      <AdditionalDependencies>fmod_$(PlatformShortName)_$(ConfigurationName).lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Code\External\FMOD\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
-    <CustomBuildStep>
-      <Message>Copying the required FMOD DLL</Message>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Outputs>$(GameDir)fmod64.dll</Outputs>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Inputs>$(SolutionDir)Code\External\FMOD\lib\fmod64.dll</Inputs>
-      <Command>copy "$(SolutionDir)Code\External\FMOD\lib\fmod64.dll" "$(GameDir)fmod64.dll" /y</Command>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cAudioBuilder.cpp" />
+    <ClCompile Include="EntryPoint.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cAudioBuilder.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

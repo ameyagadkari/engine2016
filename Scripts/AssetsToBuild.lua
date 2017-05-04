@@ -57,4 +57,8 @@ return
 		--"gameobjects2d/score.txtg2dobj",
 		"gameobjects2d/network/networkscreenbackground.txtg2dobj",
 	},
+	audio = 
+	{
+		"audio/backgroundmusic.wav",
+	},
 }

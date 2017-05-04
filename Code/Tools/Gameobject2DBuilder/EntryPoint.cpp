@@ -6,10 +6,7 @@
 //=============
 
 #include "cGameobject2DBuilder.h"
-#ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#endif // _DEBUG
 #include <crtdbg.h>
 
 // Entry Point
