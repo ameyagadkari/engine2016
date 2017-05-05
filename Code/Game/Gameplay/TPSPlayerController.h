@@ -80,6 +80,7 @@ namespace eae6320
 			Transform const * m_cameraTransform;
 			Transform const * m_remotePlayerTransform;
 			FlagController* m_flagController;
+			Transform const * m_playerTransform;
 			Debug::Shapes::DebugObject* m_forward;
 			Debug::Shapes::DebugObject* m_down;
 			Debug::UI::Slider* m_sprint;

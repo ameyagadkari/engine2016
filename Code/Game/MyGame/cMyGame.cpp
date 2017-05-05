@@ -17,6 +17,7 @@
 #include "../Gameplay/TPSPlayerController.h"
 #include "../../Engine/Network/NetworkScene.h"
 #include "../../Engine/Network/NetworkManager.h"
+#include "../../Engine/Audio/AudioManager.h"
 
 #include <map>
 #include <vector>
@@ -126,6 +127,7 @@ bool eae6320::cMyGame::Initialize()
 	Gameplay::GameObject* localPlayer = gameObjects.at("playerthirdperson");
 	reinterpret_cast<Camera::TPSCameraController&>(tpsCam->GetController()).SetPlayerTransform(&localPlayer->GetTransformAddress());
 	reinterpret_cast<Gameplay::TPSPlayerController*>(localPlayer->GetController())->SetCameraTransform(&tpsCam->GetTransformAddress());
+	Audio::AudioManager::GetSingleton()->SetCameraTransform(&tpsCam->GetTransformAddress());
 	Network::NetworkManager::AddToMap("playerthirdperson", localPlayer);
 	Network::NetworkManager::AddToMap("playerthirdpersonremote", gameObjects.at("playerthirdpersonremote"));
 	

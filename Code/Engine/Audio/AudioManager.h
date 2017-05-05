@@ -18,6 +18,14 @@ namespace eae6320
 
 namespace eae6320
 {
+	namespace Gameplay
+	{
+		struct Transform;
+	}
+}
+
+namespace eae6320
+{
 	namespace Audio
 	{
 		class AudioManager
@@ -28,15 +36,17 @@ namespace eae6320
 			static bool CleanUp();
 			static void Update();
 			FMOD::System* GetFMODSystem()const;
+			void SetCameraTransform(Gameplay::Transform const * const i_cameraTransform);
 		private:
 			~AudioManager(){}
 			static AudioManager* singleton;
+			Gameplay::Transform const * m_cameraTransform;
 			explicit AudioManager(const int i_maxchannels);
 			const int m_maxchannels;
 			FMOD::System *m_fmodSystem;
 			bool m_isAudioEnabled;
 		};
-		extern std::map<const std::string, AudioClip*> audioClips;
+		extern std::map<const std::string, AudioClip*> audioClips;		
 		float ChangeMusicVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 		float ChangeSFXVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 		extern bool isWindowInFocus;

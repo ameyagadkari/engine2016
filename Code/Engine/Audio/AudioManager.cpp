@@ -8,6 +8,7 @@
 #include "../Windows/Includes.h"
 #include "../UserInput/UserInput.h"
 #include "../Time/Time.h"
+#include "../../Game/Gameplay/Transform.h"
 #include <regex>
 
 
@@ -20,6 +21,9 @@ namespace
 	const std::string pattern_replace("");
 	const float speed_unitsPerSecond = 0.75f;
 	eae6320::Audio::AudioClip* backgroudMusic = nullptr;
+	eae6320::Math::cVector previousPosition;
+	const float distanceFactor = 3779.527f;
+	void ConvertFromcVectorToFMOD_Vector(const eae6320::Math::cVector i_input, FMOD_VECTOR& o_output);
 }
 
 namespace eae6320
@@ -34,8 +38,9 @@ namespace eae6320
 eae6320::Audio::AudioManager* eae6320::Audio::AudioManager::singleton = nullptr;
 
 eae6320::Audio::AudioManager::AudioManager(const int i_maxchannels) :
-	m_maxchannels(i_maxchannels),
-	m_fmodSystem(nullptr),
+	m_cameraTransform(nullptr),                                                                     
+	m_maxchannels(i_maxchannels),                                                                    
+	m_fmodSystem(nullptr),                                                                      
 	m_isAudioEnabled(false)
 {}
 
@@ -69,6 +74,18 @@ bool eae6320::Audio::AudioManager::Initialize(const int i_maxchannels)
 				wereThereErrors = true;
 				EAE6320_ASSERTF(false, FMOD_ErrorString(result));
 				Logging::OutputError("Failed to initialize FMOD system %s", FMOD_ErrorString(result));
+				goto OnExit;
+			}
+		}
+
+		// Set 3D Settings
+		{
+			const FMOD_RESULT result = singleton->m_fmodSystem->set3DSettings(1.0, distanceFactor, 1.0f);
+			if (result != FMOD_OK)
+			{
+				wereThereErrors = true;
+				EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+				Logging::OutputError("Failed to set 3D settings of FMOD system %s", FMOD_ErrorString(result));
 				goto OnExit;
 			}
 		}
@@ -230,6 +247,12 @@ float eae6320::Audio::ChangeSFXVolume(void const * i_thisPointer, const float i_
 	return returnValue;
 }
 
+void eae6320::Audio::AudioManager::SetCameraTransform(Gameplay::Transform const * const i_cameraTransform)
+{
+	m_cameraTransform = i_cameraTransform;
+	previousPosition = m_cameraTransform->m_position;
+}
+
 void eae6320::Audio::AudioManager::Update()
 {
 	if (backgroudMusic)
@@ -243,10 +266,48 @@ void eae6320::Audio::AudioManager::Update()
 			backgroudMusic->SetPaused(true);
 		}
 	}
-	/*const FMOD_RESULT result = singleton->m_fmodSystem->update();
+
+	if(singleton->m_cameraTransform)
+	{
+		FMOD_VECTOR currentPosition;
+		ConvertFromcVectorToFMOD_Vector(singleton->m_cameraTransform->m_position, currentPosition);
+
+		FMOD_VECTOR currentVelocity;
+		ConvertFromcVectorToFMOD_Vector(singleton->m_cameraTransform->m_position - previousPosition, currentVelocity);
+
+		FMOD_VECTOR currentForward;
+		ConvertFromcVectorToFMOD_Vector(singleton->m_cameraTransform->m_localAxes.m_forward, currentForward);
+
+		FMOD_VECTOR currentUp;
+		ConvertFromcVectorToFMOD_Vector(singleton->m_cameraTransform->m_localAxes.m_up, currentUp);
+
+		const FMOD_RESULT result = singleton->m_fmodSystem->set3DListenerAttributes(
+			0, 
+			&currentPosition, 
+			&currentVelocity, 
+			&currentForward,
+			&currentUp);
+		if (result != FMOD_OK)
+		{
+			EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+			Logging::OutputError("Failed to set 3D Listener Attributes %s", FMOD_ErrorString(result));
+		}
+	}
+
+	const FMOD_RESULT result = singleton->m_fmodSystem->update();
 	if (result != FMOD_OK)
 	{
 		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
 		Logging::OutputError("Failed to update FMOD system %s", FMOD_ErrorString(result));
-	}*/
+	}
+}
+
+namespace
+{
+	void ConvertFromcVectorToFMOD_Vector(const eae6320::Math::cVector i_input, FMOD_VECTOR & o_output)
+	{
+		o_output.x = i_input.x;
+		o_output.y = i_input.y;
+		o_output.z = i_input.z;
+	}
 }

@@ -34,17 +34,27 @@ float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoostProxy(
 float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const
 {
 	float offsetModifier;
+	Audio::AudioClip* heavybreathing = Audio::audioClips.at("heavybreathing");
 	if (m_isRunning)
 	{
 		offsetModifier = speedBoostDepletionRate * Time::GetElapsedSecondCount_duringPreviousFrame();
+		if (UserSettings::GetSoundEffectsState())heavybreathing->Stop();
 		return i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
 	}
 	offsetModifier = speedBoostRegenerationRate * Time::GetElapsedSecondCount_duringPreviousFrame();
+	if (UserSettings::GetSoundEffectsState())
+	{
+		if (!heavybreathing->GetIsPlaying() && i_currentValue < i_maxValue)
+		{
+			heavybreathing->Play3D(false, false, m_playerTransform->m_position);
+		}
+	}
 	return i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
 }
 
 void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transform)
 {
+	m_playerTransform = &io_transform;
 	if (!m_cameraTransform)return;
 	if(m_remotePlayerTransform)
 	{
@@ -64,10 +74,24 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 		}
 	}
 	Math::cVector localOffset = Math::cVector::zero;
+	Audio::AudioClip* running = Audio::audioClips.at("running");
+	Audio::AudioClip* walking = Audio::audioClips.at("walking");
+	Audio::AudioClip* heavybreathing = Audio::audioClips.at("heavybreathing");
 
 	if (UserInput::GetKey('W'))
 	{
 		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
+		if (UserSettings::GetSoundEffectsState())
+		{
+			if(m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
+			{
+				running->Play3D(false, false, io_transform.m_position);			
+			}
+			else if(!walking->GetIsPlaying())
+			{
+				walking->Play3D(false, false, io_transform.m_position);
+			}
+		}
 		localOffset += m_cameraTransform->m_localAxes.m_forward;
 	}
 
@@ -80,18 +104,42 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 	if (UserInput::GetKey('D'))
 	{
 		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
+		if (UserSettings::GetSoundEffectsState())
+		{
+			if (m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
+			{
+				running->Play3D(false, false, io_transform.m_position);
+			}
+			else if (!walking->GetIsPlaying())
+			{
+				walking->Play3D(false, false, io_transform.m_position);
+			}
+		}
 		localOffset += m_cameraTransform->m_localAxes.m_right;
 	}
 
 	if (UserInput::GetKey('A'))
 	{
 		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
+		if (UserSettings::GetSoundEffectsState())
+		{
+			if (m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
+			{
+				running->Play3D(false, false, io_transform.m_position);
+			}
+			else if (!walking->GetIsPlaying())
+			{
+				walking->Play3D(false, false, io_transform.m_position);
+			}
+		}
 		localOffset -= m_cameraTransform->m_localAxes.m_right;
 	}
 
 	if (!(UserInput::GetKey('W') || UserInput::GetKey('D') || UserInput::GetKey('A')))
 	{
 		m_isRunning = false;
+		running->Stop();
+		walking->Stop();
 	}
 
 

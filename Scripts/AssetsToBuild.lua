@@ -67,5 +67,9 @@ return
 		"audio/2D/otherteamscored.wav",
 		"audio/2D/otherteamflagreset.wav",
 		"audio/2D/welcome.wav",
+
+		"audio/3D/heavybreathing.wav",
+		"audio/3D/running.wav",
+		"audio/3D/walking.wav",
 	},
 }
