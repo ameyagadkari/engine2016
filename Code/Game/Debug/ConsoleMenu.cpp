@@ -79,7 +79,7 @@ void eae6320::Debug::ConsoleMenu::Initialize()
 	y -= 50;
 	if (UserSettings::GetMusicState())
 	{
-		menuItems.push_back(new UI::Slider({ x,y }, "Music: ", { 1.0f,0.55f,0.0f }, 1.0f, 0.0f, 2.0f, 200.0f, nullptr, &Audio::ChangeMusicVolume));
+		menuItems.push_back(new UI::Slider({ x,y }, "Music: ", { 1.0f,0.55f,0.0f }, 0.25f, 0.0f, 2.0f, 200.0f, nullptr, &Audio::ChangeMusicVolume));
 		y -= 50;
 	}
 	if (UserSettings::GetSoundEffectsState())

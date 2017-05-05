@@ -5,9 +5,10 @@
 #include "../../Game/Debug/Text.h"
 #include "../Graphics/Graphics.h"
 #include "../UserInput/UserInput.h"
-
+#include "../../Engine/Audio/AudioManager.h"
+#include "../../Engine/Audio/AudioClip.h"
+#include "../UserSettings/UserSettings.h"
 #include <string>
-
 
 namespace
 {
@@ -171,6 +172,7 @@ namespace
 		eae6320::Network::NetworkManager::Initialize(true);
 		networkType = "Server";
 		currentGameState = RunMultiplayer;
+		if (eae6320::UserSettings::GetSoundEffectsState())eae6320::Audio::audioClips.at("welcome")->Play();
 	}
 
 	void ClientButtonPressed()

@@ -8,6 +8,11 @@
 #include "../../Engine/Physics/HitData.h"
 #include "../../Engine/Physics/Physics.h"
 #include "Transform.h"
+#include "../../Engine/Audio/AudioManager.h"
+#include "../../Engine/Audio/AudioClip.h"
+#include "../../Engine/Network/NetworkManager.h"
+#include "../../Engine/Network/SoundID.h"
+#include "../../Engine/UserSettings/UserSettings.h"
 
 namespace
 {
@@ -48,14 +53,17 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 		{
 			if (m_isCarryingFlag)
 			{
+				if (UserSettings::GetSoundEffectsState())
+				{
+					Audio::audioClips.at("otherteamflagreset")->Play();
+					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork(Network::SoundID::PLAY_MY_TEAM_FLAG_RESET);
+				}
 				m_isCarryingFlag = false;
 				m_flagController->ResetFlagPostion();
 			}
 		}
 	}
 	Math::cVector localOffset = Math::cVector::zero;
-
-
 
 	if (UserInput::GetKey('W'))
 	{

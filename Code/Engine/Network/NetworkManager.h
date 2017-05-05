@@ -2,6 +2,7 @@
 #define EAE6320_NETWORKMANAGER_H
 #include <cstdint>
 #include <map>
+#include "../../External/RakNet/4.081/RakNetTypes.h"
 
 namespace eae6320
 {
@@ -31,6 +32,8 @@ namespace eae6320
 {
 	namespace Network
 	{
+		enum class SoundID;
+
 		class NetworkManager
 		{
 		public:
@@ -40,6 +43,7 @@ namespace eae6320
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
 			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
+			void TriggerMySoundsOnNetwork(const SoundID i_soundID) const;
 		private:
 			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
 			static NetworkManager* singleton;	
@@ -47,6 +51,7 @@ namespace eae6320
 			Debug::UI::Text* m_otherscore;
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);
 			RakNet::RakPeerInterface* m_rakPeerInterface;
+			RakNet::RakNetGUID m_otherPlayersGUID;
 			uint32_t m_maxClients;
 			uint16_t m_serverPort;
 			bool m_isServer;

@@ -26,6 +26,7 @@ namespace eae6320
 			static bool Initialize(const int i_maxchannels = 32);
 			static AudioManager* GetSingleton();
 			static bool CleanUp();
+			static void Update();
 			FMOD::System* GetFMODSystem()const;
 		private:
 			~AudioManager(){}
@@ -38,6 +39,7 @@ namespace eae6320
 		extern std::map<const std::string, AudioClip*> audioClips;
 		float ChangeMusicVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 		float ChangeSFXVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
+		extern bool isWindowInFocus;
 	}
 }
 

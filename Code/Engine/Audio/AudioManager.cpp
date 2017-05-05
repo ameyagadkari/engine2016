@@ -19,9 +19,18 @@ namespace
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
 	const float speed_unitsPerSecond = 0.75f;
+	eae6320::Audio::AudioClip* backgroudMusic = nullptr;
 }
 
-std::map<const std::string, eae6320::Audio::AudioClip*> eae6320::Audio::audioClips;
+namespace eae6320
+{
+	namespace Audio
+	{
+		std::map<const std::string, AudioClip*> audioClips;
+		bool isWindowInFocus = false;
+	}
+}
+
 eae6320::Audio::AudioManager* eae6320::Audio::AudioManager::singleton = nullptr;
 
 eae6320::Audio::AudioManager::AudioManager(const int i_maxchannels) :
@@ -97,8 +106,10 @@ bool eae6320::Audio::AudioManager::Initialize(const int i_maxchannels)
 	if (UserSettings::GetMusicState())
 	{
 		// Start background music
+		backgroudMusic = audioClips.at("backgroundmusic");
 		const bool isLooped = true;
-		audioClips.at("backgroundmusic")->Play(isLooped);
+		backgroudMusic->Play(isLooped);
+		backgroudMusic->SetVolume(0.25f);
 	}
 
 OnExit:
@@ -192,7 +203,7 @@ float eae6320::Audio::ChangeMusicVolume(void const * i_thisPointer, const float 
 		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
 	}
-	audioClips.at("backgroundmusic")->SetVolume(returnValue);
+	backgroudMusic->SetVolume(returnValue);
 	return returnValue;
 }
 
@@ -210,11 +221,32 @@ float eae6320::Audio::ChangeSFXVolume(void const * i_thisPointer, const float i_
 		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
 	}
-	const float musicVolume = audioClips.at("backgroundmusic")->GetVolume();
+	const float musicVolume = backgroudMusic->GetVolume();
 	for (auto& audioClip : audioClips)
 	{
 		audioClip.second->SetVolume(returnValue);
 	}
-	audioClips.at("backgroundmusic")->SetVolume(musicVolume);
+	backgroudMusic->SetVolume(musicVolume);
 	return returnValue;
+}
+
+void eae6320::Audio::AudioManager::Update()
+{
+	if (backgroudMusic)
+	{
+		if (backgroudMusic->GetPaused() && isWindowInFocus)
+		{
+			backgroudMusic->SetPaused(false);
+		}
+		else if (!backgroudMusic->GetPaused() && !isWindowInFocus)
+		{
+			backgroudMusic->SetPaused(true);
+		}
+	}
+	/*const FMOD_RESULT result = singleton->m_fmodSystem->update();
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to update FMOD system %s", FMOD_ErrorString(result));
+	}*/
 }

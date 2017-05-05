@@ -67,12 +67,15 @@ bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPause
 	}
 	FMOD::ChannelGroup *const channelGroup = nullptr;
 	FMOD::System* fmodSystem = AudioManager::GetSingleton()->GetFMODSystem();
-	const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, &m_channel);
-	if (result != FMOD_OK)
+	if(isWindowInFocus)
 	{
-		wereThereErrors = true;
-		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
-		Logging::OutputError("Failed to play the sound: %s", FMOD_ErrorString(result));
+		const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, &m_channel);
+		if (result != FMOD_OK)
+		{
+			wereThereErrors = true;
+			EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+			Logging::OutputError("Failed to play the sound: %s", FMOD_ErrorString(result));
+		}
 	}
 	return !wereThereErrors;
 }
@@ -97,4 +100,39 @@ float eae6320::Audio::AudioClip::GetVolume() const
 		Logging::OutputError("Failed to get the volume: %s", FMOD_ErrorString(result));
 	}
 	return returnValue;
+}
+
+bool eae6320::Audio::AudioClip::GetIsPlaying() const
+{
+	bool returnValue;
+	const FMOD_RESULT result = m_channel->isPlaying(&returnValue);
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to get isplaying status: %s", FMOD_ErrorString(result));
+	}
+	return returnValue;
+}
+
+bool eae6320::Audio::AudioClip::GetPaused() const
+{
+	bool returnValue;
+	const FMOD_RESULT result = m_channel->getPaused(&returnValue);
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to get pause status: %s", FMOD_ErrorString(result));
+	}
+	return returnValue;
+}
+
+
+void eae6320::Audio::AudioClip::SetPaused(const bool i_value) const
+{
+	const FMOD_RESULT result = m_channel->setPaused(i_value);
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to %s: %s", i_value ? "Pause" : "UnPause", FMOD_ErrorString(result));
+	}
 }

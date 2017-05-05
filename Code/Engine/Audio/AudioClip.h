@@ -20,6 +20,9 @@ namespace eae6320
 			bool Play(const bool i_isLooped = false, const bool i_isPaused = false);
 			void SetVolume(const float i_value) const;
 			float GetVolume() const;
+			void SetPaused(const bool i_value) const;
+			bool GetIsPlaying() const;
+			bool GetPaused() const;
 		private:		
 			bool Initialize(char const * const i_path, const FMOD_MODE i_mode, const int i_channelID);
 			bool CleanUp() const;

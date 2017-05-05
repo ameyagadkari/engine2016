@@ -11,6 +11,10 @@
 #include "../../Game/Gameplay/ScoreZoneController.h"
 #include "../../Game/Gameplay/TPSPlayerController.h"
 #include "../../Game/Debug/Text.h"
+#include "../Audio/AudioManager.h"
+#include "../Audio/AudioClip.h"
+#include "SoundID.h"
+#include "../UserSettings/UserSettings.h"
 
 namespace
 {
@@ -20,6 +24,8 @@ namespace
 		ID_UPDATE_OTHER_PLAYER = ID_USER_PACKET_ENUM + 2,
 		ID_UPDATE_MY_FLAG = ID_USER_PACKET_ENUM + 3,
 		ID_OTHER_SCORE = ID_USER_PACKET_ENUM + 4,
+		ID_OTHER_PLAYER_GUID = ID_USER_PACKET_ENUM + 5,
+		ID_OTHER_PLAYER_SOUND = ID_USER_PACKET_ENUM + 6,
 	};
 
 	char const * const localIPV4 = "127.0.0.1";
@@ -81,7 +87,6 @@ bool eae6320::Network::NetworkManager::Initialize(bool i_isServer, uint16_t i_se
 {
 	bool wereThereErrors = false;
 	singleton = new NetworkManager(i_isServer, i_serverPort, i_maxClients);
-
 	// Getting the RakNet Instance
 	{
 		singleton->m_rakPeerInterface = RakNet::RakPeerInterface::GetInstance();
@@ -268,6 +273,12 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			bsOut.Write(static_cast<RakNet::MessageID>(ID_CREATE_PLAYER));
 			m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 		}
+		{
+			RakNet::BitStream bsOut;
+			bsOut.Write(static_cast<RakNet::MessageID>(ID_OTHER_PLAYER_GUID));
+			bsOut.Write(m_rakPeerInterface->GetMyGUID());
+			m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+		}
 		break;
 		case ID_CONNECTION_ATTEMPT_FAILED:
 			// Try to reconnect to server
@@ -289,6 +300,12 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 		{
 			RakNet::BitStream bsOut;
 			bsOut.Write(static_cast<RakNet::MessageID>(ID_CREATE_PLAYER));
+			m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+		}
+		{
+			RakNet::BitStream bsOut;
+			bsOut.Write(static_cast<RakNet::MessageID>(ID_OTHER_PLAYER_GUID));
+			bsOut.Write(m_rakPeerInterface->GetMyGUID());
 			m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 		}
 		break;
@@ -363,6 +380,7 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			}
 
 			NetworkScene::currentGameState = NetworkScene::RunMultiplayer;
+			if (UserSettings::GetSoundEffectsState())Audio::audioClips.at("welcome")->Play();
 			break;
 		case ID_UPDATE_OTHER_PLAYER:
 			// For both update remote player
@@ -424,6 +442,34 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, packet->systemAddress, false);
 		}
 		break;
+		case ID_OTHER_PLAYER_GUID:
+		{
+			RakNet::BitStream bsIn(packet->data, packet->length, false);
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			bsIn.Read(m_otherPlayersGUID);
+		}
+		break;
+		case ID_OTHER_PLAYER_SOUND:
+		{
+			SoundID soundID;
+			RakNet::BitStream bsIn(packet->data, packet->length, false);
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			bsIn.Read(soundID);
+			switch (soundID)
+			{
+			case SoundID::PLAY_MY_TEAM_FLAG_PICKED:
+				Audio::audioClips.at("myteamflagpicked")->Play();
+				break;
+			case SoundID::PLAY_MY_TEAM_FLAG_RESET:
+				Audio::audioClips.at("myteamflagreset")->Play();
+				break;
+			case SoundID::PLAY_OTHER_TEAM_SCORED:
+				Audio::audioClips.at("otherteamscored")->Play();
+				break;
+			default:;
+			}
+		}
+		break;
 		default:;
 		}
 	}
@@ -454,6 +500,14 @@ void eae6320::Network::NetworkManager::Draw()const
 			Graphics::SetGameObject(networkGameObjects.at("otherscorezoneclient"));
 		}
 	}
+}
+
+void eae6320::Network::NetworkManager::TriggerMySoundsOnNetwork(const SoundID i_soundID)const
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write(static_cast<RakNet::MessageID>(ID_OTHER_PLAYER_SOUND));
+	bsOut.Write(i_soundID);
+	m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, m_otherPlayersGUID, false);
 }
 
 namespace

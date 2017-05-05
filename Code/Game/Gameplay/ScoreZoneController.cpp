@@ -3,6 +3,11 @@
 #include "FlagController.h"
 #include "../../Engine/StringHandler/HashedString.h"
 #include "Transform.h"
+#include "../../Engine/Audio/AudioManager.h"
+#include "../../Engine/Audio/AudioClip.h"
+#include "../../Engine/Network/NetworkManager.h"
+#include "../../Engine/Network/SoundID.h"
+#include "../../Engine/UserSettings/UserSettings.h"
 
 uint32_t const eae6320::Gameplay::ScoreZoneController::classUUID(StringHandler::HashedString("ScoreZoneController").GetHash());
 
@@ -15,6 +20,11 @@ void eae6320::Gameplay::ScoreZoneController::UpdatePosition(Transform & io_trans
 		{
 			if (m_tpsPlayerController->GetCarryFlag())
 			{
+				if(UserSettings::GetSoundEffectsState())
+				{
+					Audio::audioClips.at("myteamscored")->Play();
+					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork(Network::SoundID::PLAY_OTHER_TEAM_SCORED);
+				}
 				m_score++;
 				m_tpsPlayerController->SetCarryFlag(false);
 				m_flagController->ResetFlagPostion();

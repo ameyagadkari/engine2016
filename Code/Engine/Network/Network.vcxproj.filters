@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="NetworkScene.h" />
+    <ClInclude Include="SoundID.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetworkManager.cpp" />

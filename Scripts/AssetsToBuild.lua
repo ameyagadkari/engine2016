@@ -60,5 +60,12 @@ return
 	audio = 
 	{
 		"audio/2D/backgroundmusic.wav",
+		"audio/2D/myteamflagreset.wav",
+		"audio/2D/myteamflagpicked.wav",
+		"audio/2D/myteamscored.wav",
+		"audio/2D/otherteamflagpicked.wav",
+		"audio/2D/otherteamscored.wav",
+		"audio/2D/otherteamflagreset.wav",
+		"audio/2D/welcome.wav",
 	},
 }

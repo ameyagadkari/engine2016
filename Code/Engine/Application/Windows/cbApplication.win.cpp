@@ -11,6 +11,7 @@
 #include "../../UserSettings/UserSettings.h"
 #include "../../Windows/Functions.h"
 #include "../../UserInput/UserInput.h"
+#include "../../Audio/AudioManager.h"
 
 // Helper Function Declarations
 //=============================
@@ -251,7 +252,7 @@ LRESULT CALLBACK eae6320::Application::cbApplication::OnMessageReceivedFromWindo
 	// A window has gained/lost focus
 	case WM_ACTIVATE:
 	{
-		UserInput::isWindowInFocus = i_wParam == WA_ACTIVE || i_wParam == WA_CLICKACTIVE ? true : false;
+		Audio::isWindowInFocus = UserInput::isWindowInFocus = i_wParam == WA_ACTIVE || i_wParam == WA_CLICKACTIVE;
 		// Return a value to indicate that we processed this message
 		// (the correct value is different for different messages types;
 		// for WM_ACTIVATE it is 0 on success)

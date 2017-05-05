@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="NetworkScene.h" />
     <ClInclude Include="NetworkManager.h" />
+    <ClInclude Include="SoundID.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetworkManager.cpp" />

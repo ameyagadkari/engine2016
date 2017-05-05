@@ -253,5 +253,6 @@ void eae6320::Application::cbApplication::OnNewFrame()
 	Time::OnNewFrame();
 	Update();
 	Submit();
+	Audio::AudioManager::Update();
 	Graphics::RenderFrame();	
 }
