@@ -5,10 +5,11 @@
 #include "../Asserts/Asserts.h"
 #include "../Logging/Logging.h"
 
-eae6320::Audio::AudioClip::AudioClip(char const * const i_path, const FMOD_MODE i_mode) :
-	m_clip(nullptr)
+eae6320::Audio::AudioClip::AudioClip(char const * const i_path, const FMOD_MODE i_mode, const int i_channelID) :
+	m_clip(nullptr),
+	m_channel(nullptr)
 {
-	if(!Initialize(i_path, i_mode))
+	if (!Initialize(i_path, i_mode, i_channelID))
 	{
 		EAE6320_ASSERT(false);
 		Logging::OutputError("Failed to initialize Audio Clip: %s", i_path);
@@ -24,12 +25,13 @@ eae6320::Audio::AudioClip::~AudioClip()
 	}
 }
 
-bool eae6320::Audio::AudioClip::Initialize(char const * const i_path, const FMOD_MODE i_mode)
+bool eae6320::Audio::AudioClip::Initialize(char const * const i_path, const FMOD_MODE i_mode, const int i_channelID)
 {
 	bool wereThereErrors = false;
 	FMOD_CREATESOUNDEXINFO *const i_info = nullptr;
 	FMOD::System* fmodSystem = AudioManager::GetSingleton()->GetFMODSystem();
-	const FMOD_RESULT result = fmodSystem->createSound(i_path, i_mode, i_info, &m_clip);	
+	fmodSystem->getChannel(i_channelID, &m_channel);
+	const FMOD_RESULT result = fmodSystem->createSound(i_path, i_mode, i_info, &m_clip);
 	if (result != FMOD_OK)
 	{
 		wereThereErrors = true;
@@ -51,7 +53,7 @@ bool eae6320::Audio::AudioClip::CleanUp() const
 	}
 	return !wereThereErrors;
 }
-bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPaused) const
+bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPaused)
 {
 	bool wereThereErrors = false;
 	if (!i_isLooped)
@@ -64,15 +66,13 @@ bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPause
 		m_clip->setLoopCount(-1);
 	}
 	FMOD::ChannelGroup *const channelGroup = nullptr;
-	FMOD::Channel * channel = nullptr;
 	FMOD::System* fmodSystem = AudioManager::GetSingleton()->GetFMODSystem();
-	fmodSystem->getChannel(0, &channel);
-	const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, &channel);
+	const FMOD_RESULT result = fmodSystem->playSound(m_clip, channelGroup, i_isPaused, &m_channel);
 	if (result != FMOD_OK)
 	{
 		wereThereErrors = true;
 		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
-		Logging::OutputError("Failed to play the sound: %s",FMOD_ErrorString(result));
+		Logging::OutputError("Failed to play the sound: %s", FMOD_ErrorString(result));
 	}
 	return !wereThereErrors;
 }

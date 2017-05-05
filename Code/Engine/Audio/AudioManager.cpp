@@ -5,24 +5,32 @@
 #include "../Logging/Logging.h"
 #include "../../FMOD/inc/fmod.hpp"
 #include "../../FMOD/inc/fmod_errors.h"
+#include "../Windows/Includes.h"
+#include <regex>
 
 namespace
 {
+	void GenerateRelativePaths(std::string prefix);
+	std::vector<std::string> relativePaths;
+	std::vector<std::string> fileNames;
+	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
+	const std::string pattern_replace("");
 	char const * const musicPath = "data/audio/backgroundmusic.wav";
 }
 
+std::map<const std::string, eae6320::Audio::AudioClip*> eae6320::Audio::audioClips;
 eae6320::Audio::AudioManager* eae6320::Audio::AudioManager::singleton = nullptr;
 
-eae6320::Audio::AudioManager::AudioManager() :
-	m_backgroundMusic(nullptr),
+eae6320::Audio::AudioManager::AudioManager(const int i_maxchannels) :
+	m_maxchannels(i_maxchannels),
 	m_fmodSystem(nullptr),
 	m_isAudioEnabled(false)
 {}
 
-bool eae6320::Audio::AudioManager::Initialize()
+bool eae6320::Audio::AudioManager::Initialize(const int i_maxchannels)
 {
 	bool wereThereErrors = false;
-	singleton = new AudioManager();
+	singleton = new AudioManager(i_maxchannels);
 	if (UserSettings::GetMusicState() || UserSettings::GetSoundEffectsState())
 	{
 		singleton->m_isAudioEnabled = true;
@@ -41,10 +49,9 @@ bool eae6320::Audio::AudioManager::Initialize()
 
 		// Initialize FMOD System
 		{
-			const int maxchannels = 32;
 			const FMOD_INITFLAGS flags = FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED;
 			void * const extradriverdata = nullptr;
-			const FMOD_RESULT result = singleton->m_fmodSystem->init(maxchannels, flags, extradriverdata);
+			const FMOD_RESULT result = singleton->m_fmodSystem->init(i_maxchannels, flags, extradriverdata);
 			if (result != FMOD_OK)
 			{
 				wereThereErrors = true;
@@ -58,18 +65,37 @@ bool eae6320::Audio::AudioManager::Initialize()
 	{
 		singleton->m_isAudioEnabled = false;
 	}
+
+	int channelID = 0;
+	// Loading 2D sounds
+	{
+		GenerateRelativePaths("data/audio/2D/");
+		const size_t numberOfAudioFiles = relativePaths.size();
+		for (size_t i = 0; i < numberOfAudioFiles; i++, channelID++)
+		{
+			EAE6320_ASSERTF(channelID < i_maxchannels, "Increase number of channels");
+			const FMOD_MODE mode = FMOD_2D;
+			audioClips[fileNames[i]] = new AudioClip(relativePaths[i].c_str(), mode, channelID);
+		}
+	}
+
+	// Loading 3D sounds
+	{
+		GenerateRelativePaths("data/audio/3D/");
+		const size_t numberOfAudioFiles = relativePaths.size();
+		for (size_t i = 0; i < numberOfAudioFiles; i++, channelID++)
+		{
+			EAE6320_ASSERTF(channelID < i_maxchannels, "Increase number of channels");
+			const FMOD_MODE mode = FMOD_3D;
+			audioClips[fileNames[i]] = new AudioClip(relativePaths[i].c_str(), mode, channelID);
+		}
+	}
+
 	if (UserSettings::GetMusicState())
 	{
-		// Init background music
-		{
-			const FMOD_MODE mode = FMOD_2D;
-			singleton->m_backgroundMusic = new AudioClip(musicPath, mode);
-		}
 		// Start background music
-		{
-			const bool isLooped = true;
-			singleton->m_backgroundMusic->Play(isLooped);
-		}
+		const bool isLooped = true;
+		audioClips.at("backgroundmusic")->Play(isLooped);
 	}
 
 OnExit:
@@ -92,14 +118,17 @@ bool eae6320::Audio::AudioManager::CleanUp()
 	{
 		if (singleton->m_isAudioEnabled)
 		{
-			if (UserSettings::GetMusicState())
+			// Deleting all sounds
 			{
-				// Releases background music
-				if (singleton->m_backgroundMusic)
+				for (auto& audioClip : audioClips)
 				{
-					delete singleton->m_backgroundMusic;
-					singleton->m_backgroundMusic = nullptr;
+					if (audioClip.second)
+					{
+						delete audioClip.second;
+						audioClip.second = nullptr;
+					}
 				}
+				audioClips.clear();
 			}
 			// Closes and release FMOD system
 			{
@@ -121,4 +150,27 @@ bool eae6320::Audio::AudioManager::CleanUp()
 FMOD::System* eae6320::Audio::AudioManager::GetFMODSystem() const
 {
 	return m_fmodSystem;
+}
+
+namespace
+{
+	void GenerateRelativePaths(std::string prefix)
+	{
+		relativePaths.clear();
+		fileNames.clear();
+		WIN32_FIND_DATA search_data;
+		memset(&search_data, 0, sizeof(WIN32_FIND_DATA));
+		HANDLE handle = FindFirstFile((prefix + "*").c_str(), &search_data);
+		if (handle != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				if (!strcmp(search_data.cFileName, "."))continue;
+				if (!strcmp(search_data.cFileName, ".."))continue;
+				relativePaths.push_back((prefix + search_data.cFileName).c_str());
+				fileNames.push_back(regex_replace(static_cast<std::string>(search_data.cFileName), pattern_match, pattern_replace));
+			} while (FindNextFile(handle, &search_data));
+		}
+		FindClose(handle);
+	}
 }

@@ -59,6 +59,6 @@ return
 	},
 	audio = 
 	{
-		"audio/backgroundmusic.wav",
+		"audio/2D/backgroundmusic.wav",
 	},
 }
