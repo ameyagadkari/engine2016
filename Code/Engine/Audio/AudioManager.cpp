@@ -192,6 +192,7 @@ float eae6320::Audio::ChangeMusicVolume(void const * i_thisPointer, const float 
 		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
 	}
+	audioClips.at("backgroundmusic")->SetVolume(returnValue);
 	return returnValue;
 }
 
@@ -209,5 +210,11 @@ float eae6320::Audio::ChangeSFXVolume(void const * i_thisPointer, const float i_
 		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
 		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
 	}
+	const float musicVolume = audioClips.at("backgroundmusic")->GetVolume();
+	for (auto& audioClip : audioClips)
+	{
+		audioClip.second->SetVolume(returnValue);
+	}
+	audioClips.at("backgroundmusic")->SetVolume(musicVolume);
 	return returnValue;
 }

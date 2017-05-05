@@ -76,3 +76,25 @@ bool eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPause
 	}
 	return !wereThereErrors;
 }
+
+void eae6320::Audio::AudioClip::SetVolume(const float i_value) const
+{
+	const FMOD_RESULT result = m_channel->setVolume(i_value);
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to set the volume: %s", FMOD_ErrorString(result));
+	}
+}
+
+float eae6320::Audio::AudioClip::GetVolume() const
+{
+	float returnValue;
+	const FMOD_RESULT result = m_channel->getVolume(&returnValue);
+	if (result != FMOD_OK)
+	{
+		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
+		Logging::OutputError("Failed to get the volume: %s", FMOD_ErrorString(result));
+	}
+	return returnValue;
+}

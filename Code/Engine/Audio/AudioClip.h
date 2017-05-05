@@ -18,6 +18,8 @@ namespace eae6320
 			AudioClip(char const * const i_path, const FMOD_MODE i_mode, const int i_channelID);
 			~AudioClip();
 			bool Play(const bool i_isLooped = false, const bool i_isPaused = false);
+			void SetVolume(const float i_value) const;
+			float GetVolume() const;
 		private:		
 			bool Initialize(char const * const i_path, const FMOD_MODE i_mode, const int i_channelID);
 			bool CleanUp() const;
