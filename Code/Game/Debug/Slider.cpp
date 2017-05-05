@@ -78,7 +78,7 @@ void eae6320::Debug::UI::Slider::Draw(const Graphics::Material * const i_materia
 
 void eae6320::Debug::UI::Slider::Update()
 {
-	m_value = m_callback(m_callbackThisPointer, m_value, m_minValue, m_maxValue);
+	if(isSelected && m_callback)m_value = m_callback(m_callbackThisPointer, m_value, m_minValue, m_maxValue);
 	RecalculateSliderbarWidth();
 
 	/*if (isSelected)

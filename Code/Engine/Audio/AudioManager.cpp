@@ -6,7 +6,10 @@
 #include "../../FMOD/inc/fmod.hpp"
 #include "../../FMOD/inc/fmod_errors.h"
 #include "../Windows/Includes.h"
+#include "../UserInput/UserInput.h"
+#include "../Time/Time.h"
 #include <regex>
+
 
 namespace
 {
@@ -15,7 +18,7 @@ namespace
 	std::vector<std::string> fileNames;
 	const std::regex pattern_match("(\\.)([[:alpha:]]+)");
 	const std::string pattern_replace("");
-	char const * const musicPath = "data/audio/backgroundmusic.wav";
+	const float speed_unitsPerSecond = 0.75f;
 }
 
 std::map<const std::string, eae6320::Audio::AudioClip*> eae6320::Audio::audioClips;
@@ -173,4 +176,38 @@ namespace
 		}
 		FindClose(handle);
 	}
+}
+
+float eae6320::Audio::ChangeMusicVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue)
+{
+	float returnValue = i_currentValue;
+	float offsetModifier;
+	if (UserInput::GetKey(VK_LEFT))
+	{
+		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
+		returnValue = i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
+	}
+	else if (UserInput::GetKey(VK_RIGHT))
+	{
+		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
+		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
+	}
+	return returnValue;
+}
+
+float eae6320::Audio::ChangeSFXVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue)
+{
+	float returnValue = i_currentValue;
+	float offsetModifier;
+	if (UserInput::GetKey(VK_LEFT))
+	{
+		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
+		returnValue = i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
+	}
+	else if (UserInput::GetKey(VK_RIGHT))
+	{
+		offsetModifier = speed_unitsPerSecond * Time::GetElapsedSecondCount_duringPreviousFrame();
+		returnValue = i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
+	}
+	return returnValue;
 }

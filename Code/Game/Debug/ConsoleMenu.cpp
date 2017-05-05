@@ -3,13 +3,15 @@
 #include "IUIController.h"
 #include "Text.h"
 #include "Checkbox.h"
+#include "Slider.h"
 #include "../../Engine/Time/Time.h"
 #include "../../Engine/Graphics/Graphics.h"
 #include "../../Engine/UserInput/UserInput.h"
 #include "../../Engine/Network/NetworkScene.h"
+#include "../../Engine/UserSettings/UserSettings.h"
+#include "../../Engine/Audio/AudioManager.h"
 
 #include <vector>
-
 
 namespace
 {
@@ -67,9 +69,24 @@ namespace
 void eae6320::Debug::ConsoleMenu::Initialize()
 {
 #if defined(EAE6320_CONSOLE_MENU_ISENABLED)
-	menuItems.push_back(new UI::Text({ -380,350 }, "FPS: ", { 1.0f,0.55f,0.0f }, &Time::SetFPS));
-	menuItems.push_back(new UI::Checkbox({ -380,300 }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 1.0f,0.55f,0.0f }, true, &Shapes::DebugObject::Draw));
-	menuItems.push_back(new UI::Text({ -380,250 }, "Network Type: ", { 1.0f,0.55f,0.0f }, &Network::NetworkScene::SetNetworkType));
+	const int16_t x = -380;
+	int16_t y = 350;
+	menuItems.push_back(new UI::Text({ x,y }, "FPS: ", { 1.0f,0.55f,0.0f }, &Time::SetFPS));
+	y -= 50;
+	menuItems.push_back(new UI::Checkbox({ x,y }, "Switch Debug Shapes Off", "Switch Debug Shapes On", { 1.0f,0.55f,0.0f }, true, &Shapes::DebugObject::Draw));
+	y -= 50;
+	menuItems.push_back(new UI::Text({ x,y }, "Network Type: ", { 1.0f,0.55f,0.0f }, &Network::NetworkScene::SetNetworkType));
+	y -= 50;
+	if (UserSettings::GetMusicState())
+	{
+		menuItems.push_back(new UI::Slider({ x,y }, "Music: ", { 1.0f,0.55f,0.0f }, 0.0f, 2.0f, 200.0f, nullptr, &Audio::ChangeMusicVolume));
+		y -= 50;
+	}
+	if (UserSettings::GetSoundEffectsState())
+	{
+		menuItems.push_back(new UI::Slider({ x,y }, "SFX:   ", { 1.0f,0.55f,0.0f }, 0.0f, 2.0f, 200.0f, nullptr, &Audio::ChangeSFXVolume));
+		y -= 50;
+	}
 	UpdateConsoleMenuItems();
 #endif
 }

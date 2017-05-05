@@ -62,7 +62,7 @@ namespace eae6320
 				m_flagController(nullptr),
 				m_forward(nullptr),
 				m_down(nullptr),
-				m_sprint(new Debug::UI::Slider({-400,200}, "Speed Boost: ", {0.0f,1.0f,1.0f}, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
+				m_sprint(new Debug::UI::Slider({-400,400}, "Speed Boost: ", {0.0f,1.0f,1.0f}, 0.0f, 100.0f, 200.0f, this, &CalculateRemainingSpeedBoostProxy, true)),
 				m_acceleration(i_acceleration),
 				m_height(i_height),
 				m_isRunning(false),

@@ -36,6 +36,8 @@ namespace eae6320
 			bool m_isAudioEnabled;
 		};
 		extern std::map<const std::string, AudioClip*> audioClips;
+		float ChangeMusicVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
+		float ChangeSFXVolume(void const * i_thisPointer, const float i_currentValue, const float i_minValue, const float i_maxValue);
 	}
 }
 
