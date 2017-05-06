@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="AudioClip.h" />
     <ClInclude Include="AudioManager.h" />
+    <ClInclude Include="ConfigurationAudio.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioClip.cpp" />

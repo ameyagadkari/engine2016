@@ -1,4 +1,4 @@
-#define PLAYMYPLAYERSOUNDS 0
+#include "../../Engine/Audio/ConfigurationAudio.h"
 
 #include "ScoreZoneController.h"
 #include "TPSPlayerController.h"
