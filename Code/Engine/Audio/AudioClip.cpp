@@ -57,7 +57,7 @@ bool eae6320::Audio::AudioClip::Initialize(char const * const i_path, const FMOD
 	}
 	if (i_mode == FMOD_3D)
 	{
-		const FMOD_RESULT result = m_clip->set3DMinMaxDistance(0.05f * distanceFactor, 100.0f * distanceFactor);
+		const FMOD_RESULT result = m_clip->set3DMinMaxDistance(0.033f * distanceFactor, 5000.0f * distanceFactor);
 		if (result != FMOD_OK)
 		{
 			wereThereErrors = true;
@@ -122,7 +122,7 @@ void eae6320::Audio::AudioClip::Play3D(const bool i_isLooped, const bool i_isPau
 void eae6320::Audio::AudioClip::SetVolume(const float i_value) const
 {
 	const FMOD_RESULT result = m_channel->setVolume(i_value);
-	if (result != FMOD_OK)
+	if (result != FMOD_OK && result != FMOD_ERR_INVALID_HANDLE && result != FMOD_ERR_CHANNEL_STOLEN)
 	{
 		EAE6320_ASSERTF(false, FMOD_ErrorString(result));
 		Logging::OutputError("Failed to set the volume: %s", FMOD_ErrorString(result));

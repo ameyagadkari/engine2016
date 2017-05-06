@@ -3,14 +3,7 @@
 #include <cstdint>
 #include <map>
 #include "../../External/RakNet/4.081/RakNetTypes.h"
-
-namespace eae6320
-{
-	namespace Math
-	{
-		class cVector;
-	}
-}
+#include "../Math/cVector.h"
 
 namespace eae6320
 {
@@ -59,7 +52,7 @@ namespace eae6320
 			static NetworkManager* GetSingleton();
 			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
 			void TriggerMySoundsOnNetwork2D(const SoundID2D i_soundID2D) const;
-			void TriggerMySoundsOnNetwork3D(const SoundID3D i_soundID3D, const Math::cVector i_position) const;
+			void TriggerMySoundsOnNetwork3D(const SoundID3D i_soundID3D, const Math::cVector i_position = Math::cVector::zero, const bool i_stop = false) const;
 		private:
 			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
 			static NetworkManager* singleton;

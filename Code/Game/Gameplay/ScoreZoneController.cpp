@@ -1,13 +1,20 @@
+#define PLAYMYPLAYERSOUNDS 0
+
 #include "ScoreZoneController.h"
 #include "TPSPlayerController.h"
 #include "FlagController.h"
 #include "../../Engine/StringHandler/HashedString.h"
 #include "Transform.h"
+#include "../../Engine/UserSettings/UserSettings.h"
+
+#if PLAYMYPLAYERSOUNDS
 #include "../../Engine/Audio/AudioManager.h"
 #include "../../Engine/Audio/AudioClip.h"
+#else
 #include "../../Engine/Network/NetworkManager.h"
 #include "../../Engine/Network/SoundID.h"
-#include "../../Engine/UserSettings/UserSettings.h"
+#include "../../Engine/Network/NetworkScene.h"
+#endif
 
 uint32_t const eae6320::Gameplay::ScoreZoneController::classUUID(StringHandler::HashedString("ScoreZoneController").GetHash());
 
@@ -22,8 +29,14 @@ void eae6320::Gameplay::ScoreZoneController::UpdatePosition(Transform & io_trans
 			{
 				if(UserSettings::GetSoundEffectsState())
 				{
+#if PLAYMYPLAYERSOUNDS
 					Audio::audioClips.at("myteamscored")->Play();
-					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork2D(Network::SoundID2D::PLAY_OTHER_TEAM_SCORED);
+#else
+					if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
+					{
+						Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork2D(Network::SoundID2D::PLAY_OTHER_TEAM_SCORED);
+					}
+#endif
 				}
 				m_score++;
 				m_tpsPlayerController->SetCarryFlag(false);

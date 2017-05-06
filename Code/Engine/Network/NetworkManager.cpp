@@ -330,16 +330,6 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			break;
 		case ID_CREATE_PLAYER:
 			m_showRemotePlayer = true;
-			/*if (!m_remotePlayer)
-			{
-				m_remotePlayer = Gameplay::GameObject::LoadGameObject(hardCodedPlayerPath);
-			}
-			else
-			{
-				delete m_remotePlayer;
-				m_remotePlayer = nullptr;
-				m_remotePlayer = Gameplay::GameObject::LoadGameObject(hardCodedPlayerPath);
-			}*/
 
 			if (notDone && !m_isServer)
 			{
@@ -381,7 +371,7 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 			}
 
 			NetworkScene::currentGameState = NetworkScene::RunMultiplayer;
-			//if (UserSettings::GetSoundEffectsState())Audio::audioClips.at("welcome")->Play();
+			if (UserSettings::GetSoundEffectsState())Audio::audioClips.at("welcome")->Play();
 			break;
 		case ID_UPDATE_OTHER_PLAYER:
 			// For both update remote player
@@ -392,7 +382,6 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				RakNet::BitStream bsIn(packet->data, packet->length, false);
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 				bsIn.ReadVector(position.x, position.y, position.z);
-				//bsIn.IgnoreBytes(sizeof(Math::cVector));
 				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
 				networkGameObjects.at("playerthirdpersonremote")->SetTransformSpecial(position, orientationEular);
 			}
@@ -415,7 +404,6 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 				RakNet::BitStream bsIn(packet->data, packet->length, false);
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 				bsIn.ReadVector(position.x, position.y, position.z);
-				//bsIn.IgnoreBytes(sizeof(Math::cVector));
 				bsIn.ReadVector(orientationEular.x, orientationEular.y, orientationEular.z);
 				m_isServer ? networkGameObjects.at("myteamflagserver")->SetTransformSpecial(position, orientationEular) : networkGameObjects.at("myteamflagclient")->SetTransformSpecial(position, orientationEular);
 			}
@@ -475,25 +463,25 @@ void eae6320::Network::NetworkManager::ProcessIncomingPackets()
 		{
 			SoundID3D soundID3D;
 			Math::cVector position;
+			bool stop;
 			RakNet::BitStream bsIn(packet->data, packet->length, false);
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			bsIn.ReadVector(position.x, position.y, position.z);
-			//bsIn.IgnoreBytes(sizeof(Math::cVector));
 			bsIn.Read(soundID3D);
-			//bsIn.IgnoreBytes(sizeof(SoundID3D));		
-			//switch (soundID3D)
-			//{
-			//case SoundID3D::PLAY_OTHER_HEAVY_BREATHING: 
-			//	/*if(!Audio::audioClips.at("heavybreathing")->GetIsPlaying())*/Audio::audioClips.at("otherheavybreathing")->Play3D(false, false, position);
-			//	break;
-			//case SoundID3D::PLAY_OTHER_RUNNING: 
-			//	/*if (!Audio::audioClips.at("running")->GetIsPlaying())*/Audio::audioClips.at("otherrunning")->Play3D(false, false, position);
-			//	break;
-			//case SoundID3D::PLAY_OTHER_WALKING: 
-			//	/*if (!Audio::audioClips.at("walking")->GetIsPlaying())*/Audio::audioClips.at("otherwalking")->Play3D(false, false, position);
-			//	break;
-			//default: ;
-			//}
+			bsIn.Read(stop);
+			switch (soundID3D)
+			{
+			case SoundID3D::PLAY_OTHER_HEAVY_BREATHING: 
+				stop ? Audio::audioClips.at("otherheavybreathing")->Stop() : Audio::audioClips.at("otherheavybreathing")->Play3D(false, false, position);
+				break;
+			case SoundID3D::PLAY_OTHER_RUNNING: 
+				stop ? Audio::audioClips.at("otherrunning")->Stop() : Audio::audioClips.at("otherrunning")->Play3D(false, false, position);
+				break;
+			case SoundID3D::PLAY_OTHER_WALKING: 
+				stop ? Audio::audioClips.at("otherwalking")->Stop() : Audio::audioClips.at("otherwalking")->Play3D(false, false, position);
+				break;
+			default: ;
+			}
 		}
 		break;
 		default:;
@@ -536,12 +524,13 @@ void eae6320::Network::NetworkManager::TriggerMySoundsOnNetwork2D(const SoundID2
 	m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE, 0, m_otherPlayersGUID, false);
 }
 
-void eae6320::Network::NetworkManager::TriggerMySoundsOnNetwork3D(const SoundID3D i_soundID3D,const Math::cVector i_position) const
+void eae6320::Network::NetworkManager::TriggerMySoundsOnNetwork3D(const SoundID3D i_soundID3D, const Math::cVector i_position, const bool i_stop) const
 {
 	RakNet::BitStream bsOut;
 	bsOut.Write(static_cast<RakNet::MessageID>(ID_OTHER_PLAYER_SOUND3D));
 	bsOut.WriteVector(i_position.x, i_position.y, i_position.z);
 	bsOut.Write(i_soundID3D);	
+	bsOut.Write(i_stop);
 	m_rakPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_otherPlayersGUID, false);
 }
 
