@@ -6,6 +6,14 @@
 
 namespace eae6320
 {
+	namespace Math
+	{
+		class cVector;
+	}
+}
+
+namespace eae6320
+{
 	namespace Debug
 	{
 		namespace UI
@@ -32,8 +40,15 @@ namespace eae6320
 {
 	namespace Network
 	{
-		enum class SoundID;
+		enum struct SoundID2D;
+		enum struct SoundID3D;
+	}
+}
 
+namespace eae6320
+{
+	namespace Network
+	{
 		class NetworkManager
 		{
 		public:
@@ -43,10 +58,11 @@ namespace eae6320
 			static bool CleanUp();
 			static NetworkManager* GetSingleton();
 			static void AddToMap(const std::string i_key, Gameplay::GameObject* i_value);
-			void TriggerMySoundsOnNetwork(const SoundID i_soundID) const;
+			void TriggerMySoundsOnNetwork2D(const SoundID2D i_soundID2D) const;
+			void TriggerMySoundsOnNetwork3D(const SoundID3D i_soundID3D, const Math::cVector i_position) const;
 		private:
 			static std::map<const std::string, Gameplay::GameObject*> networkGameObjects;
-			static NetworkManager* singleton;	
+			static NetworkManager* singleton;
 			Debug::UI::Text* m_myscore;
 			Debug::UI::Text* m_otherscore;
 			NetworkManager(bool i_isServer, uint16_t i_serverPort, uint32_t i_maxClients);

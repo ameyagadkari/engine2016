@@ -27,7 +27,7 @@ void eae6320::Gameplay::FlagController::UpdatePosition(Transform & io_transform)
 				if (UserSettings::GetSoundEffectsState())
 				{
 					Audio::audioClips.at("otherteamflagpicked")->Play();
-					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork(Network::SoundID::PLAY_MY_TEAM_FLAG_PICKED);
+					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork2D(Network::SoundID2D::PLAY_MY_TEAM_FLAG_PICKED);
 				}
 				m_resetPosition = io_transform.m_position;
 				m_flagNotCarrying = false;

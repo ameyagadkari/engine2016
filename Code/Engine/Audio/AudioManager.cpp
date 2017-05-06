@@ -31,7 +31,7 @@ namespace eae6320
 	namespace Audio
 	{
 		std::map<const std::string, AudioClip*> audioClips;
-		bool isWindowInFocus = false;
+		bool isWindowInFocus = true;
 	}
 }
 

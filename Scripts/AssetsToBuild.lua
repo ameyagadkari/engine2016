@@ -66,10 +66,13 @@ return
 		"audio/2D/otherteamflagpicked.wav",
 		"audio/2D/otherteamscored.wav",
 		"audio/2D/otherteamflagreset.wav",
-		"audio/2D/welcome.wav",
+		--"audio/2D/welcome.wav",
 
-		"audio/3D/heavybreathing.wav",
-		"audio/3D/running.wav",
-		"audio/3D/walking.wav",
+		"audio/3D/myheavybreathing.wav",
+		"audio/3D/myrunning.wav",
+		"audio/3D/mywalking.wav",
+		"audio/3D/otherheavybreathing.wav",
+		"audio/3D/otherrunning.wav",
+		"audio/3D/otherwalking.wav",
 	},
 }

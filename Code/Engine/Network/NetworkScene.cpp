@@ -172,7 +172,7 @@ namespace
 		eae6320::Network::NetworkManager::Initialize(true);
 		networkType = "Server";
 		currentGameState = RunMultiplayer;
-		if (eae6320::UserSettings::GetSoundEffectsState())eae6320::Audio::audioClips.at("welcome")->Play();
+		//if (eae6320::UserSettings::GetSoundEffectsState())eae6320::Audio::audioClips.at("welcome")->Play();
 	}
 
 	void ClientButtonPressed()

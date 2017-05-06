@@ -252,7 +252,7 @@ LRESULT CALLBACK eae6320::Application::cbApplication::OnMessageReceivedFromWindo
 	// A window has gained/lost focus
 	case WM_ACTIVATE:
 	{
-		Audio::isWindowInFocus = UserInput::isWindowInFocus = i_wParam == WA_ACTIVE || i_wParam == WA_CLICKACTIVE;
+		/*Audio::isWindowInFocus = */UserInput::isWindowInFocus = i_wParam == WA_ACTIVE || i_wParam == WA_CLICKACTIVE;
 		// Return a value to indicate that we processed this message
 		// (the correct value is different for different messages types;
 		// for WM_ACTIVATE it is 0 on success)

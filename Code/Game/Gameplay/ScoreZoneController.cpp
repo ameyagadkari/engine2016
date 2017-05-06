@@ -23,7 +23,7 @@ void eae6320::Gameplay::ScoreZoneController::UpdatePosition(Transform & io_trans
 				if(UserSettings::GetSoundEffectsState())
 				{
 					Audio::audioClips.at("myteamscored")->Play();
-					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork(Network::SoundID::PLAY_OTHER_TEAM_SCORED);
+					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork2D(Network::SoundID2D::PLAY_OTHER_TEAM_SCORED);
 				}
 				m_score++;
 				m_tpsPlayerController->SetCarryFlag(false);

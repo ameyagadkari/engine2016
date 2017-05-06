@@ -13,6 +13,7 @@
 #include "../../Engine/Network/NetworkManager.h"
 #include "../../Engine/Network/SoundID.h"
 #include "../../Engine/UserSettings/UserSettings.h"
+#include "../../Engine/Network/NetworkScene.h"
 
 namespace
 {
@@ -34,19 +35,27 @@ float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoostProxy(
 float eae6320::Gameplay::TPSPlayerController::CalculateRemainingSpeedBoost(const float i_currentValue, const float i_minValue, const float i_maxValue)const
 {
 	float offsetModifier;
-	Audio::AudioClip* heavybreathing = Audio::audioClips.at("heavybreathing");
+	Audio::AudioClip* myheavybreathing = Audio::audioClips.at("myheavybreathing");
 	if (m_isRunning)
 	{
 		offsetModifier = speedBoostDepletionRate * Time::GetElapsedSecondCount_duringPreviousFrame();
-		if (UserSettings::GetSoundEffectsState())heavybreathing->Stop();
+		if (UserSettings::GetSoundEffectsState())myheavybreathing->Stop();
 		return i_currentValue > i_minValue ? i_currentValue - offsetModifier : i_minValue;
 	}
 	offsetModifier = speedBoostRegenerationRate * Time::GetElapsedSecondCount_duringPreviousFrame();
 	if (UserSettings::GetSoundEffectsState())
 	{
-		if (!heavybreathing->GetIsPlaying() && i_currentValue < i_maxValue)
+		if (i_currentValue == i_maxValue)
 		{
-			heavybreathing->Play3D(false, false, m_playerTransform->m_position);
+			myheavybreathing->Stop();
+		}
+		else
+		{
+			myheavybreathing->Play3D(false, false, m_playerTransform->m_position);
+			/*if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
+			{
+				Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork3D(Network::SoundID3D::PLAY_OTHER_HEAVY_BREATHING, m_playerTransform->m_position);
+			}*/
 		}
 	}
 	return i_currentValue < i_maxValue ? i_currentValue + offsetModifier : i_maxValue;
@@ -56,7 +65,7 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 {
 	m_playerTransform = &io_transform;
 	if (!m_cameraTransform)return;
-	if(m_remotePlayerTransform)
+	if (m_remotePlayerTransform)
 	{
 		float distance = m_remotePlayerTransform->m_position.DistanceBetween(io_transform.m_position);
 		if (distance < 50.0f)
@@ -66,7 +75,10 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 				if (UserSettings::GetSoundEffectsState())
 				{
 					Audio::audioClips.at("otherteamflagreset")->Play();
-					Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork(Network::SoundID::PLAY_MY_TEAM_FLAG_RESET);
+					if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
+					{
+						Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork2D(Network::SoundID2D::PLAY_MY_TEAM_FLAG_RESET);
+					}
 				}
 				m_isCarryingFlag = false;
 				m_flagController->ResetFlagPostion();
@@ -74,24 +86,12 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 		}
 	}
 	Math::cVector localOffset = Math::cVector::zero;
-	Audio::AudioClip* running = Audio::audioClips.at("running");
-	Audio::AudioClip* walking = Audio::audioClips.at("walking");
-	Audio::AudioClip* heavybreathing = Audio::audioClips.at("heavybreathing");
+	
 
 	if (UserInput::GetKey('W'))
 	{
-		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
-		if (UserSettings::GetSoundEffectsState())
-		{
-			if(m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
-			{
-				running->Play3D(false, false, io_transform.m_position);			
-			}
-			else if(!walking->GetIsPlaying())
-			{
-				walking->Play3D(false, false, io_transform.m_position);
-			}
-		}
+		m_isRunning = UserInput::GetKey(VK_SHIFT);
+		PlaySoundsOnInput();
 		localOffset += m_cameraTransform->m_localAxes.m_forward;
 	}
 
@@ -103,45 +103,30 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 
 	if (UserInput::GetKey('D'))
 	{
-		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
-		if (UserSettings::GetSoundEffectsState())
-		{
-			if (m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
-			{
-				running->Play3D(false, false, io_transform.m_position);
-			}
-			else if (!walking->GetIsPlaying())
-			{
-				walking->Play3D(false, false, io_transform.m_position);
-			}
-		}
+		m_isRunning = UserInput::GetKey(VK_SHIFT);
+		PlaySoundsOnInput();
 		localOffset += m_cameraTransform->m_localAxes.m_right;
 	}
 
 	if (UserInput::GetKey('A'))
 	{
-		m_isRunning = UserInput::GetKey(VK_SHIFT) ? true : false;
-		if (UserSettings::GetSoundEffectsState())
-		{
-			if (m_isRunning && !running->GetIsPlaying() && m_sprint->GetValue() > s_epsilon2)
-			{
-				running->Play3D(false, false, io_transform.m_position);
-			}
-			else if (!walking->GetIsPlaying())
-			{
-				walking->Play3D(false, false, io_transform.m_position);
-			}
-		}
+		m_isRunning = UserInput::GetKey(VK_SHIFT);
+		PlaySoundsOnInput();
 		localOffset -= m_cameraTransform->m_localAxes.m_right;
 	}
 
+	Audio::AudioClip* myrunning = Audio::audioClips.at("myrunning");
+	Audio::AudioClip* mywalking = Audio::audioClips.at("mywalking");
 	if (!(UserInput::GetKey('W') || UserInput::GetKey('D') || UserInput::GetKey('A')))
 	{
 		m_isRunning = false;
-		running->Stop();
-		walking->Stop();
+		myrunning->Stop();
+		mywalking->Stop();
 	}
-
+	if (!m_isRunning || m_sprint->GetValue() <= s_epsilon2)
+	{
+		myrunning->Stop();
+	}
 
 	Math::cVector acceleration = localOffset * m_acceleration;
 	if (acceleration.GetLength() > s_epsilon)
@@ -243,3 +228,29 @@ void eae6320::Gameplay::TPSPlayerController::UpdatePosition(Transform& io_transf
 
 void eae6320::Gameplay::TPSPlayerController::UpdateOrientation(Transform& io_transform)
 {}
+
+
+void eae6320::Gameplay::TPSPlayerController::PlaySoundsOnInput() const
+{
+	if (UserSettings::GetSoundEffectsState())
+	{
+		Audio::AudioClip* myrunning = Audio::audioClips.at("myrunning");
+		Audio::AudioClip* mywalking = Audio::audioClips.at("mywalking");
+		if (m_isRunning && m_sprint->GetValue() > s_epsilon2)
+		{
+			myrunning->Play3D(false, false, m_playerTransform->m_position);
+			/*if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
+			{
+			Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork3D(Network::SoundID3D::PLAY_OTHER_RUNNING, io_transform.m_position);
+			}*/
+		}
+		else
+		{
+			mywalking->Play3D(false, false, m_playerTransform->m_position);
+			/*if (Network::NetworkScene::currentGameState == Network::NetworkScene::RunMultiplayer)
+			{
+			Network::NetworkManager::GetSingleton()->TriggerMySoundsOnNetwork3D(Network::SoundID3D::PLAY_OTHER_WALKING, io_transform.m_position);
+			}*/
+		}
+	}
+}

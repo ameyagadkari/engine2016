@@ -57,7 +57,7 @@ bool eae6320::Audio::AudioClip::Initialize(char const * const i_path, const FMOD
 	}
 	if (i_mode == FMOD_3D)
 	{
-		const FMOD_RESULT result = m_clip->set3DMinMaxDistance(0.5f * distanceFactor, 5000.0f * distanceFactor);
+		const FMOD_RESULT result = m_clip->set3DMinMaxDistance(0.05f * distanceFactor, 100.0f * distanceFactor);
 		if (result != FMOD_OK)
 		{
 			wereThereErrors = true;
@@ -106,7 +106,7 @@ void eae6320::Audio::AudioClip::Play(const bool i_isLooped, const bool i_isPause
 
 void eae6320::Audio::AudioClip::Play3D(const bool i_isLooped, const bool i_isPaused, const Math::cVector i_position, const Math::cVector i_velocity)
 {
-	Play(i_isLooped, i_isPaused);
+	if(!GetIsPlaying())Play(i_isLooped, i_isPaused);
 	FMOD_VECTOR position;
 	FMOD_VECTOR velocity;
 	ConvertFromcVectorToFMOD_Vector(i_position, position);
