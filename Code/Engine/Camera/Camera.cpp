@@ -101,7 +101,6 @@ bool eae6320::Camera::Camera::CleanUp()
 		else wereThereErrors = true;
 
 	}
-	s_cameras._Pop_back_n(s_maxCameraNumber);
 	return !wereThereErrors;
 }
 
