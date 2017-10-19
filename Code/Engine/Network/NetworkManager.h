@@ -2,6 +2,7 @@
 #define EAE6320_NETWORKMANAGER_H
 #include <cstdint>
 #include <map>
+#include <string>
 #include "../../External/RakNet/4.081/RakNetTypes.h"
 #include "../Math/cVector.h"
 

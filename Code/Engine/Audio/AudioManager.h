@@ -2,6 +2,7 @@
 #define EAE6320_AUDIOMANAGER_H
 
 #include <map>
+#include <string>
 
 namespace FMOD
 {

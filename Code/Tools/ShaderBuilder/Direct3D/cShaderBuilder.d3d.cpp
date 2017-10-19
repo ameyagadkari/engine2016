@@ -18,19 +18,33 @@ bool eae6320::AssetBuild::cShaderBuilder::Build( const Graphics::ShaderTypes::eS
 	// Get the path to the shader compiler
 	std::string path_fxc;
 	{
-		// Get the path to the DirectX SDK
+		// Get the path to the Windows SDK
 		std::string path_sdk;
 		{
 			std::string errorMessage;
-			if ( !Platform::GetEnvironmentVariable( "DXSDK_DIR", path_sdk, &errorMessage ) )
+			if ( !Platform::GetEnvironmentVariable( "WindowsSDKDir", path_sdk, &errorMessage ) )
 			{
 				std::ostringstream decoratedErrorMessage;
-				decoratedErrorMessage << "Failed to get the path to the DirectX SDK: " << errorMessage;
+				decoratedErrorMessage << "Failed to get the path to the Windows SDK: " << errorMessage;
 				OutputErrorMessage( decoratedErrorMessage.str().c_str(), __FILE__ );
 				return false;
 			}
 		}
-		path_fxc = path_sdk + "Utilities/bin/" +
+
+		// Get the Windows SDK version in use
+		std::string target_platform_version;
+		{
+			std::string errorMessage;
+			if (!Platform::GetEnvironmentVariable("TargetPlatformVersion", target_platform_version, &errorMessage))
+			{
+				std::ostringstream decoratedErrorMessage;
+				decoratedErrorMessage << "Failed to get the Windows SDK version: " << errorMessage;
+				OutputErrorMessage(decoratedErrorMessage.str().c_str(), __FILE__);
+				return false;
+			}
+		}
+
+		path_fxc = path_sdk + "bin/" + target_platform_version + "/" +
 #ifndef _WIN64
 			"x86"
 #else

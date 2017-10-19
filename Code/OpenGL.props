@@ -3,6 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <GraphicsAPI>OpenGL</GraphicsAPI>
+    <WindowsSDKDir>$(WindowsSdkDir_10)</WindowsSDKDir>
+    <TargetPlatformVersion>$(_LatestWindowsTargetPlatformVersion)</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -13,6 +15,14 @@
   <ItemGroup>
     <BuildMacro Include="GraphicsAPI">
       <Value>$(GraphicsAPI)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="WindowsSDKDir">
+      <Value>$(WindowsSDKDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="TargetPlatformVersion">
+      <Value>$(TargetPlatformVersion)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
